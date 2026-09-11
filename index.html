@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</title>
+    
+    <!-- ফায়ারবেস কানেকশন -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+          authDomain: "rjsomp.firebaseapp.com",
+          databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "rjsomp",
+          storageBucket: "rjsomp.firebasestorage.app",
+          messagingSenderId: "1033528754332",
+          appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59",
+          measurementId: "G-Z0ESNH3XZD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        console.log("Firebase Connected Successfully!");
+    </script>
+
+    <!-- বেসিক সিএসএস ডিজাইন -->
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
+        header { background-color: #b30000; color: white; padding: 20px; text-align: center; }
+        nav { background-color: #333; padding: 10px; text-align: center; }
+        nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: bold; }
+        .container { padding: 30px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</h1>
+        <p>“জীবনের জন্য রক্ত, সমাজের জন্য দায়িত্ব”</p>
+    </header>
+
+    <nav>
+        <a href="#">হোম</a>
+        <a href="#">আমাদের সম্পর্কে</a>
+        <a href="#">রক্তদাতা খুঁজুন</a>
+        <a href="#">যোগাযোগ</a>
+    </nav>
+
+    <div class="container">
+        <h2>স্বাগতম!</h2>
+        <p>ওয়েবসাইটের কাজ চলমান রয়েছে। খুব শীঘ্রই পূর্ণাঙ্গ রূপে আসছি।</p>
+    </div>
+
+</body>
+</html>
