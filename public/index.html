@@ -56,20 +56,8 @@
     <!-- Footer Placeholder -->
     <div id="footer-placeholder"></div>
 
-    <!-- Safe Header & Footer Loader Script -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            fetch("header.html")
-                .then(res => res.ok ? res.text() : "")
-                .then(data => { if(data) document.getElementById("header-placeholder").innerHTML = data; })
-                .catch(err => console.log("Header load skipped"));
-
-            fetch("footer.html")
-                .then(res => res.ok ? res.text() : "")
-                .then(data => { if(data) document.getElementById("footer-placeholder").innerHTML = data; })
-                .catch(err => console.log("Footer load skipped"));
-        });
-    </script>
+    <!-- External Script for Header, Footer, Favicon & Manifest -->
+    <script src="script.js"></script>
+    
 </body>
 </html>
-
