@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -23,7 +22,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // সেটিং ডাটা লোড
+        // সেটিং ডাটা লোড (বিকাশ, নগদ ইত্যাদি)
         onValue(ref(db, 'pageContent/donationSettings'), (snapshot) => {
             const data = snapshot.val();
             if(data) {
@@ -34,7 +33,6 @@
                 contactLink.href = `tel:${data.contact || ''}`;
                 contactLink.innerHTML = `<i class="fa-solid fa-phone"></i> ${data.contact || 'নাম্বার যুক্ত নেই'}`;
 
-                // ব্যাংক ডিটেইলস থাকলে দেখাবে, না থাকলে লুকাবে
                 const bankBox = document.getElementById('bank-box');
                 if(data.bank && data.bank.trim() !== '') {
                     bankBox.classList.remove('hidden');
@@ -45,28 +43,55 @@
             }
         });
 
-        // অডিট রিপোর্ট লোড
+        // অডিট রিপোর্ট লোড (কার্ড সিস্টেমে)
         onValue(ref(db, 'donationsList'), (snapshot) => {
-            const tbody = document.getElementById('public-audit-tbody');
-            tbody.innerHTML = '';
+            const container = document.getElementById('public-audit-container');
+            container.innerHTML = '';
             let total = 0;
+            let serial = 1;
             
             if(!snapshot.exists()){
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500">এখনো কোনো ডোনেশন রেকর্ড যুক্ত হয়নি।</td></tr>`;
+                container.innerHTML = `
+                <div class="col-span-full p-8 text-center text-gray-500 bg-white rounded-2xl border border-gray-100">
+                    <i class="fas fa-box-open text-4xl mb-3 text-gray-300"></i>
+                    <p>এখনো কোনো ডোনেশন রেকর্ড যুক্ত হয়নি।</p>
+                </div>`;
                 return;
             }
 
+            // প্রতিটি ডোনেশনের জন্য আলাদা কার্ড তৈরি করা
             snapshot.forEach(child => {
                 const data = child.val();
                 total += Number(data.amount);
-                tbody.innerHTML += `
-                    <tr class="border-b border-gray-100 hover:bg-red-50 transition">
-                        <td class="p-3 text-sm text-gray-600">${data.date}</td>
-                        <td class="p-3 text-sm font-bold text-gray-900">${data.name}</td>
-                        <td class="p-3 text-sm text-gray-600"><span class="bg-gray-100 px-2 py-1 rounded text-xs">${data.method}</span></td>
-                        <td class="p-3 text-sm font-extrabold text-green-600 text-right">৳ ${data.amount}</td>
-                    </tr>
+                
+                container.innerHTML += `
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition relative">
+                        <!-- টপ সেকশন: ক্রমিক নং ও তারিখ -->
+                        <div class="flex justify-between items-center mb-3 border-b border-gray-50 pb-2">
+                            <span class="bg-red-100 text-red-700 text-xs font-extrabold px-2.5 py-1 rounded-md">#${serial}</span>
+                            <span class="text-xs text-gray-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> ${data.date}</span>
+                        </div>
+                        
+                        <!-- মধ্যভাগ: দাতার নাম -->
+                        <div class="mb-4">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">দাতার নাম / পরিচয়</p>
+                            <h3 class="text-lg md:text-xl font-bold text-gray-800">${data.name}</h3>
+                        </div>
+                        
+                        <!-- বটম সেকশন: মাধ্যম ও টাকার পরিমাণ -->
+                        <div class="flex justify-between items-end mt-2 pt-2 border-t border-gray-50">
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">মাধ্যম</p>
+                                <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-xs font-semibold">${data.method}</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">পরিমাণ</p>
+                                <span class="text-xl md:text-2xl font-extrabold text-green-600">৳ ${data.amount}</span>
+                            </div>
+                        </div>
+                    </div>
                 `;
+                serial++; // ক্রমিক নং বাড়ানো হচ্ছে
             });
             document.getElementById('public-total').innerText = total;
         });
@@ -79,11 +104,11 @@
             navigator.clipboard.writeText(textToCopy).then(() => {
                 const originalHtml = btnElement.innerHTML;
                 btnElement.innerHTML = '<i class="fa-solid fa-check text-green-500"></i> কপিড';
-                btnElement.classList.add('text-green-600', 'border-green-300');
+                btnElement.classList.add('text-green-600', 'border-green-300', 'bg-green-50');
                 
                 setTimeout(() => {
                     btnElement.innerHTML = originalHtml;
-                    btnElement.classList.remove('text-green-600', 'border-green-300');
+                    btnElement.classList.remove('text-green-600', 'border-green-300', 'bg-green-50');
                 }, 2000);
             });
         }
@@ -94,6 +119,7 @@
     <div id="header-placeholder"></div>
 
     <main class="flex-grow pb-16">
+        <!-- প্রিমিয়াম হেডার -->
         <section class="bg-[#111827] text-white pt-12 pb-24 px-4 text-center relative overflow-hidden rounded-b-[40px] shadow-lg mb-8">
             <div class="absolute inset-0 opacity-20" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg'); background-size: cover; background-position: center; filter: blur(2px);"></div>
             <div class="relative z-10 max-w-2xl mx-auto mt-2">
@@ -156,33 +182,26 @@
                 </div>
             </div>
 
-            <!-- অডিট রিপোর্ট / স্বচ্ছতা -->
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                <div class="bg-red-50 p-6 border-b border-red-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            <!-- অডিট রিপোর্ট / স্বচ্ছতা (নতুন কার্ড সিস্টেম) -->
+            <div class="bg-gray-100/50 rounded-3xl p-1">
+                <div class="bg-red-50 p-6 rounded-3xl border border-red-100 flex flex-col md:flex-row justify-between items-center gap-4 mb-6 shadow-sm">
                     <div>
                         <h2 class="text-xl font-extrabold text-red-700"><i class="fas fa-file-invoice-dollar mr-2"></i> ডোনেশন অডিট রিপোর্ট</h2>
                         <p class="text-xs font-bold text-gray-500 mt-1">আমাদের ফান্ডে আসা সকল অনুদানের স্বচ্ছ হিসাব</p>
                     </div>
-                    <div class="bg-white px-4 py-2 rounded-xl shadow-sm border border-red-100">
-                        <span class="text-xs font-bold text-gray-500 block">মোট অনুদান প্রাপ্তি</span>
-                        <span class="text-xl font-extrabold text-green-600">৳ <span id="public-total">0</span></span>
+                    <div class="bg-white px-5 py-3 rounded-2xl shadow-sm border border-red-100 text-center">
+                        <span class="text-xs font-bold text-gray-500 block mb-1">মোট অনুদান প্রাপ্তি</span>
+                        <span class="text-2xl font-extrabold text-green-600">৳ <span id="public-total">0</span></span>
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto p-4">
-                    <table class="w-full text-left border-collapse min-w-[500px]">
-                        <thead>
-                            <tr class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider">
-                                <th class="p-3 rounded-l-lg">তারিখ</th>
-                                <th class="p-3">দাতার নাম / পরিচয়</th>
-                                <th class="p-3">মাধ্যম</th>
-                                <th class="p-3 text-right rounded-r-lg">পরিমাণ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="public-audit-tbody">
-                            <tr><td colspan="4" class="p-6 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-2xl"></i></td></tr>
-                        </tbody>
-                    </table>
+                <!-- কার্ড কন্টেইনার (মোবাইলে ১ কলাম, পিসিতে ২ কলাম) -->
+                <div id="public-audit-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- ডাটাবেজ থেকে কার্ডগুলো এখানে লোড হবে -->
+                    <div class="col-span-full p-8 text-center text-gray-500">
+                        <i class="fas fa-spinner fa-spin text-3xl mb-3 text-red-500"></i>
+                        <p>তথ্য লোড হচ্ছে...</p>
+                    </div>
                 </div>
             </div>
 
@@ -190,6 +209,6 @@
     </main>
 
     <div id="footer-placeholder"></div>
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>
