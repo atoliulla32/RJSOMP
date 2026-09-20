@@ -11,9 +11,9 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, updatePassword, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // আপনার ফায়ারবেস কনফিগারেশন
+        // ফায়ারবেস কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
             authDomain: "rjsomp.firebaseapp.com",
@@ -28,18 +28,15 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // UI এলিমেন্টগুলো
+        // UI এলিমেন্ট
         const loginSection = document.getElementById('login-section');
         const dashboardSection = document.getElementById('dashboard-section');
-        const loginForm = document.getElementById('loginForm');
         const errorMessage = document.getElementById('error-message');
 
-        // ইউজার লগইন আছে কিনা চেক করা
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 loginSection.classList.add('hidden');
                 dashboardSection.classList.remove('hidden');
-                // ডিফল্ট পেজ লোড করা
                 const savedUrl = localStorage.getItem('activeAdminPanel') || 'admin-donors.html';
                 loadPanel(savedUrl);
             } else {
@@ -49,26 +46,69 @@
         });
 
         // লগইন সাবমিট
-        loginForm.addEventListener('submit', (e) => {
+        window.handleLogin = (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    errorMessage.classList.add('hidden');
-                })
-                .catch((error) => {
+                .then(() => { errorMessage.classList.add('hidden'); })
+                .catch(() => {
                     errorMessage.classList.remove('hidden');
                     errorMessage.innerText = "ভুল ইমেইল বা পাসওয়ার্ড!";
                 });
-        });
+        };
 
-        // লগআউট ফাংশন গ্লোবাল করা
+        // পাসওয়ার্ড ভুলে গেলে (লগইন পেজ থেকে)
+        window.handleForgotPassword = () => {
+            const email = document.getElementById('email').value;
+            if(!email) {
+                alert("অনুগ্রহ করে উপরের বক্সে আপনার ইমেইলটি লিখুন, তারপর 'পাসওয়ার্ড ভুলে গেছেন?' এ ক্লিক করুন।");
+                return;
+            }
+            sendPasswordResetEmail(auth, email)
+                .then(() => alert("পাসওয়ার্ড রিসেট লিংক আপনার ইমেইলে পাঠানো হয়েছে!"))
+                .catch((error) => alert("ত্রুটি: " + error.message));
+        }
+
+        // লগআউট
         window.handleLogout = () => {
-            signOut(auth).then(() => {
-                localStorage.removeItem('activeAdminPanel');
-            });
+            signOut(auth).then(() => localStorage.removeItem('activeAdminPanel'));
+        };
+
+        // পাসওয়ার্ড পরিবর্তন মডাল কন্ট্রোল
+        window.openPasswordModal = () => document.getElementById('password-modal').classList.remove('hidden');
+        window.closePasswordModal = () => {
+            document.getElementById('password-modal').classList.add('hidden');
+            document.getElementById('pwdChangeForm').reset();
+            document.getElementById('pwd-msg').innerText = '';
+        };
+
+        // পাসওয়ার্ড পরিবর্তন সাবমিট (পুরাতন পাসওয়ার্ড চেক করে)
+        window.handleChangePassword = (e) => {
+            e.preventDefault();
+            const msgBox = document.getElementById('pwd-msg');
+            const oldPwd = document.getElementById('old-password').value;
+            const newPwd = document.getElementById('new-password').value;
+            const user = auth.currentUser;
+
+            if (user) {
+                const credential = EmailAuthProvider.credential(user.email, oldPwd);
+                msgBox.innerHTML = '<span class="text-blue-600">যাচাই করা হচ্ছে...</span>';
+                
+                // প্রথমে পুরাতন পাসওয়ার্ড যাচাই
+                reauthenticateWithCredential(user, credential).then(() => {
+                    // যাচাই সফল হলে নতুন পাসওয়ার্ড আপডেট
+                    updatePassword(user, newPwd).then(() => {
+                        msgBox.innerHTML = '<span class="text-green-600 font-bold">পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!</span>';
+                        setTimeout(closePasswordModal, 2000);
+                    }).catch((error) => {
+                        msgBox.innerHTML = `<span class="text-red-600">নতুন পাসওয়ার্ড আপডেট করতে সমস্যা হয়েছে!</span>`;
+                    });
+                }).catch((error) => {
+                    msgBox.innerHTML = '<span class="text-red-600 font-bold">পুরাতন পাসওয়ার্ড ভুল!</span>';
+                });
+            }
         };
     </script>
     
@@ -82,7 +122,7 @@
 
     <!-- ================= লগইন সেকশন ================= -->
     <div id="login-section" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 bg-opacity-95 backdrop-blur-md hidden">
-        <div class="bg-white w-full max-w-md p-8 rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.5)] relative overflow-hidden transform transition-all">
+        <div class="bg-white w-full max-w-md p-8 rounded-[24px] shadow-2xl relative overflow-hidden">
             <div class="h-2 w-full bg-gradient-to-r from-red-500 to-red-800 absolute top-0 left-0"></div>
             
             <div class="text-center mb-6 mt-4">
@@ -90,24 +130,27 @@
                     <i class="fas fa-user-shield text-5xl text-red-600"></i>
                 </div>
                 <h2 class="text-2xl font-extrabold text-gray-900">অ্যাডমিন প্যানেল</h2>
-                <p class="text-sm text-gray-500 mt-1 font-medium">রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</p>
             </div>
 
             <div id="error-message" class="hidden mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-lg text-center font-bold border border-red-200"></div>
 
-            <form id="loginForm" class="space-y-5">
+            <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">ইমেইল অ্যাড্রেস</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">ইমেইল</label>
                     <div class="relative">
                         <i class="fas fa-envelope absolute left-4 top-3.5 text-gray-400"></i>
-                        <input type="email" id="email" required class="w-full border border-gray-300 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 transition" placeholder="admin@example.com">
+                        <input type="email" id="email" required class="w-full border border-gray-300 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">পাসওয়ার্ড</label>
                     <div class="relative">
                         <i class="fas fa-lock absolute left-4 top-3.5 text-gray-400"></i>
-                        <input type="password" id="password" required class="w-full border border-gray-300 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 transition" placeholder="••••••••">
+                        <input type="password" id="password" required class="w-full border border-gray-300 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50">
+                    </div>
+                    <!-- পাসওয়ার্ড ভুলে গেছেন অপশন -->
+                    <div class="text-right mt-1">
+                        <button type="button" onclick="handleForgotPassword()" class="text-xs font-bold text-blue-600 hover:underline">পাসওয়ার্ড ভুলে গেছেন?</button>
                     </div>
                 </div>
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md mt-2">
@@ -119,7 +162,6 @@
 
     <!-- ================= মূল ড্যাশবোর্ড সেকশন ================= -->
     <div id="dashboard-section" class="hidden h-screen w-screen relative">
-        
         <button onclick="toggleMenu()" class="fixed top-4 left-4 z-40 bg-slate-900 text-white px-4 py-2.5 rounded-full shadow-xl hover:bg-slate-800 transition-all flex items-center gap-2 border border-slate-700">
             <i class="fas fa-bars"></i> <span class="font-medium text-sm">মেনু</span>
         </button>
@@ -127,41 +169,35 @@
         <div id="overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity"></div>
 
         <aside id="sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 z-50 w-72 bg-slate-950 text-slate-300 flex flex-col shadow-2xl h-full">
-            
             <div class="p-5 flex items-center justify-between border-b border-slate-800">
                 <h2 class="text-xl font-bold text-red-500 flex items-center gap-2">
                     <i class="fas fa-shield-halved"></i> সেন্ট্রাল অ্যাডমিন
                 </h2>
-                <button onclick="toggleMenu()" class="text-slate-400 hover:text-white p-2 bg-slate-800 rounded-full w-8 h-8 flex justify-center items-center">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button onclick="toggleMenu()" class="text-slate-400 hover:text-white p-2 bg-slate-800 rounded-full w-8 h-8 flex justify-center items-center"><i class="fas fa-times"></i></button>
             </div>
 
-            <nav class="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar pb-24">
-                
+            <nav class="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar pb-32">
                 <button onclick="loadPanel('admin-donors.html', this)" class="menu-item flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 transition">
                     <i class="fas fa-users text-blue-400 w-5 text-center"></i> রক্তদাতা ম্যানেজমেন্ট
                 </button>
-
                 <button onclick="loadPanel('admin-blodrequests.html', this)" class="menu-item flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 transition">
                     <i class="fas fa-hand-holding-droplet text-red-400 w-5 text-center"></i> রক্তের রিকোয়েস্ট
                 </button>
-
                 <button onclick="loadPanel('admin-volunteers.html', this)" class="menu-item flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 transition">
                     <i class="fas fa-people-carry-box text-green-400 w-5 text-center"></i> স্বেচ্ছাসেবক ম্যানেজমেন্ট
                 </button>
-
                 <button onclick="loadPanel('admin-donations.html', this)" class="menu-item flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 transition">
                     <i class="fas fa-hand-holding-dollar text-yellow-400 w-5 text-center"></i> অনুদান ও ফান্ডিং
                 </button>
-
                 <button onclick="loadPanel('admin-gallery.html', this)" class="menu-item flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 transition">
                     <i class="fas fa-images text-purple-400 w-5 text-center"></i> গ্যালারি আপলোড
                 </button>
-
             </nav>
 
-            <div class="p-4 border-t border-slate-800 bg-slate-900 absolute bottom-0 w-full">
+            <div class="p-4 border-t border-slate-800 bg-slate-900 absolute bottom-0 w-full space-y-3">
+                <button onclick="openPasswordModal()" class="flex items-center justify-center gap-2 w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 px-4 rounded-lg text-sm font-bold transition border border-slate-600">
+                    <i class="fas fa-key text-yellow-400"></i> পাসওয়ার্ড পরিবর্তন
+                </button>
                 <button onclick="handleLogout()" class="flex items-center justify-center gap-2 w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-xl font-bold transition shadow-lg">
                     <i class="fas fa-power-off"></i> লগআউট করুন
                 </button>
@@ -173,6 +209,30 @@
         </main>
     </div>
 
+    <!-- ================= পাসওয়ার্ড পরিবর্তন মডাল ================= -->
+    <div id="password-modal" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
+        <div class="bg-white w-full max-w-sm p-6 rounded-2xl shadow-xl relative">
+            <button onclick="closePasswordModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">পাসওয়ার্ড পরিবর্তন</h3>
+            
+            <form id="pwdChangeForm" onsubmit="handleChangePassword(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">পুরাতন পাসওয়ার্ড</label>
+                    <input type="password" id="old-password" required class="w-full border border-gray-300 px-3 py-2 rounded focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">নতুন পাসওয়ার্ড (অন্তত ৬ অক্ষর)</label>
+                    <input type="password" id="new-password" required minlength="6" class="w-full border border-gray-300 px-3 py-2 rounded focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div id="pwd-msg" class="text-sm text-center"></div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded transition">আপডেট করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- UI কন্ট্রোল স্ক্রিপ্ট -->
     <script>
         const frame = document.getElementById('admin-frame');
         const sidebar = document.getElementById('sidebar');
@@ -193,23 +253,16 @@
         window.loadPanel = function(url, element) {
             frame.src = url;
             localStorage.setItem('activeAdminPanel', url);
-
             document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active-nav'));
             
             if(element) {
                 element.classList.add('active-nav');
             } else {
-                // পেজ রিলোড হলে সেভ করা লিংকের মেনুকে এক্টিভ করা
                 document.querySelectorAll('.menu-item').forEach(item => {
-                    if(item.getAttribute('onclick').includes(url)) {
-                        item.classList.add('active-nav');
-                    }
+                    if(item.getAttribute('onclick').includes(url)) item.classList.add('active-nav');
                 });
             }
-            
-            if(!sidebar.classList.contains('-translate-x-full')){
-                toggleMenu();
-            }
+            if(!sidebar.classList.contains('-translate-x-full')) toggleMenu();
         }
     </script>
 </body>
