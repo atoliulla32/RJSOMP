@@ -10,7 +10,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase Data Fetch -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -34,7 +33,15 @@
                 document.getElementById('show-donors').innerText = data.donors || '0';
                 document.getElementById('show-volunteers').innerText = data.volunteers || '0';
 
-                // Committee: Fixed Colon Parsing Bug
+                // কমিটির মেয়াদ
+                const tenureBadge = document.getElementById('show-tenure');
+                if(data.committeeTenure && data.committeeTenure.trim() !== '') {
+                    tenureBadge.innerHTML = `<i class="fa-regular fa-calendar-check mr-1"></i> মেয়াদ: ${data.committeeTenure}`;
+                    tenureBadge.classList.remove('hidden');
+                } else {
+                    tenureBadge.classList.add('hidden');
+                }
+
                 let committeeHtml = '';
                 if(data.committee) {
                     data.committee.split('\n').forEach(line => {
@@ -57,7 +64,6 @@
                 }
                 document.getElementById('show-committee').innerHTML = committeeHtml;
 
-                // Advisors: Elegant List
                 let advHtml = '';
                 if(data.advisors) {
                     data.advisors.split('\n').forEach(line => {
@@ -70,12 +76,10 @@
                 }
                 document.getElementById('show-advisors').innerHTML = advHtml;
 
-                // Members: Clean List Format (Updated here)
                 let memHtml = '';
                 if(data.members) {
                     data.members.split('\n').forEach((line, index) => {
                         if(line.trim() !== '') {
-                            // অ্যাডমিন প্যানেল থেকে আসা লেখাকে লিস্ট আকারে সাজানো হলো
                             memHtml += `
                             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-400">
                                 <span class="bg-blue-100 text-blue-700 font-bold w-6 h-6 flex items-center justify-center rounded-full text-xs">${index + 1}</span>
@@ -89,7 +93,6 @@
         });
     </script>
     
-    <!-- Styling -->
     <style>
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes fadeIn {
@@ -225,10 +228,16 @@
 
             <div id="tab-committee" class="tab-content hidden animate-fade-in">
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
-                    <h2 class="text-xl md:text-2xl font-extrabold text-gray-800 mb-6 flex items-center gap-3">
-                        <span class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600"><i class="fa-solid fa-users-gear"></i></span>
-                        বর্তমান কার্যনির্বাহী কমিটি
-                    </h2>
+                    <!-- Title with Dynamic Badge -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3 border-b pb-4 border-gray-100">
+                        <h2 class="text-xl md:text-2xl font-extrabold text-gray-800 flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600"><i class="fa-solid fa-users-gear"></i></span>
+                            বর্তমান কার্যনির্বাহী কমিটি
+                        </h2>
+                        <!-- Dynamic Tenure Badge -->
+                        <span id="show-tenure" class="hidden text-xs md:text-sm font-bold text-red-600 bg-red-50 px-4 py-1.5 rounded-full border border-red-200 w-fit"></span>
+                    </div>
+
                     <div id="show-committee" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="text-center text-gray-500 col-span-full py-10"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i> লোড হচ্ছে...</div>
                     </div>
@@ -250,7 +259,6 @@
                         <h2 class="text-xl font-extrabold text-gray-800 mb-5 flex items-center gap-3 border-b pb-4">
                             <i class="fa-solid fa-users text-blue-500 text-2xl"></i> সাধারণ সদস্যবৃন্দ
                         </h2>
-                        <!-- Members Container (Updated to a vertical list) -->
                         <div id="show-members" class="flex flex-col gap-2 w-full">
                             <div class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>
                         </div>
