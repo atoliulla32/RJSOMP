@@ -22,7 +22,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // সেটিং ডাটা লোড (বিকাশ, নগদ ইত্যাদি)
+        // সেটিং ডাটা লোড
         onValue(ref(db, 'pageContent/donationSettings'), (snapshot) => {
             const data = snapshot.val();
             if(data) {
@@ -43,12 +43,11 @@
             }
         });
 
-        // অডিট রিপোর্ট লোড (কার্ড সিস্টেমে)
+        // অডিট রিপোর্ট লোড (প্রোফাইল পিকচার সহ কার্ড সিস্টেমে)
         onValue(ref(db, 'donationsList'), (snapshot) => {
             const container = document.getElementById('public-audit-container');
             container.innerHTML = '';
             let total = 0;
-            let serial = 1;
             
             if(!snapshot.exists()){
                 container.innerHTML = `
@@ -59,39 +58,50 @@
                 return;
             }
 
-            // প্রতিটি ডোনেশনের জন্য আলাদা কার্ড তৈরি করা
+            // ফায়ারবেস থেকে ডাটা নিয়ে উল্টো করে সাজানো (নতুনগুলো আগে দেখাবে)
+            let donations = [];
             snapshot.forEach(child => {
-                const data = child.val();
-                total += Number(data.amount);
-                
+                donations.push(child.val());
+                total += Number(child.val().amount);
+            });
+            donations.reverse();
+
+            donations.forEach(data => {
+                // ছবি থাকলে ছবি, না থাকলে ডামি আইকন
+                const profileImg = data.imageUrl 
+                    ? `<img src="${data.imageUrl}" onclick="openImageModal('${data.imageUrl}')" class="w-12 h-12 rounded-full object-cover border-2 border-red-200 cursor-pointer hover:opacity-80 transition hover:shadow-lg">`
+                    : `<div class="w-12 h-12 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center text-gray-400"><i class="fa-solid fa-user text-xl"></i></div>`;
+
                 container.innerHTML += `
-                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition relative">
-                        <!-- টপ সেকশন: ক্রমিক নং ও তারিখ -->
-                        <div class="flex justify-between items-center mb-3 border-b border-gray-50 pb-2">
-                            <span class="bg-red-100 text-red-700 text-xs font-extrabold px-2.5 py-1 rounded-md">#${serial}</span>
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition relative flex flex-col justify-between">
+                        <!-- টপ সেকশন -->
+                        <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                            <span class="bg-red-100 text-red-700 text-[11px] font-extrabold px-3 py-1 rounded-full tracking-wider">ID: #${data.serialId}</span>
                             <span class="text-xs text-gray-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> ${data.date}</span>
                         </div>
                         
-                        <!-- মধ্যভাগ: দাতার নাম -->
-                        <div class="mb-4">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">দাতার নাম / পরিচয়</p>
-                            <h3 class="text-lg md:text-xl font-bold text-gray-800">${data.name}</h3>
+                        <!-- মধ্যভাগ: ছবি ও দাতার নাম -->
+                        <div class="flex items-center gap-4 mb-4">
+                            ${profileImg}
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">দাতার নাম / পরিচয়</p>
+                                <h3 class="text-lg md:text-xl font-bold text-gray-800 leading-tight">${data.name}</h3>
+                            </div>
                         </div>
                         
                         <!-- বটম সেকশন: মাধ্যম ও টাকার পরিমাণ -->
-                        <div class="flex justify-between items-end mt-2 pt-2 border-t border-gray-50">
+                        <div class="flex justify-between items-end mt-auto pt-3 border-t border-gray-50">
                             <div>
                                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">মাধ্যম</p>
                                 <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-xs font-semibold">${data.method}</span>
                             </div>
                             <div class="text-right">
                                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">পরিমাণ</p>
-                                <span class="text-xl md:text-2xl font-extrabold text-green-600">৳ ${data.amount}</span>
+                                <span class="text-xl md:text-2xl font-extrabold text-green-600 drop-shadow-sm">৳ ${data.amount}</span>
                             </div>
                         </div>
                     </div>
                 `;
-                serial++; // ক্রমিক নং বাড়ানো হচ্ছে
             });
             document.getElementById('public-total').innerText = total;
         });
@@ -111,6 +121,18 @@
                     btnElement.classList.remove('text-green-600', 'border-green-300', 'bg-green-50');
                 }, 2000);
             });
+        }
+
+        // ছবি বড় করার ফাংশন
+        window.openImageModal = function(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.remove('hidden');
+            document.getElementById('imageModal').classList.add('flex');
+        }
+        window.closeImageModal = function() {
+            document.getElementById('imageModal').classList.add('hidden');
+            document.getElementById('imageModal').classList.remove('flex');
+            document.getElementById('modalImage').src = '';
         }
     </script>
 </head>
@@ -182,8 +204,8 @@
                 </div>
             </div>
 
-            <!-- অডিট রিপোর্ট / স্বচ্ছতা (নতুন কার্ড সিস্টেম) -->
-            <div class="bg-gray-100/50 rounded-3xl p-1">
+            <!-- অডিট রিপোর্ট / স্বচ্ছতা (নতুন কার্ড সিস্টেম প্রোফাইল পিকচার সহ) -->
+            <div class="bg-gray-100/50 rounded-3xl p-1 pb-4">
                 <div class="bg-red-50 p-6 rounded-3xl border border-red-100 flex flex-col md:flex-row justify-between items-center gap-4 mb-6 shadow-sm">
                     <div>
                         <h2 class="text-xl font-extrabold text-red-700"><i class="fas fa-file-invoice-dollar mr-2"></i> ডোনেশন অডিট রিপোর্ট</h2>
@@ -196,7 +218,7 @@
                 </div>
                 
                 <!-- কার্ড কন্টেইনার (মোবাইলে ১ কলাম, পিসিতে ২ কলাম) -->
-                <div id="public-audit-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div id="public-audit-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 px-1">
                     <!-- ডাটাবেজ থেকে কার্ডগুলো এখানে লোড হবে -->
                     <div class="col-span-full p-8 text-center text-gray-500">
                         <i class="fas fa-spinner fa-spin text-3xl mb-3 text-red-500"></i>
@@ -209,6 +231,15 @@
     </main>
 
     <div id="footer-placeholder"></div>
-    <script src="script.js?v=3"></script>
+
+    <!-- Image Preview Modal -->
+    <div id="imageModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeImageModal()">
+        <div class="relative max-w-3xl w-full mx-4 flex justify-center">
+            <button onclick="closeImageModal()" class="absolute -top-10 right-0 text-white hover:text-red-500 text-3xl transition drop-shadow-md">&times;</button>
+            <img id="modalImage" src="" class="max-h-[80vh] w-auto rounded-xl shadow-2xl object-contain border-4 border-white/10" onclick="event.stopPropagation()">
+        </div>
+    </div>
+
+    <script src="script.js?v=4"></script>
 </body>
 </html>
