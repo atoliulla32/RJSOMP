@@ -1,1 +1,250 @@
 
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>নিউজ ও গ্যালারি অ্যাডমিন | রক্তযোদ্ধা</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f8fafc; font-family: sans-serif; }
+        .glass-card { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .input-field { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; transition: 0.3s; }
+        .input-field:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
+        .loader { display: none; border: 3px solid #f3f3f3; border-top: 3px solid #dc2626; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+            authDomain: "rjsomp.firebaseapp.com",
+            databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rjsomp"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const newsRef = ref(db, 'newsAndGallery');
+
+        let selectedFiles = [];
+        let existingMedia = [];
+        let editingId = null;
+
+        // Cloudinary Upload Function
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'rjsomp'); 
+            
+            const res = await fetch('https://api.cloudinary.com/v1_1/h0dlj3no/auto/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            return { url: data.secure_url, type: data.resource_type };
+        }
+
+        // File Selection Event
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files);
+            renderPreviews();
+        });
+
+        // Add YouTube Field
+        window.addYtField = (val = '') => {
+            const container = document.getElementById('yt-container');
+            container.innerHTML += `
+                <div class="flex gap-2 mt-2 yt-row">
+                    <input type="url" value="${val}" placeholder="ইউটিউব ভিডিও লিংক..." class="input-field yt-val">
+                    <button type="button" onclick="this.parentElement.remove()" class="bg-red-500 text-white px-4 rounded-lg"><i class="fas fa-times"></i></button>
+                </div>
+            `;
+        };
+
+        // Render Previews
+        window.renderPreviews = () => {
+            const grid = document.getElementById('preview-grid');
+            grid.innerHTML = '';
+            
+            existingMedia.forEach((m, idx) => {
+                let html = `<div class="relative border rounded-lg overflow-hidden h-16">`;
+                if(m.type === 'video') html += `<video src="${m.url}" class="w-full h-full object-cover"></video>`;
+                else html += `<img src="${m.url}" class="w-full h-full object-cover">`;
+                html += `<button type="button" onclick="existingMedia.splice(${idx}, 1); renderPreviews();" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 text-[10px]"><i class="fas fa-times"></i></button></div>`;
+                grid.insertAdjacentHTML('beforeend', html);
+            });
+
+            selectedFiles.forEach((f, idx) => {
+                const url = URL.createObjectURL(f);
+                let html = `<div class="relative border rounded-lg overflow-hidden h-16">`;
+                if(f.type.startsWith('video/')) html += `<video src="${url}" class="w-full h-full object-cover"></video>`;
+                else html += `<img src="${url}" class="w-full h-full object-cover">`;
+                html += `<button type="button" onclick="selectedFiles.splice(${idx}, 1); renderPreviews();" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 text-[10px]"><i class="fas fa-times"></i></button></div>`;
+                grid.insertAdjacentHTML('beforeend', html);
+            });
+        };
+
+        // Publish / Save Function
+        window.publishPost = async () => {
+            const title = document.getElementById('post-title').value;
+            const desc = document.getElementById('post-desc').value;
+            const date = document.getElementById('post-date').value || new Date().toISOString().split('T')[0];
+            
+            let ytLinks = [];
+            document.querySelectorAll('.yt-val').forEach(inp => { if(inp.value.trim()) ytLinks.push(inp.value.trim()); });
+
+            if(!title) return alert("শিরোনাম দিতে হবে!");
+            if(selectedFiles.length === 0 && existingMedia.length === 0 && ytLinks.length === 0) return alert("কমপক্ষে একটি ছবি/ভিডিও বা লিংক দিন!");
+
+            const btnText = document.getElementById('btn-text');
+            const loader = document.getElementById('btn-loader');
+            btnText.innerText = "আপলোড হচ্ছে..."; loader.style.display = "block";
+
+            try {
+                let finalMedia = [...existingMedia];
+                for(let file of selectedFiles) {
+                    const uploaded = await uploadToCloudinary(file);
+                    finalMedia.push(uploaded);
+                }
+
+                // Extract YouTube Thumbnail if no image exists
+                let finalThumb = finalMedia.find(m => m.type === 'image')?.url || "";
+                if(!finalThumb && ytLinks.length > 0) {
+                    const match = ytLinks[0].match(/(?:v=|\/)([\w-]{11})/);
+                    if(match) finalThumb = `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+                }
+
+                const postData = {
+                    title, description: desc, date,
+                    thumbnail: finalThumb, media: finalMedia, youtube: ytLinks,
+                    timestamp: Date.now()
+                };
+
+                if(editingId) {
+                    await update(ref(db, 'newsAndGallery/' + editingId), postData);
+                    alert("আপডেট সফল!");
+                } else {
+                    await push(newsRef, postData);
+                    alert("পাবলিশ সফল!");
+                }
+                cancelEdit();
+            } catch(e) {
+                alert("সমস্যা হয়েছে: " + e.message);
+            } finally {
+                btnText.innerText = "পাবলিশ করুন"; loader.style.display = "none";
+            }
+        };
+
+        // Load Posts
+        onValue(newsRef, (snapshot) => {
+            const grid = document.getElementById('post-list');
+            grid.innerHTML = '';
+            const posts = [];
+            snapshot.forEach(child => { posts.push({ id: child.key, ...child.val() }); });
+            posts.sort((a,b) => b.timestamp - a.timestamp); // নতুনগুলো আগে
+
+            posts.forEach(p => {
+                grid.innerHTML += `
+                    <div class="glass-card p-4 flex gap-4 items-center">
+                        <img src="${p.thumbnail || 'https://via.placeholder.com/150'}" class="w-24 h-24 object-cover rounded-lg border">
+                        <div class="flex-grow">
+                            <h3 class="font-bold text-gray-800">${p.title}</h3>
+                            <p class="text-xs text-gray-500">${p.date} • ${p.media?.length || 0} মিডিয়া • ${p.youtube?.length || 0} YT লিংক</p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button onclick='editPost(${JSON.stringify(p)})' class="bg-blue-100 text-blue-600 px-3 py-1 rounded"><i class="fas fa-edit"></i></button>
+                            <button onclick="deletePost('${p.id}')" class="bg-red-100 text-red-600 px-3 py-1 rounded"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        window.editPost = (p) => {
+            editingId = p.id; existingMedia = p.media || []; selectedFiles = [];
+            document.getElementById('post-title').value = p.title;
+            document.getElementById('post-desc').value = p.description || '';
+            document.getElementById('post-date').value = p.date;
+            
+            document.getElementById('yt-container').innerHTML = '';
+            if(p.youtube) p.youtube.forEach(y => addYtField(y));
+            else addYtField();
+            
+            document.getElementById('btn-text').innerText = "আপডেট করুন";
+            renderPreviews(); window.scrollTo(0,0);
+        };
+
+        window.deletePost = async (id) => {
+            if(confirm("পোস্টটি মুছে ফেলতে চান?")) await remove(ref(db, 'newsAndGallery/' + id));
+        };
+
+        window.cancelEdit = () => {
+            editingId = null; existingMedia = []; selectedFiles = [];
+            document.getElementById('post-title').value = '';
+            document.getElementById('post-desc').value = '';
+            document.getElementById('post-date').value = '';
+            document.getElementById('yt-container').innerHTML = `<div class="flex gap-2 yt-row"><input type="url" class="input-field yt-val" placeholder="লিংক..."><button type="button" onclick="addYtField()" class="bg-red-600 text-white px-4 rounded-lg"><i class="fas fa-plus"></i></button></div>`;
+            document.getElementById('file-input').value = '';
+            document.getElementById('btn-text').innerText = "পাবলিশ করুন";
+            renderPreviews();
+        };
+    </script>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-8 glass-card p-6 border-l-4 border-red-600">
+            <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-newspaper text-red-600 mr-2"></i> নিউজ ও গ্যালারি কন্ট্রোল</h1>
+        </div>
+
+        <div class="glass-card p-6 md:p-8 mb-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-bold text-gray-600 text-sm mb-1">শিরোনাম *</label>
+                        <input type="text" id="post-title" class="input-field">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-600 text-sm mb-1">প্রকাশের তারিখ</label>
+                        <input type="date" id="post-date" class="input-field">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-600 text-sm mb-1">বিস্তারিত বিবরণ (নিউজ হলে)</label>
+                        <textarea id="post-desc" class="input-field h-32 resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-bold text-gray-600 text-sm mb-1">ছবি বা ভিডিও আপলোড</label>
+                        <input type="file" id="file-input" multiple accept="image/*,video/*" class="input-field bg-gray-50 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+                    </div>
+                    <div id="yt-container">
+                        <label class="block font-bold text-gray-600 text-sm mb-1">ইউটিউব লিংক (ঐচ্ছিক)</label>
+                        <div class="flex gap-2 yt-row">
+                            <input type="url" class="input-field yt-val" placeholder="https://youtube.com/...">
+                            <button type="button" onclick="addYtField()" class="bg-red-600 text-white px-4 rounded-lg"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div id="preview-grid" class="grid grid-cols-5 gap-2 mt-2"></div>
+
+                    <button onclick="publishPost()" class="w-full bg-red-600 text-white font-bold p-3.5 rounded-xl hover:bg-red-700 transition flex justify-center items-center gap-2 mt-4">
+                        <span id="btn-text">পাবলিশ করুন</span>
+                        <div class="loader" id="btn-loader"></div>
+                    </button>
+                    <button onclick="cancelEdit()" class="w-full bg-gray-200 text-gray-800 font-bold p-3 rounded-xl hover:bg-gray-300 transition mt-2">বাতিল করুন</button>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">আগের পোস্টসমূহ</h2>
+        <div id="post-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+</body>
+</html>
