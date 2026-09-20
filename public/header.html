@@ -5,14 +5,41 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#dc2626">
 
-<!-- Custom CSS for Bouncing & Highlighting Animation -->
+<!-- CSS Only Tooltip Animation (No JavaScript needed!) -->
 <style>
-    @keyframes superBounce {
-        0%, 100% { transform: translateY(0) scale(1); }
-        50% { transform: translateY(-10px) scale(1.08); }
+    @keyframes autoTooltipDance {
+        0%, 71% { 
+            /* ০ থেকে ৫ সেকেন্ড পর্যন্ত লুকানো থাকবে */
+            opacity: 0; 
+            transform: scale(0.8) translateY(10px); 
+        }
+        73% { 
+            /* ৫ সেকেন্ড পার হলে লাফিয়ে উঠবে */
+            opacity: 1; 
+            transform: scale(1.1) translateY(-10px); 
+        }
+        76% { 
+            transform: scale(1) translateY(0); 
+        }
+        80% { 
+            transform: scale(1.05) translateY(-5px); 
+        }
+        85% { 
+            transform: scale(1) translateY(0); 
+        }
+        95% { 
+            /* ২ সেকেন্ড স্ক্রিনে থাকার পর হাইড হওয়া শুরু করবে */
+            opacity: 1; 
+            transform: scale(1) translateY(0); 
+        }
+        100% { 
+            opacity: 0; 
+            transform: scale(0.8) translateY(10px); 
+        }
     }
-    .animate-dancing-tooltip {
-        animation: superBounce 0.5s ease-in-out infinite !important;
+    .auto-dancing-tooltip {
+        /* ৭ সেকেন্ডের লুপ (৫ সেকেন্ড অফ, ২ সেকেন্ড অন) */
+        animation: autoTooltipDance 7s infinite ease-in-out;
     }
 </style>
 
@@ -58,8 +85,8 @@
             
             <!-- App Download Button & Dancing Popup Tooltip -->
             <div class="relative flex items-center justify-center mt-1">
-                <!-- Tooltip Popup Box -->
-                <div id="app-download-tooltip" class="absolute -top-12 right-0 bg-red-600 text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl shadow-2xl w-max pointer-events-none z-50 opacity-0 transition-opacity duration-300">
+                <!-- Tooltip Popup Box (CSS Animation Only) -->
+                <div class="auto-dancing-tooltip absolute -top-12 right-0 bg-red-600 text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl shadow-2xl w-max pointer-events-none z-50 opacity-0">
                     রক্তযোদ্ধা অ্যাপ ডাউনলোড করুন
                     <!-- Tooltip Bottom Arrow -->
                     <div class="absolute -bottom-1.5 right-3 border-t-[6px] border-t-red-600 border-x-[6px] border-x-transparent"></div>
@@ -105,40 +132,3 @@
         </div>
     </div>
 </nav>
-
-<!-- Guaranteed Animation Loop Script -->
-<script>
-    (function() {
-        function initTooltipAnimation() {
-            const tooltip = document.getElementById('app-download-tooltip');
-            if (!tooltip) {
-                setTimeout(initTooltipAnimation, 200);
-                return;
-            }
-
-            function triggerDance() {
-                // পপআপ দৃশ্যমান করা এবং নাচানো
-                tooltip.style.opacity = '1';
-                tooltip.classList.add('animate-dancing-tooltip');
-
-                // ঠিক ২ সেকেন্ড পর নাচ বন্ধ করা ও লুকিয়ে ফেলা
-                setTimeout(() => {
-                    tooltip.classList.remove('animate-dancing-tooltip');
-                    tooltip.style.opacity = '0';
-                }, 2000);
-            }
-
-            // পেজ লোড হওয়ার ১.৫ সেকেন্ড পর প্রথমবার রান হবে (২ সেকেন্ড নাচবে)
-            setTimeout(triggerDance, 1500);
-
-            // এরপর ঠিক প্রতি ৫ সেকেন্ড পর পর লুপ চলবে (৫ সেকেন্ড বিরতি + ২ সেকেন্ড নাচ)
-            setInterval(triggerDance, 7000);
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initTooltipAnimation);
-        } else {
-            initTooltipAnimation();
-        }
-    })();
-</script>
