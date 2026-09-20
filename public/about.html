@@ -6,6 +6,8 @@
     <title>আমাদের সম্পর্কে | রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -29,44 +31,38 @@
         onValue(aboutRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // ইতিহাস
                 document.getElementById('show-history').innerHTML = (data.history || '').replace(/\n/g, '<br><br>');
-                
-                // অর্জন
                 document.getElementById('show-bags').innerText = data.bags || '0';
                 document.getElementById('show-donors').innerText = data.donors || '0';
                 document.getElementById('show-volunteers').innerText = data.volunteers || '0';
 
-                // কমিটি
                 let committeeHtml = '';
                 if(data.committee) {
                     data.committee.split('\n').forEach(line => {
                         if(line.trim() !== '') {
                             let parts = line.split(':');
                             if(parts.length >= 2) {
-                                committeeHtml += `<li class="p-3 flex justify-between text-sm border-b border-gray-100 last:border-0 hover:bg-gray-50 transition"><span class="font-bold text-gray-600">${parts[0].trim()}</span> <span class="font-bold text-gray-900">${parts[1].trim()}</span></li>`;
+                                committeeHtml += `<li class="p-4 flex justify-between items-center text-sm border-b border-gray-100 last:border-0 hover:bg-red-50 transition"><span class="font-bold text-gray-500">${parts[0].trim()}</span> <span class="font-extrabold text-gray-900 text-base">${parts[1].trim()}</span></li>`;
                             } else {
-                                committeeHtml += `<li class="p-3 text-sm font-bold text-gray-900 text-center bg-gray-50 border-b border-gray-100">${line.trim()}</li>`;
+                                committeeHtml += `<li class="p-4 text-sm font-bold text-gray-900 text-center bg-gray-50 border-b border-gray-100">${line.trim()}</li>`;
                             }
                         }
                     });
                 }
                 document.getElementById('show-committee').innerHTML = committeeHtml;
 
-                // উপদেষ্টা
                 let advHtml = '';
                 if(data.advisors) {
                     data.advisors.split('\n').forEach(line => {
-                        if(line.trim() !== '') advHtml += `<li class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500 text-xs"></i> ${line.trim()}</li>`;
+                        if(line.trim() !== '') advHtml += `<li class="flex items-center gap-3 p-2"><i class="fas fa-check-circle text-red-500 text-lg"></i> <span class="font-bold text-gray-700">${line.trim()}</span></li>`;
                     });
                 }
                 document.getElementById('show-advisors').innerHTML = advHtml;
 
-                // সদস্য
                 let memHtml = '';
                 if(data.members) {
                     data.members.split('\n').forEach(line => {
-                        if(line.trim() !== '') memHtml += `<span class="bg-white px-4 py-2 rounded-full text-xs font-bold text-gray-700 border border-gray-200 shadow-sm hover:border-red-400 hover:text-red-600 transition">${line.trim()}</span>`;
+                        if(line.trim() !== '') memHtml += `<span class="bg-white px-5 py-2.5 rounded-lg text-sm font-bold text-gray-700 border-2 border-gray-100 shadow-sm hover:border-red-500 hover:text-red-600 transition cursor-default">${line.trim()}</span>`;
                     });
                 }
                 document.getElementById('show-members').innerHTML = memHtml;
@@ -74,22 +70,78 @@
         });
     </script>
     
-    <!-- Tab Script -->
+    <!-- Tab Script & Custom CSS -->
+    <style>
+        .animate-fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* কাস্টম স্ক্রলবার হাইড করার কোড */
+        .tab-scroll-container {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            gap: 12px;
+            padding: 5px;
+        }
+        .tab-scroll-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        /* বাটনের ডিফল্ট স্টাইল (সিলেক্ট না করা অবস্থায়) */
+        .tab-button {
+            flex: 0 0 auto; /* বাটনকে সংকুচিত হতে বাধা দেবে */
+            white-space: nowrap;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #ffffff;
+            color: #4b5563; /* text-gray-600 */
+            border: 2px solid #e5e7eb; /* border-gray-200 */
+            transition: all 0.3s ease;
+        }
+        
+        /* হোভার ইফেক্ট */
+        .tab-button:hover {
+            border-color: #fca5a5;
+            color: #dc2626;
+            background-color: #fef2f2;
+        }
+
+        /* সিলেক্ট করা বাটনের স্টাইল (অ্যাক্টিভ) */
+        .tab-button.active {
+            background: linear-gradient(to right, #dc2626, #b91c1c); /* লাল গ্রেডিয়েন্ট */
+            color: #ffffff !important;
+            border-color: transparent !important;
+            box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.3), 0 4px 6px -2px rgba(220, 38, 38, 0.15);
+            transform: scale(1.02);
+        }
+    </style>
+
     <script>
         function showTab(tabId, element) {
-            // সবগুলো কন্টেন্ট হাইড করা
+            // সব কন্টেন্ট হাইড
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            // সবগুলো বাটনের স্টাইল রিসেট করা
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('bg-red-600', 'text-white', 'border-red-600', 'shadow-md');
-                el.classList.add('bg-white', 'text-gray-700', 'border-gray-200');
-            });
             
-            // সিলেক্ট করা কন্টেন্ট শো করা
+            // সব বাটন থেকে active ক্লাস রিমুভ
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            
+            // ক্লিক করা কন্টেন্ট শো
             document.getElementById(tabId).classList.remove('hidden');
-            // সিলেক্ট করা বাটনে একটিভ স্টাইল দেওয়া
-            element.classList.remove('bg-white', 'text-gray-700', 'border-gray-200');
-            element.classList.add('bg-red-600', 'text-white', 'border-red-600', 'shadow-md');
+            
+            // ক্লিক করা বাটনে active ক্লাস যুক্ত
+            element.classList.add('active');
+            
+            // মোবাইলে ক্লিক করা বাটনটি স্ক্রিনের মাঝে নিয়ে আসা
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
     </script>
 </head>
@@ -99,36 +151,46 @@
 
     <main class="flex-grow pb-12">
         <!-- হিরো সেকশন -->
-        <section class="bg-gray-900 text-white py-12 px-4 text-center border-b-4 border-red-600 relative overflow-hidden mb-8">
+        <section class="bg-gray-900 text-white py-14 px-4 text-center border-b-4 border-red-600 relative overflow-hidden mb-8 shadow-md">
             <div class="absolute inset-0 opacity-10" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg'); background-size: cover; background-position: center;"></div>
             <div class="relative z-10 max-w-4xl mx-auto">
-                <h1 class="text-3xl md:text-5xl font-extrabold mb-3">আমাদের সম্পর্কে</h1>
-                <p class="text-sm md:text-lg text-gray-300 font-medium italic">“জীবনের জন্য রক্ত, সমাজের জন্য দায়িত্ব”</p>
+                <h1 class="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">আমাদের সম্পর্কে</h1>
+                <p class="text-sm md:text-lg text-red-200 font-semibold italic">“জীবনের জন্য রক্ত, সমাজের জন্য দায়িত্ব”</p>
             </div>
         </section>
 
         <div class="max-w-5xl mx-auto px-4">
             
-            <!-- ট্যাব নেভিগেশন বাটনসমূহ -->
-            <div class="flex flex-wrap justify-center gap-3 mb-10 border-b border-gray-200 pb-6">
-                <button onclick="showTab('tab-history', this)" class="tab-btn active-tab bg-red-600 text-white border-red-600 shadow-md px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left"></i> ইতিহাস
-                </button>
-                <button onclick="showTab('tab-achievements', this)" class="tab-btn bg-white text-gray-700 border-gray-200 hover:bg-red-50 px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 border flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line"></i> অর্জন
-                </button>
-                <button onclick="showTab('tab-committee', this)" class="tab-btn bg-white text-gray-700 border-gray-200 hover:bg-red-50 px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 border flex items-center gap-2">
-                    <i class="fa-solid fa-user-tie"></i> বর্তমান কমিটি
-                </button>
-                <button onclick="showTab('tab-advisors', this)" class="tab-btn bg-white text-gray-700 border-gray-200 hover:bg-red-50 px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 border flex items-center gap-2">
-                    <i class="fa-solid fa-users"></i> উপদেষ্টা ও সদস্য
-                </button>
+            <!-- সম্পূর্ণ নতুন ডিজাইনের এক লাইনের ট্যাব নেভিগেশন -->
+            <div class="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-8">
+                <div class="tab-scroll-container">
+                    
+                    <button onclick="showTab('tab-history', this)" class="tab-button active">
+                        <i class="fa-solid fa-book-open"></i> ইতিহাস
+                    </button>
+                    
+                    <button onclick="showTab('tab-achievements', this)" class="tab-button">
+                        <i class="fa-solid fa-trophy"></i> অর্জনসমূহ
+                    </button>
+                    
+                    <button onclick="showTab('tab-committee', this)" class="tab-button">
+                        <i class="fa-solid fa-users-gear"></i> বর্তমান কমিটি
+                    </button>
+                    
+                    <button onclick="showTab('tab-advisors', this)" class="tab-button">
+                        <i class="fa-solid fa-user-shield"></i> উপদেষ্টা ও সদস্য
+                    </button>
+
+                </div>
             </div>
 
             <!-- ট্যাব ১: ইতিহাস -->
             <div id="tab-history" class="tab-content animate-fade-in">
-                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <h2 class="text-2xl font-bold text-red-700 flex items-center gap-2 border-b-2 border-red-100 pb-3 mb-5"><i class="fa-solid fa-clock-rotate-left"></i> প্রতিষ্ঠার ইতিহাস ও পরিচিতি</h2>
+                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-red-100 pb-4">
+                        <div class="bg-red-50 p-3 rounded-full"><i class="fa-solid fa-clock-rotate-left text-2xl text-red-600"></i></div>
+                        <h2 class="text-2xl font-bold text-gray-800">প্রতিষ্ঠার ইতিহাস ও পরিচিতি</h2>
+                    </div>
                     <p id="show-history" class="text-gray-700 leading-relaxed md:text-lg text-justify">
                         <i class="fas fa-spinner fa-spin text-red-500"></i> ডাটা লোড হচ্ছে...
                     </p>
@@ -137,28 +199,28 @@
 
             <!-- ট্যাব ২: অর্জন -->
             <div id="tab-achievements" class="tab-content hidden animate-fade-in">
-                <div class="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100 text-center">
-                    <h2 class="text-2xl font-bold text-red-700 mb-8 border-b-2 border-red-100 inline-block pb-2"><i class="fa-solid fa-trophy mr-2"></i> আমাদের অর্জনসমূহ</h2>
+                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-gray-100 text-center">
+                    <h2 class="text-2xl font-bold text-red-700 mb-10 border-b-2 border-red-100 inline-block pb-2 px-6"><i class="fa-solid fa-award mr-2"></i> আমাদের অর্জনসমূহ</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <div class="bg-red-50 p-6 rounded-xl hover:-translate-y-1 transition transform border border-red-100">
-                            <i class="fa-solid fa-droplet text-3xl text-red-500 mb-3"></i>
-                            <h3 id="show-bags" class="text-4xl font-extrabold text-red-600">0</h3>
-                            <p class="text-sm font-bold text-gray-700 mt-2">মোট রক্তদান (ব্যাগ)</p>
+                        <div class="bg-red-50 p-6 rounded-2xl hover:-translate-y-2 transition duration-300 border border-red-100 shadow-sm">
+                            <i class="fa-solid fa-droplet text-4xl text-red-500 mb-4 drop-shadow-md"></i>
+                            <h3 id="show-bags" class="text-3xl font-extrabold text-red-700">0</h3>
+                            <p class="text-sm font-bold text-gray-600 mt-2">মোট রক্তদান (ব্যাগ)</p>
                         </div>
-                        <div class="bg-red-50 p-6 rounded-xl hover:-translate-y-1 transition transform border border-red-100">
-                            <i class="fa-solid fa-users-viewfinder text-3xl text-red-500 mb-3"></i>
-                            <h3 id="show-donors" class="text-4xl font-extrabold text-red-600">0</h3>
-                            <p class="text-sm font-bold text-gray-700 mt-2">নিবন্ধিত রক্তদাতা</p>
+                        <div class="bg-red-50 p-6 rounded-2xl hover:-translate-y-2 transition duration-300 border border-red-100 shadow-sm">
+                            <i class="fa-solid fa-users-viewfinder text-4xl text-red-500 mb-4 drop-shadow-md"></i>
+                            <h3 id="show-donors" class="text-3xl font-extrabold text-red-700">0</h3>
+                            <p class="text-sm font-bold text-gray-600 mt-2">নিবন্ধিত রক্তদাতা</p>
                         </div>
-                        <div class="bg-red-50 p-6 rounded-xl hover:-translate-y-1 transition transform border border-red-100">
-                            <i class="fa-solid fa-hand-holding-heart text-3xl text-red-500 mb-3"></i>
-                            <h3 id="show-volunteers" class="text-4xl font-extrabold text-red-600">0</h3>
-                            <p class="text-sm font-bold text-gray-700 mt-2">সক্রিয় স্বেচ্ছাসেবক</p>
+                        <div class="bg-red-50 p-6 rounded-2xl hover:-translate-y-2 transition duration-300 border border-red-100 shadow-sm">
+                            <i class="fa-solid fa-hand-holding-heart text-4xl text-red-500 mb-4 drop-shadow-md"></i>
+                            <h3 id="show-volunteers" class="text-3xl font-extrabold text-red-700">0</h3>
+                            <p class="text-sm font-bold text-gray-600 mt-2">সক্রিয় স্বেচ্ছাসেবক</p>
                         </div>
-                        <div class="bg-red-50 p-6 rounded-xl hover:-translate-y-1 transition transform border border-red-100">
-                            <i class="fa-solid fa-face-smile text-3xl text-red-500 mb-3"></i>
-                            <h3 class="text-4xl font-extrabold text-red-600"><i class="fa-solid fa-infinity text-2xl"></i></h3>
-                            <p class="text-sm font-bold text-gray-700 mt-2">অগণিত হাসি</p>
+                        <div class="bg-red-50 p-6 rounded-2xl hover:-translate-y-2 transition duration-300 border border-red-100 shadow-sm">
+                            <i class="fa-solid fa-face-smile text-4xl text-red-500 mb-4 drop-shadow-md"></i>
+                            <h3 class="text-3xl font-extrabold text-red-700"><i class="fa-solid fa-infinity text-2xl"></i></h3>
+                            <p class="text-sm font-bold text-gray-600 mt-2">অগণিত হাসি</p>
                         </div>
                     </div>
                 </div>
@@ -166,10 +228,12 @@
 
             <!-- ট্যাব ৩: কমিটি -->
             <div id="tab-committee" class="tab-content hidden animate-fade-in">
-                <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <h3 class="text-xl font-bold text-white bg-red-600 p-4 text-center"><i class="fa-solid fa-users-gear mr-2"></i> বর্তমান কার্যনির্বাহী কমিটি</h3>
+                <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="bg-gradient-to-r from-red-700 to-red-600 p-5 text-center">
+                        <h3 class="text-2xl font-bold text-white tracking-wide"><i class="fa-solid fa-users-gear mr-2 opacity-80"></i> বর্তমান কার্যনির্বাহী কমিটি</h3>
+                    </div>
                     <ul id="show-committee" class="divide-y divide-gray-100">
-                        <li class="p-5 text-center text-gray-500"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</li>
+                        <li class="p-8 text-center text-gray-500 font-bold"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i> ডাটা লোড হচ্ছে...</li>
                     </ul>
                 </div>
             </div>
@@ -178,16 +242,20 @@
             <div id="tab-advisors" class="tab-content hidden animate-fade-in">
                 <div class="grid md:grid-cols-2 gap-8">
                     <!-- উপদেষ্টা -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-fit">
-                        <h3 class="text-lg font-bold text-gray-800 bg-gray-100 p-4 border-b-2 border-red-500"><i class="fa-solid fa-star text-yellow-500 mr-2"></i> উপদেষ্টা পরিষদ</h3>
-                        <ul id="show-advisors" class="p-6 space-y-3 text-sm font-semibold text-gray-700">
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden h-fit">
+                        <div class="bg-gray-50 p-5 border-b border-gray-200">
+                            <h3 class="text-xl font-extrabold text-gray-800"><i class="fa-solid fa-star text-yellow-500 mr-2"></i> উপদেষ্টা পরিষদ</h3>
+                        </div>
+                        <ul id="show-advisors" class="p-6 space-y-2">
                             <li class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</li>
                         </ul>
                     </div>
                     
                     <!-- সদস্যবৃন্দ -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <h3 class="text-lg font-bold text-gray-800 bg-gray-100 p-4 border-b-2 border-red-500"><i class="fa-solid fa-users text-blue-500 mr-2"></i> কার্যনির্বাহী সদস্যবৃন্দ</h3>
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-gray-50 p-5 border-b border-gray-200">
+                            <h3 class="text-xl font-extrabold text-gray-800"><i class="fa-solid fa-users text-blue-500 mr-2"></i> সাধারণ সদস্যবৃন্দ</h3>
+                        </div>
                         <div id="show-members" class="p-6 flex flex-wrap gap-3">
                             <span class="text-gray-500 text-sm"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</span>
                         </div>
@@ -200,15 +268,5 @@
 
     <div id="footer-placeholder"></div>
     <script src="script.js?v=2"></script>
-
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.4s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
 </body>
 </html>
