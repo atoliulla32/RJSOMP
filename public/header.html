@@ -34,8 +34,8 @@
             </a>
         </div>
 
-        <!-- Mobile Menu Toggle Button -->
-        <button onclick="toggleMobileMenu()" class="xl:hidden text-gray-800 text-2xl focus:outline-none p-2 rounded-xl hover:bg-gray-100 transition active:scale-95">
+        <!-- Mobile Menu Toggle Button (Script added inline to fix loading issue) -->
+        <button onclick="var m=document.getElementById('mobile-menu'),i=document.getElementById('mobile-menu-icon'); m.classList.toggle('hidden'); if(m.classList.contains('hidden')){i.classList.remove('fa-xmark','text-red-600');i.classList.add('fa-bars','text-gray-800');i.style.transform='rotate(0deg)';}else{i.classList.remove('fa-bars','text-gray-800');i.classList.add('fa-xmark','text-red-600');i.style.transform='rotate(90deg)';}" class="xl:hidden text-gray-800 text-2xl focus:outline-none p-2 rounded-xl hover:bg-gray-100 transition active:scale-95">
             <i id="mobile-menu-icon" class="fa-solid fa-bars transition-transform duration-300"></i>
         </button>
     </div>
@@ -63,25 +63,3 @@
         </div>
     </div>
 </nav>
-
-<!-- Mobile Menu Script -->
-<script>
-    function toggleMobileMenu() {
-        const menu = document.getElementById('mobile-menu');
-        const icon = document.getElementById('mobile-menu-icon');
-        
-        menu.classList.toggle('hidden');
-        
-        if (menu.classList.contains('hidden')) {
-            // মেনু বন্ধ থাকলে হ্যামবার্গার আইকন দেখাবে
-            icon.classList.remove('fa-xmark', 'text-red-600');
-            icon.classList.add('fa-bars', 'text-gray-800');
-            icon.style.transform = 'rotate(0deg)';
-        } else {
-            // মেনু ওপেন থাকলে ক্রস (X) আইকন দেখাবে
-            icon.classList.remove('fa-bars', 'text-gray-800');
-            icon.classList.add('fa-xmark', 'text-red-600');
-            icon.style.transform = 'rotate(90deg)';
-        }
-    }
-</script>
