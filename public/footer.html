@@ -7,12 +7,13 @@
                 <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" alt="Logo" class="h-10 w-10 rounded-full border border-red-500 p-0.5 bg-white object-cover">
                 <div>
                     <h2 class="text-base font-bold text-white leading-tight">রক্তযোদ্ধা</h2>
-                    <p class="text-[9px] text-red-500 font-bold uppercase tracking-wide">সমাজ ও মানব কল্যাণ</p>
+                    <p class="text-[9px] text-red-500 font-bold uppercase tracking-wide">সমাজ ও মানব কল্যাণ পরিষদ</p>
                 </div>
             </a>
-            <div class="flex gap-3">
-                <a href="https://www.facebook.com/share/19TjDUAc11/" target="_blank" class="text-gray-400 hover:text-blue-500 text-lg transition-colors"><i class="fa-brands fa-facebook"></i></a>
-                <a href="https://www.facebook.com/share/g/1Dkn3xoTKC/" target="_blank" class="text-gray-400 hover:text-blue-400 text-lg transition-colors"><i class="fa-solid fa-users"></i></a>
+            <div class="flex gap-2">
+                <a href="https://www.facebook.com/share/19TjDUAc11/" target="_blank" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-700 transition flex items-center gap-1.5"><i class="fa-brands fa-facebook-f"></i> Facebook</a>
+                <a href="https://www.facebook.com/share/g/1Dkn3xoTKC/" target="_blank" class="bg-blue-800 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-900 transition flex items-center gap-1.5"><i class="fa-solid fa-users"></i> Group</a>
+                <a href="mailto:info.rjsomkp@gmail.com" class="bg-red-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-red-700 transition flex items-center gap-1.5"><i class="fa-solid fa-envelope"></i> Email</a>
             </div>
         </div>
 
@@ -29,7 +30,6 @@
         <div class="flex flex-wrap justify-center gap-x-5 gap-y-2 text-[11px] md:text-xs text-gray-400 mt-1">
             <div class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-red-600"></i> কাশীপুর, ফতুল্লা, নারায়ণগঞ্জ-১৪০০</div>
             <a href="tel:01917079156" class="flex items-center gap-1.5 hover:text-white transition-colors"><i class="fa-solid fa-phone text-red-600"></i> 01917079156</a>
-            <a href="mailto:info.rjsomkp@gmail.com" class="flex items-center gap-1.5 hover:text-white transition-colors"><i class="fa-solid fa-envelope text-red-600"></i> info.rjsomkp@gmail.com</a>
         </div>
 
         <!-- ম্যাপ (ছোট ও স্লিম করে দেওয়া হয়েছে) -->
@@ -38,11 +38,39 @@
         </div>
 
         <!-- কপিরাইট ও নীতিমালা -->
-        <div class="w-full flex flex-col md:flex-row justify-center items-center gap-2 md:gap-4 text-[10px] text-gray-600 pt-2 border-t border-gray-800 mt-2">
-            <p>&copy; 2026 রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ।</p>
-            <div class="flex gap-3">
-                <a href="terms.html" class="hover:text-white transition-colors underline decoration-gray-700">শর্তাবলী</a>
-                <a href="privacy.html" class="hover:text-white transition-colors underline decoration-gray-700">গোপনীয়তা নীতি</a>
+        <div class="w-full flex flex-col justify-center items-center gap-2 text-[10px] text-gray-600 pt-3 border-t border-gray-800 mt-2">
+            <div class="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
+                <p>&copy; 2026 রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ।</p>
+                <div class="flex gap-3">
+                    <a href="terms.html" class="hover:text-white transition-colors underline decoration-gray-700">শর্তাবলী</a>
+                    <a href="privacy.html" class="hover:text-white transition-colors underline decoration-gray-700">গোপনীয়তা নীতি</a>
+                </div>
+            </div>
+
+            <!-- ডেভেলপারের সাথে যোগাযোগ -->
+            <div style="display: block; width: 100%; text-align: center; margin-top: 5px;">
+                <span onclick="var el=document.getElementById('dev-links'); if(el.style.display==='flex'){el.style.display='none';}else{el.style.display='flex'; setTimeout(function(){window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});}, 100);}" 
+                      style="cursor: pointer; color: #94a3b8; font-size: 11px; transition: 0.3s; display: inline-block;" 
+                      onmouseover="this.style.color='#10b981'" 
+                      onmouseout="this.style.color='#94a3b8'">
+                    <i class="fas fa-laptop-code"></i> ডেভেলপারের সাথে যোগাযোগ
+                </span>
+                
+                <div id="dev-links" class="dev-wrap-fix" style="display: none; justify-content: center; align-items: center; gap: 5px; margin-top: 8px; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none;">
+                    <a href="tel:01757920174" style="color: #38bdf8; text-decoration: none; font-weight: bold; background: rgba(56,189,248,0.1); padding: 5px 8px; border-radius: 20px; transition: 0.3s; font-size: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="fas fa-phone-alt"></i> কল
+                    </a>
+                    <a href="https://wa.me/8801757920174" target="_blank" style="color: #25D366; text-decoration: none; font-weight: bold; background: rgba(37,211,102,0.1); padding: 5px 8px; border-radius: 20px; transition: 0.3s; font-size: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
+                    <a href="https://m.me/atoliulla32" target="_blank" style="color: #0084FF; text-decoration: none; font-weight: bold; background: rgba(0,132,255,0.1); padding: 5px 8px; border-radius: 20px; transition: 0.3s; font-size: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="fab fa-facebook-messenger"></i> Messenger
+                    </a>
+                    <a href="https://facebook.com/atoliulla32" target="_blank" style="color: #1877F2; text-decoration: none; font-weight: bold; background: rgba(24,119,242,0.1); padding: 5px 8px; border-radius: 20px; transition: 0.3s; font-size: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </a>
+                </div>
+                <style>.dev-wrap-fix::-webkit-scrollbar { display: none; }</style>
             </div>
         </div>
     </div>
