@@ -5,6 +5,17 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#dc2626">
 
+<!-- Custom CSS for Bouncing & Highlighting Animation -->
+<style>
+    @keyframes customBounce {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-8px) scale(1.05); }
+    }
+    .animate-dancing-tooltip {
+        animation: customBounce 0.6s ease-in-out infinite;
+    }
+</style>
+
 <!-- Main Header / Navbar -->
 <nav class="bg-white/95 backdrop-blur-md shadow-md sticky top-0 z-50 border-b-[3px] border-red-600 transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -45,11 +56,11 @@
         <!-- Mobile Actions (Download App & Menu Toggle) -->
         <div class="flex items-center gap-2.5 xl:hidden">
             
-            <!-- App Download Button & Timed Popup Tooltip -->
+            <!-- App Download Button & Dancing Popup Tooltip -->
             <div class="relative flex items-center justify-center mt-1">
-                <!-- Tooltip Popup Box (Inline style added for absolute visibility) -->
-                <div id="app-download-tooltip" style="opacity: 0; transform: scale(0.95); transition: all 0.5s ease;" class="absolute -top-12 right-0 bg-red-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-2xl w-max pointer-events-none z-50">
-                    রক্ত যোদ্ধা অ্যাপ ডাউনলোড করুন
+                <!-- Tooltip Popup Box -->
+                <div id="app-download-tooltip" class="absolute -top-12 right-0 bg-red-600 text-white text-[11px] font-extrabold px-3 py-1.5 rounded-xl shadow-2xl w-max pointer-events-none z-50 opacity-0 transition-opacity duration-300">
+                    রক্তযোদ্ধা অ্যাপ ডাউনলোড করুন
                     <!-- Tooltip Bottom Arrow -->
                     <div class="absolute -bottom-1.5 right-3 border-t-[6px] border-t-red-600 border-x-[6px] border-x-transparent"></div>
                 </div>
@@ -95,39 +106,39 @@
     </div>
 </nav>
 
-<!-- Guaranteed Tooltip Animation Script -->
+<!-- Strict Timing Animation Script -->
 <script>
     (function() {
-        function initTooltip() {
+        function startTooltipLoop() {
             const tooltip = document.getElementById('app-download-tooltip');
-            if (tooltip) {
-                function triggerPopup() {
-                    // পপআপ দৃশ্যমান করা
-                    tooltip.style.opacity = '1';
-                    tooltip.style.transform = 'scale(1)';
-
-                    // ৪ সেকেন্ড পর আবার হাইড করা
-                    setTimeout(() => {
-                        tooltip.style.opacity = '0';
-                        tooltip.style.transform = 'scale(0.95)';
-                    }, 4000);
-                }
-
-                // পেজ লোড হওয়ার ২ সেকেন্ড পর প্রথমবার দেখাবে
-                setTimeout(triggerPopup, 2000);
-
-                // প্রতি ১০ সেকেন্ড পর পর রিকারিং লুপ চলবে
-                setInterval(triggerPopup, 10000);
-            } else {
-                // যদি এলিমেন্ট পেতে দেরি হয়, তবে আবার চেষ্টা করবে
-                setTimeout(initTooltip, 500);
+            if (!tooltip) {
+                setTimeout(startTooltipLoop, 300);
+                return;
             }
+
+            function runAnimationCycle() {
+                // ১. পপআপ দৃশ্যমান করা এবং নাচানাচি (animation) শুরু করা
+                tooltip.style.opacity = '1';
+                tooltip.classList.add('animate-dancing-tooltip');
+
+                // ২. ঠিক ২ সেকেন্ড পর নাচ বন্ধ করা এবং হাইড করা
+                setTimeout(() => {
+                    tooltip.classList.remove('animate-dancing-tooltip');
+                    tooltip.style.opacity = '0';
+                }, 2000);
+            }
+
+            // পেজ লোড হওয়ার ১ সেকেন্ড পর প্রথমবার রান হবে
+            setTimeout(runAnimationCycle, 1000);
+
+            // এরপর প্রতি ৫ সেকেন্ড পর পর লুপ চলতে থাকবে (৫ সেকেন্ড বিরতি + ২ সেকেন্ড নাচ)
+            setInterval(runAnimationCycle, 7000);
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initTooltip);
+            document.addEventListener('DOMContentLoaded', startTooltipLoop);
         } else {
-            initTooltip();
+            startTooltipLoop();
         }
     })();
 </script>
