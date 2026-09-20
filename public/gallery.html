@@ -3,51 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>নিউজ ও গ্যালারি | রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</title>
-    
+    <title>নিউজ ও গ্যালারি অ্যাডমিন | রক্তযোদ্ধা</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        .animate-fade-up { animation: fadeUp 0.5s ease-out forwards; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .news-desc-clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        
-        #modal-content-area::-webkit-scrollbar { width: 6px; }
-        #modal-content-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
-        .modern-marquee-container {
-            width: 100%; max-width: 1100px; overflow: hidden; padding: 15px 0;
-            white-space: nowrap; height: 130px; position: relative; margin: 0 auto;
-        }
-        .modern-marquee-track {
-            display: inline-block;
-            animation: scrollMarquee 20s linear infinite; 
-        }
-        @keyframes scrollMarquee {
-            0% { transform: translateX(100vw); }
-            100% { transform: translateX(-100%); }
-        }
-        .modern-marquee-track img {
-            height: 100px; width: 150px; object-fit: cover; border: 3px solid #ffffff; 
-            border-radius: 8px; margin: 0 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); 
-            cursor: pointer; transition: transform 0.3s; display: inline-block; vertical-align: middle;
-        }
-        .modern-marquee-track img:hover { transform: scale(1.05); }
-
-        .modal-text { font-size: 17px; line-height: 1.8; color: #374151; margin-bottom: 15px; white-space: pre-wrap; display: inline-block; width: 100%; }
-        .interspersed-media { width: 100%; margin: 25px 0; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1); background: #f8fafc; }
-        .interspersed-media img { width: 100%; max-height: 450px; object-fit: contain; display: block; cursor: zoom-in; }
-        .interspersed-media video { width: 100%; max-height: 450px; display: block; outline: none; background: #000; }
-        .interspersed-media iframe { width: 100%; aspect-ratio: 16/9; border: none; display: block; }
-        
-        .modal-media-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 30px; margin-bottom: 20px; }
+        body { background: #f8fafc; font-family: sans-serif; }
+        .glass-card { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .input-field { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; transition: 0.3s; }
+        .input-field:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
+        .loader { display: none; border: 3px solid #f3f3f3; border-top: 3px solid #dc2626; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
@@ -55,402 +25,238 @@
             databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "rjsomp"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const newsRef = ref(db, 'newsAndGallery');
+        const metaRef = ref(db, 'newsMeta/lastSerial'); // সিরিয়াল নম্বর ট্র্যাকিং
 
-        let allPosts = []; 
-        let filteredPosts = []; 
-        let displayedCount = 0; 
-        const POSTS_PER_PAGE = 6; 
-        let isMarqueePaused = false;
-        let isFirstUrlCheckDone = false;
+        let selectedFiles = [];
+        let existingMedia = [];
+        let editingId = null;
+        let allAdminPosts = []; // নতুন: সব পোস্ট ট্র্যাকিংয়ের জন্য
 
-        function renderData(dataArray) {
-            allPosts = dataArray.sort((a,b) => b.timestamp - a.timestamp);
-            let allImages = [];
-
-            allPosts.forEach((post) => {
-                if(post.thumbnail) allImages.push(post.thumbnail);
-                if(post.media) {
-                    post.media.forEach(m => { if(m.type !== 'video' && m.url) allImages.push(m.url); });
-                }
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'rjsomp'); 
+            
+            const res = await fetch('https://api.cloudinary.com/v1_1/h0dlj3no/auto/upload', {
+                method: 'POST',
+                body: formData
             });
-
-            if(allImages.length > 0) {
-                allImages = allImages.sort(() => Math.random() - 0.5);
-                const marqueeTrack = document.getElementById('dynamic-marquee-track');
-                if(marqueeTrack) {
-                    marqueeTrack.innerHTML = allImages.map(url => `<img src="${url}" onclick="openZoom('${url}', event)">`).join('');
-                }
-            }
-
-            filteredPosts = [...allPosts];
-            document.getElementById('news-grid').innerHTML = '';
-            displayedCount = 0;
-            loadMorePosts();
-
-            if (!isFirstUrlCheckDone) {
-                checkUrlParameter();
-                isFirstUrlCheckDone = true;
-            }
+            const data = await res.json();
+            return { url: data.secure_url, type: data.resource_type };
         }
 
-        const cachedData = localStorage.getItem('rjsomp_gallery_cache');
-        if (cachedData) {
-            try {
-                const parsed = JSON.parse(cachedData);
-                if (parsed && parsed.length > 0) {
-                    renderData(parsed);
-                }
-            } catch(e) {}
-        }
-
-        onValue(ref(db, 'newsAndGallery'), (snapshot) => {
-            if(!snapshot.exists()) {
-                document.getElementById('news-grid').innerHTML = `<div class="col-span-full text-center py-20 text-gray-500"><i class="fas fa-folder-open text-4xl mb-3 opacity-50"></i><p>এখনো কোনো সংবাদ বা ছবি যুক্ত হয়নি।</p></div>`;
-                document.getElementById('load-more-btn').classList.add('hidden');
-                localStorage.removeItem('rjsomp_gallery_cache');
-                return;
-            }
-
-            let liveData = [];
-            snapshot.forEach(child => { 
-                liveData.push({ id: child.key, ...child.val() }); 
-            });
-
-            localStorage.setItem('rjsomp_gallery_cache', JSON.stringify(liveData));
-            renderData(liveData);
-
-        }, (error) => {
-            if(!cachedData) {
-                document.getElementById('news-grid').innerHTML = `<div class="col-span-full text-center py-20 text-red-500"><i class="fas fa-wifi text-4xl mb-3 opacity-80"></i><p>ইন্টারনেট সংযোগ সমস্যা! দয়া করে পেজটি রিলোড দিন।</p></div>`;
-            }
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files);
+            renderPreviews();
         });
 
-        function checkUrlParameter() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const postId = urlParams.get('id');
-            if (postId) {
-                const index = allPosts.findIndex(p => p.id === postId);
-                if (index !== -1) {
-                    setTimeout(() => { openDetails(index); }, 300);
-                } else {
-                    window.history.replaceState({}, document.title, window.location.pathname);
+        window.addYtField = (val = '') => {
+            const container = document.getElementById('yt-container');
+            container.innerHTML += `
+                <div class="flex gap-2 mt-2 yt-row">
+                    <input type="url" value="${val}" placeholder="ইউটিউব ভিডিও লিংক..." class="input-field yt-val">
+                    <button type="button" onclick="this.parentElement.remove()" class="bg-red-500 text-white px-4 rounded-lg"><i class="fas fa-times"></i></button>
+                </div>
+            `;
+        };
+
+        window.renderPreviews = () => {
+            const grid = document.getElementById('preview-grid');
+            grid.innerHTML = '';
+            
+            existingMedia.forEach((m, idx) => {
+                let html = `<div class="relative border rounded-lg overflow-hidden h-16">`;
+                if(m.type === 'video') html += `<video src="${m.url}" class="w-full h-full object-cover"></video>`;
+                else html += `<img src="${m.url}" class="w-full h-full object-cover">`;
+                html += `<button type="button" onclick="existingMedia.splice(${idx}, 1); renderPreviews();" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 text-[10px]"><i class="fas fa-times"></i></button></div>`;
+                grid.insertAdjacentHTML('beforeend', html);
+            });
+
+            selectedFiles.forEach((f, idx) => {
+                const url = URL.createObjectURL(f);
+                let html = `<div class="relative border rounded-lg overflow-hidden h-16">`;
+                if(f.type.startsWith('video/')) html += `<video src="${url}" class="w-full h-full object-cover"></video>`;
+                else html += `<img src="${url}" class="w-full h-full object-cover">`;
+                html += `<button type="button" onclick="selectedFiles.splice(${idx}, 1); renderPreviews();" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 text-[10px]"><i class="fas fa-times"></i></button></div>`;
+                grid.insertAdjacentHTML('beforeend', html);
+            });
+        };
+
+        window.publishPost = async () => {
+            const title = document.getElementById('post-title').value;
+            const desc = document.getElementById('post-desc').value;
+            const date = document.getElementById('post-date').value || new Date().toISOString().split('T')[0];
+            
+            let ytLinks = [];
+            document.querySelectorAll('.yt-val').forEach(inp => { if(inp.value.trim()) ytLinks.push(inp.value.trim()); });
+
+            if(!title) return alert("শিরোনাম দিতে হবে!");
+            if(selectedFiles.length === 0 && existingMedia.length === 0 && ytLinks.length === 0) return alert("কমপক্ষে একটি ছবি/ভিডিও বা লিংক দিন!");
+
+            const btnText = document.getElementById('btn-text');
+            const loader = document.getElementById('btn-loader');
+            btnText.innerText = "আপলোড হচ্ছে..."; loader.style.display = "block";
+
+            try {
+                let finalMedia = [...existingMedia];
+                for(let file of selectedFiles) {
+                    const uploaded = await uploadToCloudinary(file);
+                    finalMedia.push(uploaded);
                 }
+
+                let finalThumb = finalMedia.find(m => m.type === 'image')?.url || "";
+                if(!finalThumb && ytLinks.length > 0) {
+                    const match = ytLinks[0].match(/(?:v=|\/)([\w-]{11})/);
+                    if(match) finalThumb = `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+                }
+
+                const postData = {
+                    title, description: desc, date,
+                    thumbnail: finalThumb, media: finalMedia, youtube: ytLinks,
+                    timestamp: editingId ? Date.now() : Date.now()
+                };
+
+                if(editingId) {
+                    await update(ref(db, 'newsAndGallery/' + editingId), postData);
+                    alert("আপডেট সফল!");
+                } else {
+                    const metaSnap = await get(metaRef);
+                    let currentSerial = metaSnap.exists() ? metaSnap.val() : 0;
+                    let newSerial = currentSerial + 1;
+                    
+                    postData.serialId = newSerial; 
+                    
+                    await push(newsRef, postData);
+                    await set(metaRef, newSerial); 
+                    alert("পাবলিশ সফল!");
+                }
+                cancelEdit();
+            } catch(e) {
+                alert("সমস্যা হয়েছে: " + e.message);
+            } finally {
+                btnText.innerText = "পাবলিশ করুন"; loader.style.display = "none";
             }
-        }
+        };
 
-        window.loadMorePosts = () => {
-            const grid = document.getElementById('news-grid');
-            const loadMoreBtn = document.getElementById('load-more-btn');
-            
-            let html = '';
-            const end = Math.min(displayedCount + POSTS_PER_PAGE, filteredPosts.length);
-            
-            for(let i = displayedCount; i < end; i++) {
-                const post = filteredPosts[i];
-                if (!post) continue;
+        onValue(newsRef, (snapshot) => {
+            const grid = document.getElementById('post-list');
+            grid.innerHTML = '';
+            allAdminPosts = [];
+            snapshot.forEach(child => { allAdminPosts.push({ id: child.key, ...child.val() }); });
+            allAdminPosts.sort((a,b) => b.timestamp - a.timestamp); 
 
-                const originalIndex = allPosts.findIndex(p => p.id === post.id);
-                const thumb = post.thumbnail || 'https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg';
-                const mediaCount = (post.media?.length || 0) + (post.youtube?.length || 0);
-                
-                // ডাটাবেজ থেকে পার্মানেন্ট সিরিয়াল আইডি নেওয়া হচ্ছে (না থাকলে N/A দেখাবে)
-                const serialNum = post.serialId || 'N/A';
-                
-                html += `
-                    <div class="bg-white rounded-[20px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group cursor-pointer animate-fade-up flex flex-col" onclick="openDetails(${originalIndex})" style="animation-delay: ${(i - displayedCount) * 0.1}s">
-                        <div class="relative h-56 overflow-hidden shrink-0">
-                            <img src="${thumb}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                            ${mediaCount > 1 ? `<span class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full"><i class="fas fa-images mr-1"></i> +${mediaCount}</span>` : ''}
-                            ${post.youtube?.length > 0 ? `<span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"><i class="fab fa-youtube mr-1"></i> ভিডিও</span>` : ''}
+            allAdminPosts.forEach(p => {
+                const sId = p.serialId ? `#${p.serialId}` : '#N/A';
+                grid.innerHTML += `
+                    <div class="glass-card p-4 flex gap-4 items-center">
+                        <img src="${p.thumbnail || 'https://via.placeholder.com/150'}" class="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg border shrink-0">
+                        <div class="flex-grow min-w-0">
+                            <h3 class="font-bold text-gray-800 truncate"><span class="text-red-600 font-extrabold mr-1">${sId}</span> ${p.title}</h3>
+                            <p class="text-xs text-gray-500">${p.date} • ${p.media?.length || 0} মিডিয়া • ${p.youtube?.length || 0} YT লিংক</p>
                         </div>
-                        <div class="p-6 flex flex-col flex-grow">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="bg-red-100 text-red-700 text-xs font-extrabold px-2.5 py-1 rounded-md tracking-wider">#${serialNum}</span>
-                                <p class="text-xs font-bold text-gray-500"><i class="far fa-calendar-alt"></i> ${post.date}</p>
-                            </div>
-                            <h2 class="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-red-600 transition">${post.title}</h2>
-                            <p class="text-sm text-gray-500 news-desc-clamp flex-grow">${post.description || 'বিস্তারিত দেখুন...'}</p>
-                            <span class="inline-block mt-4 text-sm font-bold text-gray-800 border-b-2 border-red-600 pb-0.5 group-hover:text-red-600 transition w-max">আরও দেখুন <i class="fas fa-arrow-right ml-1"></i></span>
+                        <div class="flex flex-col gap-2 shrink-0">
+                            <button onclick="editPost('${p.id}')" class="bg-blue-100 text-blue-600 px-3 py-1.5 rounded hover:bg-blue-200 transition"><i class="fas fa-edit"></i></button>
+                            <button onclick="deletePost('${p.id}')" class="bg-red-100 text-red-600 px-3 py-1.5 rounded hover:bg-red-200 transition"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
-            }
-            
-            grid.insertAdjacentHTML('beforeend', html);
-            displayedCount = end;
-
-            if(displayedCount >= filteredPosts.length) {
-                loadMoreBtn.classList.add('hidden');
-            } else {
-                loadMoreBtn.classList.remove('hidden');
-            }
-        };
-
-        window.filterNews = (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            filteredPosts = allPosts.filter(post => {
-                return (post.title && post.title.toLowerCase().includes(searchTerm)) || 
-                       (post.description && post.description.toLowerCase().includes(searchTerm)) ||
-                       (post.date && post.date.includes(searchTerm));
             });
+        });
 
-            document.getElementById('news-grid').innerHTML = '';
-            displayedCount = 0;
+        window.editPost = (id) => {
+            const p = allAdminPosts.find(post => post.id === id);
+            if(!p) return;
+
+            editingId = p.id; 
+            existingMedia = p.media || []; 
+            selectedFiles = [];
             
-            if(filteredPosts.length === 0) {
-                document.getElementById('news-grid').innerHTML = `<div class="col-span-full text-center py-10 text-gray-500"><i class="fas fa-search text-3xl mb-3 opacity-50"></i><p>কোনো ফলাফল পাওয়া যায়নি!</p></div>`;
-                document.getElementById('load-more-btn').classList.add('hidden');
+            document.getElementById('post-title').value = p.title || '';
+            document.getElementById('post-desc').value = p.description || '';
+            document.getElementById('post-date').value = p.date || '';
+            
+            document.getElementById('yt-container').innerHTML = '';
+            if(p.youtube && p.youtube.length > 0) {
+                p.youtube.forEach(y => addYtField(y));
             } else {
-                loadMorePosts();
+                addYtField();
             }
+            
+            document.getElementById('btn-text').innerText = "আপডেট করুন";
+            renderPreviews(); 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        function getSafeYtUrl(url) {
-            if(!url) return "";
-            const match = url.match(/(?:v=|\/)([\w-]{11})/);
-            return match ? `https://www.youtube.com/embed/${match[1]}` : url;
-        }
+        window.deletePost = async (id) => {
+            if(confirm("পোস্টটি মুছে ফেলতে চান? (এর সিরিয়াল নম্বর অন্য কাউকে দেওয়া হবে না)")) await remove(ref(db, 'newsAndGallery/' + id));
+        };
 
-        function getMediaHTML(m, isInterleaved = false) {
-            if (!m || !m.url) return '';
-            if (isInterleaved) {
-                if (m.type === 'youtube') return `<div class="interspersed-media"><iframe src="${m.url}" allowfullscreen></iframe></div>`;
-                else if (m.type === 'video') return `<div class="interspersed-media"><video src="${m.url}" controls></video></div>`;
-                else return `<div class="interspersed-media"><img src="${m.url}" onclick="openZoom('${m.url}', event)"></div>`;
-            } else {
-                if (m.type === 'youtube') return `<div class="w-full aspect-video rounded-xl overflow-hidden shadow-sm"><iframe src="${m.url}" class="w-full h-full" allowfullscreen></iframe></div>`;
-                else if (m.type === 'video') return `<video src="${m.url}" controls class="w-full h-64 object-cover rounded-xl bg-black shadow-sm"></video>`;
-                else return `<img src="${m.url}" class="w-full h-64 object-cover rounded-xl cursor-zoom-in shadow-sm hover:shadow-md transition" onclick="openZoom('${m.url}', event)">`;
-            }
-        }
-
-        window.openDetails = function(index) {
-            const post = allPosts[index];
-            if(!post) return;
-            
-            document.title = `${post.title} | রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ`;
-            
-            const serialNum = post.serialId || 'N/A';
-            document.getElementById('m-title').innerText = post.title || 'শিরোনামহীন';
-            document.getElementById('m-date').innerHTML = `<span class="bg-red-100 text-red-700 text-xs font-extrabold px-2.5 py-1 rounded-md tracking-wider mr-2">#${serialNum}</span><i class="far fa-calendar-alt"></i> ${post.date}`;
-            
-            const shareUrl = `${window.location.origin}${window.location.pathname}?id=${post.id}`;
-            
-            let shortDesc = post.description ? post.description.substring(0, 150).replace(/\n/g, ' ') + '...' : '';
-            const shareText = `🔴 ${post.title}\n\n${shortDesc}\n\nবিস্তারিত পড়তে লিংকে ক্লিক করুন:\n${shareUrl}`;
-
-            const copyBtn = document.getElementById('copy-btn');
-            copyBtn.onclick = () => {
-                navigator.clipboard.writeText(shareText).then(() => {
-                    const originalHtml = copyBtn.innerHTML;
-                    copyBtn.innerHTML = '<i class="fas fa-check"></i> কপিড!';
-                    copyBtn.classList.replace('text-gray-600', 'text-green-600');
-                    copyBtn.classList.replace('hover:bg-gray-100', 'bg-green-50');
-                    setTimeout(() => {
-                        copyBtn.innerHTML = originalHtml;
-                        copyBtn.classList.replace('text-green-600', 'text-gray-600');
-                        copyBtn.classList.replace('bg-green-50', 'hover:bg-gray-100');
-                    }, 2000);
-                });
-            };
-
-            const nativeShareBtn = document.getElementById('native-share-btn');
-            nativeShareBtn.onclick = async () => {
-                if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            title: post.title,
-                            text: `🔴 ${post.title}\n\n${shortDesc}\n\nবিস্তারিত পড়তে লিংকে ক্লিক করুন:`,
-                            url: shareUrl,
-                        });
-                    } catch (err) {
-                        console.log("Share failed:", err);
-                    }
-                } else {
-                    alert("আপনার ব্রাউজার এই ফিচারটি সাপোর্ট করে না। অনুগ্রহ করে 'কপি লিংক' বাটন ব্যবহার করুন।");
-                }
-            };
-
-            const newUrl = `${window.location.pathname}?id=${post.id}`;
-            window.history.pushState({ path: newUrl }, '', newUrl);
-
-            let combinedMedia = [];
-            if(post.media && Array.isArray(post.media)) { combinedMedia.push(...post.media); }
-            let ytLinks = post.youtube || [];
-            ytLinks.forEach(url => { if(url) combinedMedia.push({ type: 'youtube', url: getSafeYtUrl(url) }); });
-
-            const descText = post.description || '';
-            let textChunks = descText.split(/\n+/).map(p => p.trim()).filter(p => p !== '');
-            
-            if (textChunks.length > 0 && textChunks.length <= combinedMedia.length && descText.includes('।')) {
-                textChunks = descText.split('।').map(s => s.trim() ? s.trim() + '।' : '').filter(s => s.length > 1);
-            } else if (textChunks.length > 0 && textChunks.length <= combinedMedia.length && descText.includes('.')) {
-                textChunks = descText.split('.').map(s => s.trim() ? s.trim() + '.' : '').filter(s => s.length > 1);
-            }
-            
-            let contentHTML = '';
-            
-            if (textChunks.length === 0) {
-                if (combinedMedia.length > 0) {
-                    contentHTML += `<div class="modal-media-grid">`;
-                    combinedMedia.forEach(m => { contentHTML += getMediaHTML(m, false); });
-                    contentHTML += `</div>`;
-                }
-            } else {
-                const chunksPerMedia = Math.max(1, Math.floor(textChunks.length / (combinedMedia.length || 1)));
-                let mediaIdx = 0;
-
-                textChunks.forEach((chunk, i) => {
-                    contentHTML += `<p class="modal-text">${chunk}</p>`;
-                    if ((i + 1) % chunksPerMedia === 0 && mediaIdx < combinedMedia.length) {
-                        contentHTML += getMediaHTML(combinedMedia[mediaIdx], true);
-                        mediaIdx++;
-                    }
-                });
-
-                if (mediaIdx < combinedMedia.length) {
-                    contentHTML += `<div class="modal-media-grid">`;
-                    while(mediaIdx < combinedMedia.length) {
-                        contentHTML += getMediaHTML(combinedMedia[mediaIdx], false);
-                        mediaIdx++;
-                    }
-                    contentHTML += `</div>`;
-                }
-            }
-
-            document.getElementById('m-dynamic-content').innerHTML = contentHTML;
-            document.getElementById('postModal').classList.remove('hidden');
-            document.getElementById('postModal').classList.add('flex');
-            document.body.style.overflow = 'hidden'; 
-        }
-
-        window.closeModal = function() {
-            document.getElementById('postModal').classList.add('hidden');
-            document.getElementById('postModal').classList.remove('flex');
-            document.body.style.overflow = 'auto'; 
-            document.getElementById('m-dynamic-content').innerHTML = ''; 
-            
-            document.title = "নিউজ ও গ্যালারি | রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ";
-            window.history.pushState({}, document.title, window.location.pathname);
-        }
-
-        window.toggleMarquee = function() {
-            const track = document.getElementById('dynamic-marquee-track');
-            if(track) {
-                if(isMarqueePaused) { track.style.animationPlayState = 'running'; isMarqueePaused = false; } 
-                else { track.style.animationPlayState = 'paused'; isMarqueePaused = true; }
-            }
-        }
-
-        window.openZoom = function(url, event) {
-            if(event) event.stopPropagation(); 
-            document.getElementById('z-img').src = url;
-            document.getElementById('zoomModal').classList.remove('hidden');
-            document.getElementById('zoomModal').classList.add('flex');
-            const track = document.getElementById('dynamic-marquee-track');
-            if(track) track.style.animationPlayState = 'paused';
-        }
-
-        window.closeZoom = function() {
-            document.getElementById('zoomModal').classList.add('hidden');
-            document.getElementById('zoomModal').classList.remove('flex');
-            const track = document.getElementById('dynamic-marquee-track');
-            if(track && !isMarqueePaused) { track.style.animationPlayState = 'running'; }
-        }
+        window.cancelEdit = () => {
+            editingId = null; existingMedia = []; selectedFiles = [];
+            document.getElementById('post-title').value = '';
+            document.getElementById('post-desc').value = '';
+            document.getElementById('post-date').value = '';
+            document.getElementById('yt-container').innerHTML = `<div class="flex gap-2 yt-row"><input type="url" class="input-field yt-val" placeholder="লিংক..."><button type="button" onclick="addYtField()" class="bg-red-600 text-white px-4 rounded-lg"><i class="fas fa-plus"></i></button></div>`;
+            document.getElementById('file-input').value = '';
+            document.getElementById('btn-text').innerText = "পাবলিশ করুন";
+            renderPreviews();
+        };
     </script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
-    
-    <div id="header-placeholder"></div>
+<body class="p-4 md:p-8">
 
-    <main class="flex-grow pb-16">
-        <section class="bg-[#111827] text-white pt-12 pb-16 text-center relative overflow-hidden rounded-b-[40px] shadow-lg mb-8">
-            <div class="absolute inset-0 opacity-20" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg'); background-size: cover; background-position: center; filter: blur(3px);"></div>
-            <div class="relative z-10 max-w-2xl mx-auto px-4 mb-6">
-                <span class="bg-red-600/20 text-red-400 border border-red-500/30 px-5 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4 inline-block">আপডেট ও স্মৃতি</span>
-                <h1 class="text-3xl md:text-4xl font-extrabold mb-2 leading-tight">নিউজ ও ইমেজ গ্যালারি</h1>
-            </div>
-            
-            <div class="modern-marquee-container relative z-10" id="marquee-container" onclick="toggleMarquee()">
-                <div class="modern-marquee-track" id="dynamic-marquee-track"></div>
-            </div>
-        </section>
-
-        <div class="max-w-6xl mx-auto px-4 relative z-20">
-            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-200 mb-8 max-w-md mx-auto flex items-center">
-                <i class="fas fa-search text-gray-400 ml-3 mr-2"></i>
-                <input type="text" oninput="filterNews(event)" placeholder="সংবাদ, তারিখ বা শিরোনাম খুঁজুন..." class="w-full p-2 bg-transparent outline-none text-gray-700 text-sm">
-            </div>
-
-            <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div class="col-span-full text-center py-20">
-                    <i class="fas fa-circle-notch fa-spin text-4xl text-red-600 mb-3"></i>
-                    <p class="text-gray-500 font-bold">ডাটা লোড হচ্ছে...</p>
-                </div>
-            </div>
-
-            <div class="text-center">
-                <button id="load-more-btn" onclick="loadMorePosts()" class="hidden bg-gray-900 text-white px-8 py-3 rounded-full font-bold hover:bg-red-600 transition shadow-md">
-                    আরও দেখুন <i class="fas fa-chevron-down ml-1"></i>
-                </button>
-            </div>
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-8 glass-card p-6 border-l-4 border-red-600">
+            <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-newspaper text-red-600 mr-2"></i> নিউজ ও গ্যালারি কন্ট্রোল</h1>
         </div>
-    </main>
 
-    <div id="footer-placeholder"></div>
+        <div class="glass-card p-6 md:p-8 mb-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-bold text-gray-600 text-sm mb-1">শিরোনাম *</label>
+                        <input type="text" id="post-title" class="input-field">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-600 text-sm mb-1">প্রকাশের তারিখ</label>
+                        <input type="date" id="post-date" class="input-field">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-600 text-sm mb-1">বিস্তারিত বিবরণ (নিউজ হলে)</label>
+                        <textarea id="post-desc" class="input-field h-40 resize-none"></textarea>
+                    </div>
+                </div>
 
-    <!-- Details Modal -->
-    <div id="postModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4 md:p-6">
-        <div class="bg-white w-full max-w-4xl rounded-[24px] shadow-2xl relative max-h-[95vh] md:max-h-[90vh] flex flex-col overflow-hidden animate-fade-up">
-            
-            <div class="sticky top-0 z-20 bg-white/95 backdrop-blur px-6 py-4 border-b border-gray-100 flex justify-between items-center shadow-sm">
-                
-                <p id="m-date" class="text-red-600 font-bold text-sm hidden md:block"></p>
-                
-                <div class="flex items-center gap-2 md:gap-3 w-full md:w-auto justify-end md:justify-start">
-                    <button id="native-share-btn" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-bold hover:bg-blue-700 transition flex items-center gap-2 shadow-sm">
-                        <i class="fas fa-share-nodes"></i> <span class="hidden sm:inline">শেয়ার করুন</span>
-                    </button>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-bold text-gray-600 text-sm mb-1">ছবি বা ভিডিও আপলোড</label>
+                        <input type="file" id="file-input" multiple accept="image/*,video/*" class="input-field bg-gray-50 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+                    </div>
+                    <div id="yt-container">
+                        <label class="block font-bold text-gray-600 text-sm mb-1">ইউটিউব লিংক (ঐচ্ছিক)</label>
+                        <div class="flex gap-2 yt-row">
+                            <input type="url" class="input-field yt-val" placeholder="https://youtube.com/...">
+                            <button type="button" onclick="addYtField()" class="bg-red-600 text-white px-4 rounded-lg"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
                     
-                    <button id="copy-btn" class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-xs md:text-sm font-bold hover:bg-gray-200 transition flex items-center gap-2 border border-gray-200">
-                        <i class="fas fa-link"></i> <span class="hidden sm:inline">কপি লিংক</span>
-                    </button>
+                    <div id="preview-grid" class="grid grid-cols-5 gap-2 mt-2"></div>
 
-                    <div class="h-6 w-px bg-gray-300 mx-1"></div>
-
-                    <button onclick="closeModal()" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition shadow-sm border border-red-100">
-                        <i class="fas fa-times text-lg"></i>
+                    <button onclick="publishPost()" class="w-full bg-red-600 text-white font-bold p-3.5 rounded-xl hover:bg-red-700 transition flex justify-center items-center gap-2 mt-4">
+                        <span id="btn-text">পাবলিশ করুন</span>
+                        <div class="loader" id="btn-loader"></div>
                     </button>
+                    <button onclick="cancelEdit()" class="w-full bg-gray-200 text-gray-800 font-bold p-3 rounded-xl hover:bg-gray-300 transition mt-2">বাতিল করুন</button>
                 </div>
             </div>
-            
-            <div id="modal-content-area" class="overflow-y-auto p-6 md:p-8">
-                <p id="m-date-mobile" class="text-red-600 font-bold text-xs mb-3 md:hidden"></p>
-                <h2 id="m-title" class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 leading-tight border-b pb-4"></h2>
-                <div id="m-dynamic-content"></div>
-            </div>
         </div>
-    </div>
 
-    <!-- Image Zoom Modal -->
-    <div id="zoomModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/95 p-4" onclick="closeZoom()">
-        <button class="absolute top-4 right-4 md:top-6 md:right-6 bg-white/10 hover:bg-red-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl transition backdrop-blur-sm">&times;</button>
-        <img id="z-img" src="" class="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl">
+        <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">আগের পোস্টসমূহ</h2>
+        <div id="post-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
-
-    <script src="script.js?v=13"></script>
-    <script>
-        const originalOpenDetails = window.openDetails;
-        window.openDetails = function(index) {
-            originalOpenDetails(index);
-            const post = allPosts[index];
-            if(post) {
-                const serialNum = post.serialId || 'N/A';
-                document.getElementById('m-date-mobile').innerHTML = `<span class="bg-red-100 text-red-700 text-xs font-extrabold px-2.5 py-1 rounded-md tracking-wider mr-2">#${serialNum}</span><i class="far fa-calendar-alt"></i> ${post.date}`;
-            }
-        };
-    </script>
 </body>
 </html>
