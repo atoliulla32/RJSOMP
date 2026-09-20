@@ -1,1 +1,196 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ডোনেশন অ্যাডমিন | রক্তযোদ্ধা</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+            authDomain: "rjsomp.firebaseapp.com",
+            databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rjsomp"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        const settingsRef = ref(db, 'pageContent/donationSettings');
+        const listRef = ref(db, 'donationsList');
+
+        // ১. পেমেন্ট মেথড লোড করা
+        onValue(settingsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('bkash').value = data.bkash || '';
+                document.getElementById('nagad').value = data.nagad || '';
+                document.getElementById('contact').value = data.contact || '';
+                document.getElementById('bank').value = data.bank || '';
+            }
+        });
+
+        // ২. ডোনেশন লিস্ট লোড করা
+        onValue(listRef, (snapshot) => {
+            const tbody = document.getElementById('donation-tbody');
+            tbody.innerHTML = '';
+            let total = 0;
+            snapshot.forEach(child => {
+                const data = child.val();
+                const key = child.key;
+                total += Number(data.amount);
+                tbody.innerHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-3 text-sm">${data.date}</td>
+                        <td class="p-3 text-sm font-bold text-gray-800">${data.name}</td>
+                        <td class="p-3 text-sm">${data.method}</td>
+                        <td class="p-3 text-sm font-bold text-green-600">৳ ${data.amount}</td>
+                        <td class="p-3 text-sm text-right">
+                            <button onclick="deleteDonation('${key}')" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('total-amount').innerText = total;
+        });
+
+        // ৩. মেথড আপডেট ফাংশন
+        window.saveSettings = (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveSettingsBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...';
+
+            set(settingsRef, {
+                bkash: document.getElementById('bkash').value,
+                nagad: document.getElementById('nagad').value,
+                contact: document.getElementById('contact').value,
+                bank: document.getElementById('bank').value
+            }).then(() => {
+                alert("পেমেন্ট তথ্য আপডেট হয়েছে!");
+                btn.innerHTML = '<i class="fas fa-save"></i> তথ্য আপডেট করুন';
+            });
+        };
+
+        // ৪. নতুন ডোনেশন এন্ট্রি ফাংশন
+        window.addDonation = (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('addBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> যোগ করা হচ্ছে...';
+
+            push(listRef, {
+                date: document.getElementById('d-date').value,
+                name: document.getElementById('d-name').value,
+                method: document.getElementById('d-method').value,
+                amount: document.getElementById('d-amount').value
+            }).then(() => {
+                alert("ডোনেশন এন্ট্রি সফল হয়েছে!");
+                document.getElementById('donationForm').reset();
+                btn.innerHTML = '<i class="fas fa-plus"></i> এন্ট্রি যুক্ত করুন';
+            });
+        };
+
+        // ৫. এন্ট্রি ডিলিট ফাংশন
+        window.deleteDonation = (key) => {
+            if(confirm("আপনি কি নিশ্চিত যে এই এন্ট্রি ডিলিট করতে চান?")) {
+                remove(ref(db, 'donationsList/' + key));
+            }
+        };
+    </script>
+</head>
+<body class="bg-gray-100 p-4 md:p-8 font-sans pb-20">
+
+    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+        
+        <!-- বাম দিক: সেটিং কন্ট্রোল -->
+        <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-blue-500 h-fit">
+            <h2 class="text-xl font-bold text-gray-800 mb-5 border-b pb-3"><i class="fas fa-cog text-blue-500"></i> পেমেন্ট মেথড সেটআপ</h2>
+            <form onsubmit="saveSettings(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-sm text-gray-700 mb-1">বিকাশ নাম্বার</label>
+                        <input type="text" id="bkash" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-sm text-gray-700 mb-1">নগদ নাম্বার</label>
+                        <input type="text" id="nagad" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-sm text-gray-700 mb-1">যোগাযোগের নাম্বার</label>
+                    <input type="text" id="contact" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block font-bold text-sm text-gray-700 mb-1">ব্যাংক ডিটেইলস (যদি থাকে)</label>
+                    <textarea id="bank" rows="3" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" placeholder="ব্যাংকের নাম, একাউন্ট নাম্বার, ব্রাঞ্চ..."></textarea>
+                </div>
+                <button type="submit" id="saveSettingsBtn" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-save"></i> তথ্য আপডেট করুন
+                </button>
+            </form>
+        </div>
+
+        <!-- ডান দিক: ডোনেশন এন্ট্রি -->
+        <div class="space-y-8">
+            <!-- ফর্ম -->
+            <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-green-500">
+                <h2 class="text-xl font-bold text-gray-800 mb-5 border-b pb-3"><i class="fas fa-hand-holding-dollar text-green-500"></i> নতুন ডোনেশন এন্ট্রি</h2>
+                <form id="donationForm" onsubmit="addDonation(event)" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-bold text-sm text-gray-700 mb-1">তারিখ</label>
+                            <input type="date" id="d-date" class="w-full border p-2 rounded focus:ring-2 focus:ring-green-500" required>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-sm text-gray-700 mb-1">টাকার পরিমাণ</label>
+                            <input type="number" id="d-amount" class="w-full border p-2 rounded focus:ring-2 focus:ring-green-500" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-sm text-gray-700 mb-1">দাতার নাম / পরিচয়</label>
+                        <input type="text" id="d-name" class="w-full border p-2 rounded focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-sm text-gray-700 mb-1">মাধ্যম (বিকাশ/নগদ/ব্যাংক)</label>
+                        <input type="text" id="d-method" class="w-full border p-2 rounded focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <button type="submit" id="addBtn" class="w-full bg-green-600 text-white font-bold py-2.5 rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-plus"></i> এন্ট্রি যুক্ত করুন
+                    </button>
+                </form>
+            </div>
+
+            <!-- অডিট লিস্ট -->
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-800">অডিট / ডোনেশন লিস্ট</h2>
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">মোট: ৳ <span id="total-amount">0</span></span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 text-sm">
+                                <th class="p-3">তারিখ</th>
+                                <th class="p-3">নাম</th>
+                                <th class="p-3">মাধ্যম</th>
+                                <th class="p-3">পরিমাণ</th>
+                                <th class="p-3">অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donation-tbody">
+                            <!-- ডাটাবেজ থেকে এখানে লিস্ট আসবে -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+</body>
+</html>
 
