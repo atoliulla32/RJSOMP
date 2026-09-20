@@ -39,11 +39,10 @@
                 if(data.committee) {
                     data.committee.split('\n').forEach(line => {
                         if(line.trim() !== '') {
-                            // শুধুমাত্র প্রথম কোলন (:) বরাবর লাইনটিকে দুই ভাগ করবে
                             let splitIndex = line.indexOf(':');
                             if(splitIndex !== -1) {
                                 let title = line.substring(0, splitIndex).trim();
-                                let name = line.substring(splitIndex + 1).trim(); // নামের ভেতরের কোলন আর কাটবে না
+                                let name = line.substring(splitIndex + 1).trim(); 
                                 
                                 committeeHtml += `
                                 <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
@@ -58,11 +57,12 @@
                 }
                 document.getElementById('show-committee').innerHTML = committeeHtml;
 
+                // Advisors: Elegant List
                 let advHtml = '';
                 if(data.advisors) {
                     data.advisors.split('\n').forEach(line => {
                         if(line.trim() !== '') advHtml += `
-                        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-yellow-400">
                             <i class="fas fa-certificate text-yellow-500 mt-1"></i>
                             <span class="font-bold text-gray-700 text-sm md:text-base">${line.trim()}</span>
                         </div>`;
@@ -70,10 +70,18 @@
                 }
                 document.getElementById('show-advisors').innerHTML = advHtml;
 
+                // Members: Clean List Format (Updated here)
                 let memHtml = '';
                 if(data.members) {
-                    data.members.split('\n').forEach(line => {
-                        if(line.trim() !== '') memHtml += `<span class="inline-block bg-white px-4 py-2 rounded-lg text-xs md:text-sm font-bold text-gray-700 border border-gray-200 shadow-sm whitespace-nowrap">${line.trim()}</span>`;
+                    data.members.split('\n').forEach((line, index) => {
+                        if(line.trim() !== '') {
+                            // অ্যাডমিন প্যানেল থেকে আসা লেখাকে লিস্ট আকারে সাজানো হলো
+                            memHtml += `
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-400">
+                                <span class="bg-blue-100 text-blue-700 font-bold w-6 h-6 flex items-center justify-center rounded-full text-xs">${index + 1}</span>
+                                <span class="font-bold text-gray-700 text-sm md:text-base">${line.trim()}</span>
+                            </div>`;
+                        }
                     });
                 }
                 document.getElementById('show-members').innerHTML = memHtml;
@@ -242,8 +250,9 @@
                         <h2 class="text-xl font-extrabold text-gray-800 mb-5 flex items-center gap-3 border-b pb-4">
                             <i class="fa-solid fa-users text-blue-500 text-2xl"></i> সাধারণ সদস্যবৃন্দ
                         </h2>
-                        <div id="show-members" class="flex flex-wrap gap-2">
-                            <span class="text-gray-500 text-sm"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</span>
+                        <!-- Members Container (Updated to a vertical list) -->
+                        <div id="show-members" class="flex flex-col gap-2 w-full">
+                            <div class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>
                         </div>
                     </div>
                 </div>
