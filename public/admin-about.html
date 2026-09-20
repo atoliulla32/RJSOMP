@@ -2,121 +2,219 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>আমাদের সম্পর্কে এডিট | রক্তযোদ্ধা</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমাদের সম্পর্কে | রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</title>
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase Data Fetch -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
             authDomain: "rjsomp.firebaseapp.com",
             databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "rjsomp",
-            storageBucket: "rjsomp.firebasestorage.app",
-            messagingSenderId: "1033528754332",
-            appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+            projectId: "rjsomp"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const aboutRef = ref(db, 'pageContent/aboutData');
 
-        // ডাটাবেজ থেকে ডাটা লোড করা
         onValue(aboutRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                document.getElementById('history').value = data.history || '';
-                document.getElementById('bags').value = data.bags || '';
-                document.getElementById('donors').value = data.donors || '';
-                document.getElementById('volunteers').value = data.volunteers || '';
-                document.getElementById('committee').value = data.committee || '';
-                document.getElementById('advisors').value = data.advisors || '';
-                document.getElementById('members').value = data.members || '';
+                document.getElementById('show-history').innerHTML = (data.history || '').replace(/\n/g, '<br><br>');
+                document.getElementById('show-bags').innerText = data.bags || '0';
+                document.getElementById('show-donors').innerText = data.donors || '0';
+                document.getElementById('show-volunteers').innerText = data.volunteers || '0';
+
+                let committeeHtml = '';
+                if(data.committee) {
+                    data.committee.split('\n').forEach(line => {
+                        if(line.trim() !== '') {
+                            let parts = line.split(':');
+                            if(parts.length >= 2) {
+                                committeeHtml += `<li class="p-3 flex justify-between text-sm border-b border-gray-100 last:border-0 hover:bg-gray-50 transition"><span class="font-bold text-gray-600">${parts[0].trim()}</span> <span class="font-bold text-gray-900">${parts[1].trim()}</span></li>`;
+                            } else {
+                                committeeHtml += `<li class="p-3 text-sm font-bold text-gray-900 text-center bg-gray-50 border-b border-gray-100">${line.trim()}</li>`;
+                            }
+                        }
+                    });
+                }
+                document.getElementById('show-committee').innerHTML = committeeHtml;
+
+                let advHtml = '';
+                if(data.advisors) {
+                    data.advisors.split('\n').forEach(line => {
+                        if(line.trim() !== '') advHtml += `<li class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500 text-xs"></i> ${line.trim()}</li>`;
+                    });
+                }
+                document.getElementById('show-advisors').innerHTML = advHtml;
+
+                let memHtml = '';
+                if(data.members) {
+                    data.members.split('\n').forEach(line => {
+                        if(line.trim() !== '') memHtml += `<span class="bg-white px-4 py-2 rounded-full text-xs font-bold text-gray-700 border border-gray-200 shadow-sm hover:border-red-400 hover:text-red-600 transition">${line.trim()}</span>`;
+                    });
+                }
+                document.getElementById('show-members').innerHTML = memHtml;
             }
         });
-
-        // ডাটাবেজে সেভ করা
-        window.saveAboutData = (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('saveBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...';
-
-            const newData = {
-                history: document.getElementById('history').value,
-                bags: document.getElementById('bags').value,
-                donors: document.getElementById('donors').value,
-                volunteers: document.getElementById('volunteers').value,
-                committee: document.getElementById('committee').value,
-                advisors: document.getElementById('advisors').value,
-                members: document.getElementById('members').value
-            };
-
-            set(aboutRef, newData).then(() => {
-                alert("তথ্য সফলভাবে আপডেট হয়েছে!");
-                btn.innerHTML = '<i class="fas fa-save"></i> আপডেট সেভ করুন';
-            }).catch(error => {
-                alert("সমস্যা হয়েছে: " + error.message);
-                btn.innerHTML = '<i class="fas fa-save"></i> আপডেট সেভ করুন';
+    </script>
+    
+    <!-- Tab Script & CSS -->
+    <style>
+        .animate-fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* স্ক্রলবার লুকানোর কোড */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+    <script>
+        function showTab(tabId, element) {
+            // সবগুলো কন্টেন্ট হাইড করা
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // সবগুলো বাটনের অ্যাক্টিভ ডিজাইন রিমুভ করে ইনঅ্যাক্টিভ করা
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-gradient-to-r', 'from-red-600', 'to-red-700', 'text-white', 'shadow-lg', 'shadow-red-200');
+                el.classList.add('text-gray-600', 'hover:text-red-600', 'hover:bg-gray-200/70');
             });
-        };
+            
+            // সিলেক্ট করা কন্টেন্ট শো করা
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            // সিলেক্ট করা বাটনে অ্যাক্টিভ ডিজাইন দেওয়া
+            element.classList.remove('text-gray-600', 'hover:text-red-600', 'hover:bg-gray-200/70');
+            element.classList.add('bg-gradient-to-r', 'from-red-600', 'to-red-700', 'text-white', 'shadow-lg', 'shadow-red-200');
+            
+            // মোবাইলে বাটনে ক্লিক করলে তা স্ক্রিনের মাঝে নিয়ে আসা
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
     </script>
 </head>
-<body class="bg-gray-50 p-6 font-sans pb-20">
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
+    
+    <div id="header-placeholder"></div>
 
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md border-t-4 border-orange-500">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3"><i class="fas fa-edit text-orange-500"></i> "আমাদের সম্পর্কে" পেজ কন্ট্রোল</h2>
-        
-        <form onsubmit="saveAboutData(event)" class="space-y-6">
+    <main class="flex-grow pb-12">
+        <!-- হিরো সেকশন -->
+        <section class="bg-gray-900 text-white py-12 px-4 text-center border-b-4 border-red-600 relative overflow-hidden mb-8">
+            <div class="absolute inset-0 opacity-10" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="relative z-10 max-w-4xl mx-auto">
+                <h1 class="text-3xl md:text-5xl font-extrabold mb-3">আমাদের সম্পর্কে</h1>
+                <p class="text-sm md:text-lg text-gray-300 font-medium italic">“জীবনের জন্য রক্ত, সমাজের জন্য দায়িত্ব”</p>
+            </div>
+        </section>
+
+        <div class="max-w-5xl mx-auto px-4">
             
-            <!-- ইতিহাস -->
-            <div>
-                <label class="block font-bold text-gray-700 mb-2">প্রতিষ্ঠার ইতিহাস ও পরিচিতি</label>
-                <textarea id="history" rows="5" class="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-orange-500" required></textarea>
-            </div>
+            <!-- প্রিমিয়াম ট্যাব নেভিগেশন (এক লাইনে স্ক্রলেবল) -->
+            <div class="w-full overflow-x-auto hide-scrollbar pb-6 mb-4">
+                <div class="flex bg-gray-200/60 p-1.5 rounded-full border border-gray-200 w-max mx-auto shadow-inner">
+                    
+                    <button onclick="showTab('tab-history', this)" class="tab-btn bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-200 px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 whitespace-nowrap transition-all duration-300">
+                        <i class="fa-solid fa-clock-rotate-left"></i> ইতিহাস
+                    </button>
+                    
+                    <button onclick="showTab('tab-achievements', this)" class="tab-btn text-gray-600 hover:text-red-600 hover:bg-gray-200/70 px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 whitespace-nowrap transition-all duration-300">
+                        <i class="fa-solid fa-chart-line"></i> অর্জন
+                    </button>
+                    
+                    <button onclick="showTab('tab-committee', this)" class="tab-btn text-gray-600 hover:text-red-600 hover:bg-gray-200/70 px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 whitespace-nowrap transition-all duration-300">
+                        <i class="fa-solid fa-user-tie"></i> বর্তমান কমিটি
+                    </button>
+                    
+                    <button onclick="showTab('tab-advisors', this)" class="tab-btn text-gray-600 hover:text-red-600 hover:bg-gray-200/70 px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 whitespace-nowrap transition-all duration-300">
+                        <i class="fa-solid fa-users"></i> উপদেষ্টা ও সদস্য
+                    </button>
 
-            <!-- অর্জন -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-orange-50 rounded-lg border border-orange-100">
-                <div>
-                    <label class="block font-bold text-sm text-gray-700 mb-1">মোট রক্তদান (ব্যাগ)</label>
-                    <input type="text" id="bags" class="w-full border p-2 rounded" placeholder="যেমন: ২৫০০+">
-                </div>
-                <div>
-                    <label class="block font-bold text-sm text-gray-700 mb-1">নিবন্ধিত রক্তদাতা</label>
-                    <input type="text" id="donors" class="w-full border p-2 rounded" placeholder="যেমন: ৫০০+">
-                </div>
-                <div>
-                    <label class="block font-bold text-sm text-gray-700 mb-1">সক্রিয় স্বেচ্ছাসেবক</label>
-                    <input type="text" id="volunteers" class="w-full border p-2 rounded" placeholder="যেমন: ৩৫+">
-                </div>
-            </div>
-
-            <!-- কমিটি -->
-            <div class="bg-gray-50 p-4 rounded-lg border">
-                <label class="block font-bold text-gray-700 mb-2">বর্তমান কার্যনির্বাহী কমিটি</label>
-                <p class="text-xs text-red-500 mb-2">নিয়ম: প্রতি লাইনে পদবী এবং নাম একটি কোলন (:) দিয়ে লিখুন। যেমন: <b>সভাপতি : কাজী সোহাগ</b></p>
-                <textarea id="committee" rows="6" class="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-orange-500"></textarea>
-            </div>
-
-            <!-- উপদেষ্টা ও সদস্য -->
-            <div class="grid md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block font-bold text-gray-700 mb-2">উপদেষ্টা পরিষদ (নিচে নিচে নাম লিখুন)</label>
-                    <textarea id="advisors" rows="5" class="w-full border border-gray-300 p-3 rounded"></textarea>
-                </div>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-2">সাধারণ সদস্যবৃন্দ (নিচে নিচে নাম লিখুন)</label>
-                    <textarea id="members" rows="5" class="w-full border border-gray-300 p-3 rounded"></textarea>
                 </div>
             </div>
 
-            <button type="submit" id="saveBtn" class="w-full bg-orange-600 text-white font-bold py-3 rounded-lg hover:bg-orange-700 transition text-lg shadow-md">
-                <i class="fas fa-save"></i> আপডেট সেভ করুন
-            </button>
-        </form>
-    </div>
+            <!-- ট্যাব ১: ইতিহাস -->
+            <div id="tab-history" class="tab-content animate-fade-in">
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-2xl font-bold text-red-700 flex items-center gap-2 border-b-2 border-red-100 pb-3 mb-5"><i class="fa-solid fa-clock-rotate-left"></i> প্রতিষ্ঠার ইতিহাস ও পরিচিতি</h2>
+                    <p id="show-history" class="text-gray-700 leading-relaxed md:text-lg text-justify">
+                        <i class="fas fa-spinner fa-spin text-red-500"></i> ডাটা লোড হচ্ছে...
+                    </p>
+                </div>
+            </div>
 
+            <!-- ট্যাব ২: অর্জন -->
+            <div id="tab-achievements" class="tab-content hidden animate-fade-in">
+                <div class="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100 text-center">
+                    <h2 class="text-2xl font-bold text-red-700 mb-8 border-b-2 border-red-100 inline-block pb-2"><i class="fa-solid fa-trophy mr-2"></i> আমাদের অর্জনসমূহ</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="bg-red-50 p-6 rounded-xl hover:-translate-y-1 transition transform border border-red-100">
+                            <i class="fa-solid fa-droplet text-3xl text-red-500 mb-3"></i>
+                            <h3 id="show-bags" class="text-4xl font-extrabold text-red-600">0</h3>
+                            <p class="text-sm font-bold text-gray-700 mt-2">মোট রক্তদান (ব্যাগ)</p>
+                        </div>
+                        <div class="bg-red-50 p-6 rounded-xl hover:-translate-y-1 transition transform border border-red-100">
+                            <i class="fa-solid fa-users-viewfinder text-3xl text-red-500 mb-3"></i>
+                            <h3 id="show-donors" class="text-4xl font-extrabold text-red-600">0</h3>
+                            <p class="text-sm font-bold text-gray-700 mt-2">নিবন্ধিত রক্তদাতা</p>
+                        </div>
+                        <div class="bg-red-50 p-6 rounded-xl hover:-translate-y-1 transition transform border border-red-100">
+                            <i class="fa-solid fa-hand-holding-heart text-3xl text-red-500 mb-3"></i>
+                            <h3 id="show-volunteers" class="text-4xl font-extrabold text-red-600">0</h3>
+                            <p class="text-sm font-bold text-gray-700 mt-2">সক্রিয় স্বেচ্ছাসেবক</p>
+                        </div>
+                        <div class="bg-red-50 p-6 rounded-xl hover:-translate-y-1 transition transform border border-red-100">
+                            <i class="fa-solid fa-face-smile text-3xl text-red-500 mb-3"></i>
+                            <h3 class="text-4xl font-extrabold text-red-600"><i class="fa-solid fa-infinity text-2xl"></i></h3>
+                            <p class="text-sm font-bold text-gray-700 mt-2">অগণিত হাসি</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ট্যাব ৩: কমিটি -->
+            <div id="tab-committee" class="tab-content hidden animate-fade-in">
+                <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <h3 class="text-xl font-bold text-white bg-red-600 p-4 text-center"><i class="fa-solid fa-users-gear mr-2"></i> বর্তমান কার্যনির্বাহী কমিটি</h3>
+                    <ul id="show-committee" class="divide-y divide-gray-100">
+                        <li class="p-5 text-center text-gray-500"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ট্যাব ৪: উপদেষ্টা ও সদস্য -->
+            <div id="tab-advisors" class="tab-content hidden animate-fade-in">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- উপদেষ্টা -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-fit">
+                        <h3 class="text-lg font-bold text-gray-800 bg-gray-100 p-4 border-b-2 border-red-500"><i class="fa-solid fa-star text-yellow-500 mr-2"></i> উপদেষ্টা পরিষদ</h3>
+                        <ul id="show-advisors" class="p-6 space-y-3 text-sm font-semibold text-gray-700">
+                            <li class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- সদস্যবৃন্দ -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <h3 class="text-lg font-bold text-gray-800 bg-gray-100 p-4 border-b-2 border-red-500"><i class="fa-solid fa-users text-blue-500 mr-2"></i> কার্যনির্বাহী সদস্যবৃন্দ</h3>
+                        <div id="show-members" class="p-6 flex flex-wrap gap-3">
+                            <span class="text-gray-500 text-sm"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="script.js?v=2"></script>
 </body>
 </html>
