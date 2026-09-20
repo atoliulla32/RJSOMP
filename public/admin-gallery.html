@@ -29,11 +29,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const newsRef = ref(db, 'newsAndGallery');
-        const metaRef = ref(db, 'newsMeta/lastSerial'); // সিরিয়াল নম্বর ট্র্যাকিং
+        const metaRef = ref(db, 'newsMeta/lastSerial'); 
 
         let selectedFiles = [];
         let existingMedia = [];
         let editingId = null;
+        let allAdminPosts = []; 
+        
+        let thumbnailType = 'none'; // 'none', 'existing', 'new'
+        let thumbnailValue = ''; 
 
         async function uploadToCloudinary(file) {
             const formData = new FormData();
@@ -57,32 +61,94 @@
             const container = document.getElementById('yt-container');
             container.innerHTML += `
                 <div class="flex gap-2 mt-2 yt-row">
-                    <input type="url" value="${val}" placeholder="ইউটিউব ভিডিও লিংক..." class="input-field yt-val">
-                    <button type="button" onclick="this.parentElement.remove()" class="bg-red-500 text-white px-4 rounded-lg"><i class="fas fa-times"></i></button>
+                    <input type="url" value="${val}" placeholder="ইউটিউব ভিডিও লিংক..." class="input-field yt-val" oninput="checkYtThumb()">
+                    <button type="button" onclick="this.parentElement.remove(); checkYtThumb();" class="bg-red-500 text-white px-4 rounded-lg"><i class="fas fa-times"></i></button>
                 </div>
             `;
         };
 
+        window.checkYtThumb = () => {
+            if(thumbnailType === 'none') {
+                const firstYtInput = document.querySelector('.yt-val');
+                if(firstYtInput && firstYtInput.value.trim()) {
+                    thumbnailType = 'youtube';
+                }
+            }
+        };
+
         window.renderPreviews = () => {
             const grid = document.getElementById('preview-grid');
+            const area = document.getElementById('preview-area');
             grid.innerHTML = '';
             
+            if(existingMedia.length === 0 && selectedFiles.length === 0) {
+                area.classList.add('hidden');
+                return;
+            }
+            area.classList.remove('hidden');
+            
             existingMedia.forEach((m, idx) => {
-                let html = `<div class="relative border rounded-lg overflow-hidden h-16">`;
-                if(m.type === 'video') html += `<video src="${m.url}" class="w-full h-full object-cover"></video>`;
-                else html += `<img src="${m.url}" class="w-full h-full object-cover">`;
-                html += `<button type="button" onclick="existingMedia.splice(${idx}, 1); renderPreviews();" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 text-[10px]"><i class="fas fa-times"></i></button></div>`;
+                const isThumb = (thumbnailType === 'existing' && thumbnailValue === m.url);
+                let html = `<div class="relative border-2 ${isThumb ? 'border-red-600 ring-2 ring-red-100' : 'border-gray-200'} rounded-lg overflow-hidden h-20 bg-white">`;
+                
+                if(m.type === 'video') {
+                    html += `<video src="${m.url}" class="w-full h-full object-cover"></video>`;
+                } else {
+                    // String escaping fix: pass index instead of direct URL string to avoid quotes breaking HTML
+                    html += `<img src="${m.url}" class="w-full h-full object-cover cursor-pointer" onclick="setExistingThumb(${idx})">`;
+                    html += `<div class="absolute bottom-0 inset-x-0 text-[10px] text-center font-bold ${isThumb ? 'bg-red-600 text-white' : 'bg-gray-800/70 text-white'} py-0.5 pointer-events-none">থাম্বনেইল</div>`;
+                }
+                
+                html += `<button type="button" onclick="removeExistingMedia(${idx})" class="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full flex justify-center items-center text-[10px]"><i class="fas fa-times"></i></button></div>`;
                 grid.insertAdjacentHTML('beforeend', html);
             });
 
             selectedFiles.forEach((f, idx) => {
                 const url = URL.createObjectURL(f);
-                let html = `<div class="relative border rounded-lg overflow-hidden h-16">`;
-                if(f.type.startsWith('video/')) html += `<video src="${url}" class="w-full h-full object-cover"></video>`;
-                else html += `<img src="${url}" class="w-full h-full object-cover">`;
-                html += `<button type="button" onclick="selectedFiles.splice(${idx}, 1); renderPreviews();" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 text-[10px]"><i class="fas fa-times"></i></button></div>`;
+                const isThumb = (thumbnailType === 'new' && thumbnailValue === idx);
+                let html = `<div class="relative border-2 ${isThumb ? 'border-red-600 ring-2 ring-red-100' : 'border-gray-200'} rounded-lg overflow-hidden h-20 bg-white">`;
+                
+                if(f.type.startsWith('video/')) {
+                    html += `<video src="${url}" class="w-full h-full object-cover"></video>`;
+                } else {
+                    html += `<img src="${url}" class="w-full h-full object-cover cursor-pointer" onclick="setThumb('new', ${idx})">`;
+                    html += `<div class="absolute bottom-0 inset-x-0 text-[10px] text-center font-bold ${isThumb ? 'bg-red-600 text-white' : 'bg-gray-800/70 text-white'} py-0.5 pointer-events-none">থাম্বনেইল</div>`;
+                }
+                
+                html += `<button type="button" onclick="removeNewFile(${idx})" class="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full flex justify-center items-center text-[10px]"><i class="fas fa-times"></i></button></div>`;
                 grid.insertAdjacentHTML('beforeend', html);
             });
+        };
+
+        // নতুন: Existing Image এর ইনডেক্স ধরে থাম্বনেইল সেট করা
+        window.setExistingThumb = (idx) => {
+            thumbnailType = 'existing';
+            thumbnailValue = existingMedia[idx].url;
+            renderPreviews();
+        };
+
+        window.setThumb = (type, val) => {
+            thumbnailType = type; 
+            thumbnailValue = val;
+            renderPreviews();
+        };
+
+        window.removeNewFile = (idx) => {
+            selectedFiles.splice(idx, 1);
+            if(thumbnailType === 'new') {
+                if(thumbnailValue === idx) { thumbnailType = 'none'; thumbnailValue = ''; }
+                else if(thumbnailValue > idx) { thumbnailValue--; }
+            }
+            renderPreviews();
+        };
+
+        window.removeExistingMedia = (idx) => {
+            const m = existingMedia[idx];
+            if(thumbnailType === 'existing' && thumbnailValue === m.url) {
+                thumbnailType = 'none'; thumbnailValue = '';
+            }
+            existingMedia.splice(idx, 1);
+            renderPreviews();
         };
 
         window.publishPost = async () => {
@@ -91,7 +157,15 @@
             const date = document.getElementById('post-date').value || new Date().toISOString().split('T')[0];
             
             let ytLinks = [];
-            document.querySelectorAll('.yt-val').forEach(inp => { if(inp.value.trim()) ytLinks.push(inp.value.trim()); });
+            let ytFirstThumb = "";
+            document.querySelectorAll('.yt-val').forEach(inp => { 
+                const val = inp.value.trim();
+                if(val) {
+                    ytLinks.push(val);
+                    const match = val.match(/(?:v=|\/)([\w-]{11})/);
+                    if(match && !ytFirstThumb) ytFirstThumb = `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+                }
+            });
 
             if(!title) return alert("শিরোনাম দিতে হবে!");
             if(selectedFiles.length === 0 && existingMedia.length === 0 && ytLinks.length === 0) return alert("কমপক্ষে একটি ছবি/ভিডিও বা লিংক দিন!");
@@ -102,36 +176,43 @@
 
             try {
                 let finalMedia = [...existingMedia];
+                let newUploadedUrls = [];
+                
                 for(let file of selectedFiles) {
                     const uploaded = await uploadToCloudinary(file);
                     finalMedia.push(uploaded);
+                    newUploadedUrls.push(uploaded.url);
                 }
 
-                let finalThumb = finalMedia.find(m => m.type === 'image')?.url || "";
-                if(!finalThumb && ytLinks.length > 0) {
-                    const match = ytLinks[0].match(/(?:v=|\/)([\w-]{11})/);
-                    if(match) finalThumb = `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+                let finalThumb = "";
+                if(thumbnailType === 'existing') { finalThumb = thumbnailValue; } 
+                else if(thumbnailType === 'new') { finalThumb = newUploadedUrls[thumbnailValue]; } 
+                else if(ytFirstThumb) { finalThumb = ytFirstThumb; }
+
+                if(!finalThumb) {
+                    const firstImg = finalMedia.find(m => m.type === 'image');
+                    if(firstImg) finalThumb = firstImg.url;
+                    else if(ytFirstThumb) finalThumb = ytFirstThumb;
                 }
 
                 const postData = {
                     title, description: desc, date,
                     thumbnail: finalThumb, media: finalMedia, youtube: ytLinks,
-                    timestamp: Date.now()
+                    timestamp: editingId ? Date.now() : Date.now()
                 };
 
                 if(editingId) {
                     await update(ref(db, 'newsAndGallery/' + editingId), postData);
                     alert("আপডেট সফল!");
                 } else {
-                    // নতুন পোস্টের ক্ষেত্রে সিরিয়াল নম্বর তৈরি করা
                     const metaSnap = await get(metaRef);
                     let currentSerial = metaSnap.exists() ? metaSnap.val() : 0;
                     let newSerial = currentSerial + 1;
                     
-                    postData.serialId = newSerial; // সিরিয়াল ডাটাবেজে যুক্ত করা হলো
+                    postData.serialId = newSerial; 
                     
                     await push(newsRef, postData);
-                    await set(metaRef, newSerial); // মেটা সিরিয়াল আপডেট করা হলো
+                    await set(metaRef, newSerial); 
                     alert("পাবলিশ সফল!");
                 }
                 cancelEdit();
@@ -145,40 +226,56 @@
         onValue(newsRef, (snapshot) => {
             const grid = document.getElementById('post-list');
             grid.innerHTML = '';
-            const posts = [];
-            snapshot.forEach(child => { posts.push({ id: child.key, ...child.val() }); });
-            posts.sort((a,b) => b.timestamp - a.timestamp); 
+            allAdminPosts = [];
+            snapshot.forEach(child => { allAdminPosts.push({ id: child.key, ...child.val() }); });
+            allAdminPosts.sort((a,b) => b.timestamp - a.timestamp); 
 
-            posts.forEach(p => {
+            allAdminPosts.forEach(p => {
                 const sId = p.serialId ? `#${p.serialId}` : '#N/A';
                 grid.innerHTML += `
                     <div class="glass-card p-4 flex gap-4 items-center">
-                        <img src="${p.thumbnail || 'https://via.placeholder.com/150'}" class="w-24 h-24 object-cover rounded-lg border">
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-gray-800"><span class="text-red-600 font-extrabold mr-1">${sId}</span> ${p.title}</h3>
+                        <img src="${p.thumbnail || 'https://via.placeholder.com/150'}" class="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg border shrink-0">
+                        <div class="flex-grow min-w-0">
+                            <h3 class="font-bold text-gray-800 truncate"><span class="text-red-600 font-extrabold mr-1">${sId}</span> ${p.title}</h3>
                             <p class="text-xs text-gray-500">${p.date} • ${p.media?.length || 0} মিডিয়া • ${p.youtube?.length || 0} YT লিংক</p>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <button onclick='editPost(${JSON.stringify(p)})' class="bg-blue-100 text-blue-600 px-3 py-1 rounded"><i class="fas fa-edit"></i></button>
-                            <button onclick="deletePost('${p.id}')" class="bg-red-100 text-red-600 px-3 py-1 rounded"><i class="fas fa-trash"></i></button>
+                        <div class="flex flex-col gap-2 shrink-0">
+                            <button onclick="editPost('${p.id}')" class="bg-blue-100 text-blue-600 px-3 py-1.5 rounded hover:bg-blue-200 transition"><i class="fas fa-edit"></i></button>
+                            <button onclick="deletePost('${p.id}')" class="bg-red-100 text-red-600 px-3 py-1.5 rounded hover:bg-red-200 transition"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
             });
         });
 
-        window.editPost = (p) => {
-            editingId = p.id; existingMedia = p.media || []; selectedFiles = [];
-            document.getElementById('post-title').value = p.title;
+        window.editPost = (id) => {
+            const p = allAdminPosts.find(post => post.id === id);
+            if(!p) return;
+
+            editingId = p.id; 
+            existingMedia = p.media || []; 
+            selectedFiles = [];
+            
+            document.getElementById('post-title').value = p.title || '';
             document.getElementById('post-desc').value = p.description || '';
-            document.getElementById('post-date').value = p.date;
+            document.getElementById('post-date').value = p.date || '';
             
             document.getElementById('yt-container').innerHTML = '';
-            if(p.youtube) p.youtube.forEach(y => addYtField(y));
-            else addYtField();
+            if(p.youtube && p.youtube.length > 0) {
+                p.youtube.forEach(y => addYtField(y));
+            } else {
+                addYtField();
+            }
+            
+            if(p.thumbnail) {
+                const hasMatch = existingMedia.some(m => m.url === p.thumbnail);
+                if(hasMatch) { thumbnailType = 'existing'; thumbnailValue = p.thumbnail; } 
+                else { thumbnailType = 'none'; thumbnailValue = ''; }
+            } else { thumbnailType = 'none'; thumbnailValue = ''; }
             
             document.getElementById('btn-text').innerText = "আপডেট করুন";
-            renderPreviews(); window.scrollTo(0,0);
+            renderPreviews(); 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         window.deletePost = async (id) => {
@@ -187,10 +284,11 @@
 
         window.cancelEdit = () => {
             editingId = null; existingMedia = []; selectedFiles = [];
+            thumbnailType = 'none'; thumbnailValue = '';
             document.getElementById('post-title').value = '';
             document.getElementById('post-desc').value = '';
             document.getElementById('post-date').value = '';
-            document.getElementById('yt-container').innerHTML = `<div class="flex gap-2 yt-row"><input type="url" class="input-field yt-val" placeholder="লিংক..."><button type="button" onclick="addYtField()" class="bg-red-600 text-white px-4 rounded-lg"><i class="fas fa-plus"></i></button></div>`;
+            document.getElementById('yt-container').innerHTML = `<div class="flex gap-2 yt-row"><input type="url" class="input-field yt-val" placeholder="লিংক..." oninput="checkYtThumb()"><button type="button" onclick="addYtField()" class="bg-red-600 text-white px-4 rounded-lg"><i class="fas fa-plus"></i></button></div>`;
             document.getElementById('file-input').value = '';
             document.getElementById('btn-text').innerText = "পাবলিশ করুন";
             renderPreviews();
@@ -217,24 +315,27 @@
                     </div>
                     <div>
                         <label class="block font-bold text-gray-600 text-sm mb-1">বিস্তারিত বিবরণ (নিউজ হলে)</label>
-                        <textarea id="post-desc" class="input-field h-32 resize-none"></textarea>
+                        <textarea id="post-desc" class="input-field h-40 resize-none"></textarea>
                     </div>
                 </div>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block font-bold text-gray-600 text-sm mb-1">ছবি বা ভিডিও আপলোড</label>
+                        <label class="block font-bold text-gray-600 text-sm mb-1">ছবি বা ভিডিও আপলোড (একাধিক সম্ভব)</label>
                         <input type="file" id="file-input" multiple accept="image/*,video/*" class="input-field bg-gray-50 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
                     </div>
                     <div id="yt-container">
                         <label class="block font-bold text-gray-600 text-sm mb-1">ইউটিউব লিংক (ঐচ্ছিক)</label>
                         <div class="flex gap-2 yt-row">
-                            <input type="url" class="input-field yt-val" placeholder="https://youtube.com/...">
+                            <input type="url" class="input-field yt-val" placeholder="https://youtube.com/..." oninput="checkYtThumb()">
                             <button type="button" onclick="addYtField()" class="bg-red-600 text-white px-4 rounded-lg"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                     
-                    <div id="preview-grid" class="grid grid-cols-5 gap-2 mt-2"></div>
+                    <div id="preview-area" class="hidden border border-dashed border-gray-300 p-4 rounded-xl bg-gray-50 mt-4">
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">মিডিয়া প্রিভিউ (থাম্বনেইল বানাতে যেকোনো ছবিতে ক্লিক করুন):</label>
+                        <div id="preview-grid" class="grid grid-cols-4 md:grid-cols-5 gap-2"></div>
+                    </div>
 
                     <button onclick="publishPost()" class="w-full bg-red-600 text-white font-bold p-3.5 rounded-xl hover:bg-red-700 transition flex justify-center items-center gap-2 mt-4">
                         <span id="btn-text">পাবলিশ করুন</span>
