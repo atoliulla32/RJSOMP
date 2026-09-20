@@ -14,11 +14,9 @@
         
         .news-desc-clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         
-        /* Modal Scrollbar */
         #modal-content-area::-webkit-scrollbar { width: 6px; }
         #modal-content-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Modern CSS Marquee (টপ ইমেজ স্ক্রলার) */
         .modern-marquee-container {
             width: 100%; max-width: 1100px; overflow: hidden; padding: 15px 0;
             white-space: nowrap; height: 130px; position: relative; margin: 0 auto;
@@ -38,14 +36,12 @@
         }
         .modern-marquee-track img:hover { transform: scale(1.05); }
 
-        /* Interspersed Media (লেখার মাঝখানে ছবি) */
         .modal-text { font-size: 17px; line-height: 1.8; color: #374151; margin-bottom: 15px; white-space: pre-wrap; display: inline-block; width: 100%; }
         .interspersed-media { width: 100%; margin: 25px 0; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1); background: #f8fafc; }
         .interspersed-media img { width: 100%; max-height: 450px; object-fit: contain; display: block; cursor: zoom-in; }
         .interspersed-media video { width: 100%; max-height: 450px; display: block; outline: none; background: #000; }
         .interspersed-media iframe { width: 100%; aspect-ratio: 16/9; border: none; display: block; }
         
-        /* Leftover Media Grid */
         .modal-media-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 30px; margin-bottom: 20px; }
     </style>
 
@@ -62,35 +58,113 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let allPosts = [];
+        let allPosts = []; 
+        let filteredPosts = []; 
+        let displayedCount = 0; 
+        const POSTS_PER_PAGE = 6; 
         let isMarqueePaused = false;
+        let isFirstUrlCheckDone = false; // শেয়ারিং লিংকের ডাবল চেকিং বন্ধ করার জন্য
 
-        onValue(ref(db, 'newsAndGallery'), (snapshot) => {
-            const grid = document.getElementById('news-grid');
-            grid.innerHTML = '';
-            allPosts = [];
+        // ১. ফাংশন: ডাটা রেন্ডার করা (UI তে দেখানো)
+        function renderData(dataArray) {
+            allPosts = dataArray.sort((a,b) => b.timestamp - a.timestamp);
             let allImages = [];
-            
-            if(!snapshot.exists()) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500"><i class="fas fa-folder-open text-4xl mb-3 opacity-50"></i><p>এখনো কোনো সংবাদ বা ছবি যুক্ত হয়নি।</p></div>`;
-                return;
-            }
 
-            snapshot.forEach(child => { allPosts.push(child.val()); });
-            allPosts.sort((a,b) => b.timestamp - a.timestamp); // নতুনগুলো আগে
-
-            allPosts.forEach((post, index) => {
-                // সব ছবি মারকুইর জন্য সংগ্রহ করা
+            allPosts.forEach((post) => {
                 if(post.thumbnail) allImages.push(post.thumbnail);
                 if(post.media) {
                     post.media.forEach(m => { if(m.type !== 'video' && m.url) allImages.push(m.url); });
                 }
+            });
 
+            if(allImages.length > 0) {
+                allImages = allImages.sort(() => Math.random() - 0.5);
+                const marqueeTrack = document.getElementById('dynamic-marquee-track');
+                if(marqueeTrack) {
+                    marqueeTrack.innerHTML = allImages.map(url => `<img src="${url}" onclick="openZoom('${url}', event)">`).join('');
+                }
+            }
+
+            filteredPosts = [...allPosts];
+            document.getElementById('news-grid').innerHTML = '';
+            displayedCount = 0;
+            loadMorePosts();
+
+            // কেউ শেয়ার করা লিংকে ক্লিক করে আসলে অটোমেটিক ওপেন হবে
+            if (!isFirstUrlCheckDone) {
+                checkUrlParameter();
+                isFirstUrlCheckDone = true;
+            }
+        }
+
+        // ২. লোকাল ক্যাশ চেক করা (জিরো সেকেন্ড লোডিংয়ের জন্য)
+        const cachedData = localStorage.getItem('rjsomp_gallery_cache');
+        if (cachedData) {
+            try {
+                const parsed = JSON.parse(cachedData);
+                if (parsed && parsed.length > 0) {
+                    renderData(parsed);
+                }
+            } catch(e) { console.error("Cache parsing error"); }
+        }
+
+        // ৩. ফায়ারবেস থেকে রিয়েলটাইম ডাটা আনা
+        onValue(ref(db, 'newsAndGallery'), (snapshot) => {
+            if(!snapshot.exists()) {
+                document.getElementById('news-grid').innerHTML = `<div class="col-span-full text-center py-20 text-gray-500"><i class="fas fa-folder-open text-4xl mb-3 opacity-50"></i><p>এখনো কোনো সংবাদ বা ছবি যুক্ত হয়নি।</p></div>`;
+                document.getElementById('load-more-btn').classList.add('hidden');
+                localStorage.removeItem('rjsomp_gallery_cache');
+                return;
+            }
+
+            let liveData = [];
+            snapshot.forEach(child => { 
+                liveData.push({ id: child.key, ...child.val() }); 
+            });
+
+            // ডাটাবেজে নতুন কিছু আসলে ক্যাশ আপডেট করবে এবং সাথে সাথে শো করবে
+            localStorage.setItem('rjsomp_gallery_cache', JSON.stringify(liveData));
+            renderData(liveData);
+
+        }, (error) => {
+            // যদি ইন্টারনেট কানেকশন না থাকে এবং আগে ক্যাশ করা না থাকে
+            if(!cachedData) {
+                document.getElementById('news-grid').innerHTML = `<div class="col-span-full text-center py-20 text-red-500"><i class="fas fa-wifi text-4xl mb-3 opacity-80"></i><p>ইন্টারনেট সংযোগ সমস্যা! দয়া করে পেজটি রিলোড দিন।</p></div>`;
+            }
+        });
+
+        // শেয়ার করা লিংকের আইডি চেকার
+        function checkUrlParameter() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
+            if (postId) {
+                const index = allPosts.findIndex(p => p.id === postId);
+                if (index !== -1) {
+                    setTimeout(() => { openDetails(index); }, 300);
+                } else {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+        }
+
+        // আরও দেখুন বাটন
+        window.loadMorePosts = () => {
+            const grid = document.getElementById('news-grid');
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            
+            let html = '';
+            const end = Math.min(displayedCount + POSTS_PER_PAGE, filteredPosts.length);
+            
+            for(let i = displayedCount; i < end; i++) {
+                const post = filteredPosts[i];
+                if (!post) continue;
+
+                const originalIndex = allPosts.findIndex(p => p.id === post.id);
                 const thumb = post.thumbnail || 'https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg';
                 const mediaCount = (post.media?.length || 0) + (post.youtube?.length || 0);
                 
-                grid.innerHTML += `
-                    <div class="bg-white rounded-[20px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group cursor-pointer animate-fade-up" onclick="openDetails(${index})" style="animation-delay: ${index * 0.1}s">
+                html += `
+                    <div class="bg-white rounded-[20px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group cursor-pointer animate-fade-up" onclick="openDetails(${originalIndex})" style="animation-delay: ${(i - displayedCount) * 0.1}s">
                         <div class="relative h-56 overflow-hidden">
                             <img src="${thumb}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                             ${mediaCount > 1 ? `<span class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full"><i class="fas fa-images mr-1"></i> +${mediaCount}</span>` : ''}
@@ -104,28 +178,45 @@
                         </div>
                     </div>
                 `;
+            }
+            
+            grid.insertAdjacentHTML('beforeend', html);
+            displayedCount = end;
+
+            if(displayedCount >= filteredPosts.length) {
+                loadMoreBtn.classList.add('hidden');
+            } else {
+                loadMoreBtn.classList.remove('hidden');
+            }
+        };
+
+        // সার্চ বক্স
+        window.filterNews = (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredPosts = allPosts.filter(post => {
+                return (post.title && post.title.toLowerCase().includes(searchTerm)) || 
+                       (post.description && post.description.toLowerCase().includes(searchTerm)) ||
+                       (post.date && post.date.includes(searchTerm));
             });
 
-            // টপ মারকুই (চলমান ছবি) সেটআপ
-            if(allImages.length > 0) {
-                allImages = allImages.sort(() => Math.random() - 0.5); // Randomize
-                const marqueeTrack = document.getElementById('dynamic-marquee-track');
-                if(marqueeTrack) {
-                    marqueeTrack.innerHTML = allImages.map(url => 
-                        `<img src="${url}" onclick="openZoom('${url}', event)">`
-                    ).join('');
-                }
+            document.getElementById('news-grid').innerHTML = '';
+            displayedCount = 0;
+            
+            if(filteredPosts.length === 0) {
+                document.getElementById('news-grid').innerHTML = `<div class="col-span-full text-center py-10 text-gray-500"><i class="fas fa-search text-3xl mb-3 opacity-50"></i><p>কোনো ফলাফল পাওয়া যায়নি!</p></div>`;
+                document.getElementById('load-more-btn').classList.add('hidden');
+            } else {
+                loadMorePosts();
             }
-        });
+        };
 
-        // ইউটিউব লিংক ঠিক করা
+        // ইউটিউব লিংক চেকার
         function getSafeYtUrl(url) {
             if(!url) return "";
             const match = url.match(/(?:v=|\/)([\w-]{11})/);
             return match ? `https://www.youtube.com/embed/${match[1]}` : url;
         }
 
-        // মিডিয়া এইচটিএমএল জেনারেট করা
         function getMediaHTML(m, isInterleaved = false) {
             if (!m || !m.url) return '';
             if (isInterleaved) {
@@ -139,23 +230,39 @@
             }
         }
 
-        // লেখার মাঝে ছবি বসানোর লজিক (আল-হুফফাজ ফাউন্ডেশনের মতো)
+        // বিস্তারিত মোডাল ওপেন
         window.openDetails = function(index) {
             const post = allPosts[index];
             if(!post) return;
             
             document.getElementById('m-title').innerText = post.title || 'শিরোনামহীন';
             document.getElementById('m-date').innerHTML = `<i class="far fa-calendar-alt"></i> ${post.date}`;
+            
+            const shareBtn = document.getElementById('share-btn');
+            shareBtn.onclick = () => {
+                const shareUrl = `${window.location.origin}${window.location.pathname}?id=${post.id}`;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    const originalHtml = shareBtn.innerHTML;
+                    shareBtn.innerHTML = '<i class="fas fa-check"></i> লিংক কপিড!';
+                    shareBtn.classList.replace('text-blue-600', 'text-green-600');
+                    shareBtn.classList.replace('bg-blue-50', 'bg-green-50');
+                    setTimeout(() => {
+                        shareBtn.innerHTML = originalHtml;
+                        shareBtn.classList.replace('text-green-600', 'text-blue-600');
+                        shareBtn.classList.replace('bg-green-50', 'bg-blue-50');
+                    }, 2000);
+                });
+            };
 
-            // সব মিডিয়া একত্রে করা
+            const newUrl = `${window.location.pathname}?id=${post.id}`;
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
             let combinedMedia = [];
             if(post.media && Array.isArray(post.media)) { combinedMedia.push(...post.media); }
             let ytLinks = post.youtube || [];
             ytLinks.forEach(url => { if(url) combinedMedia.push({ type: 'youtube', url: getSafeYtUrl(url) }); });
 
             const descText = post.description || '';
-            
-            // প্যারা বা দাড়ি অনুযায়ী লেখাকে ভাগ করা
             let textChunks = descText.split(/\n+/).map(p => p.trim()).filter(p => p !== '');
             
             if (textChunks.length > 0 && textChunks.length <= combinedMedia.length && descText.includes('।')) {
@@ -167,14 +274,12 @@
             let contentHTML = '';
             
             if (textChunks.length === 0) {
-                // শুধু ছবি থাকলে গ্রিডে দেখাবে
                 if (combinedMedia.length > 0) {
                     contentHTML += `<div class="modal-media-grid">`;
                     combinedMedia.forEach(m => { contentHTML += getMediaHTML(m, false); });
                     contentHTML += `</div>`;
                 }
             } else {
-                // লেখার মাঝে মাঝে ছবি বসানো
                 const chunksPerMedia = Math.max(1, Math.floor(textChunks.length / (combinedMedia.length || 1)));
                 let mediaIdx = 0;
 
@@ -186,7 +291,6 @@
                     }
                 });
 
-                // অবশিষ্ট ছবি নিচে গ্রিড আকারে দেখাবে
                 if (mediaIdx < combinedMedia.length) {
                     contentHTML += `<div class="modal-media-grid">`;
                     while(mediaIdx < combinedMedia.length) {
@@ -208,6 +312,8 @@
             document.getElementById('postModal').classList.remove('flex');
             document.body.style.overflow = 'auto'; 
             document.getElementById('m-dynamic-content').innerHTML = ''; 
+            
+            window.history.pushState({}, document.title, window.location.pathname);
         }
 
         window.toggleMarquee = function() {
@@ -240,57 +346,69 @@
     <div id="header-placeholder"></div>
 
     <main class="flex-grow pb-16">
-        <!-- Hero Section & Marquee (টপ স্ক্রলিং ইমেজ) -->
-        <section class="bg-[#111827] text-white pt-12 pb-16 text-center relative overflow-hidden rounded-b-[40px] shadow-lg mb-10">
+        <section class="bg-[#111827] text-white pt-12 pb-16 text-center relative overflow-hidden rounded-b-[40px] shadow-lg mb-8">
             <div class="absolute inset-0 opacity-20" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg'); background-size: cover; background-position: center; filter: blur(3px);"></div>
             <div class="relative z-10 max-w-2xl mx-auto px-4 mb-6">
                 <span class="bg-red-600/20 text-red-400 border border-red-500/30 px-5 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4 inline-block">আপডেট ও স্মৃতি</span>
                 <h1 class="text-3xl md:text-4xl font-extrabold mb-2 leading-tight">নিউজ ও ইমেজ গ্যালারি</h1>
             </div>
             
-            <!-- মারকুই সেকশন -->
             <div class="modern-marquee-container relative z-10" id="marquee-container" onclick="toggleMarquee()">
-                <div class="modern-marquee-track" id="dynamic-marquee-track">
-                    <!-- ডাটাবেজ থেকে সব ছবি এখানে অটোমেটিক লোড হয়ে স্ক্রল হবে -->
-                </div>
+                <div class="modern-marquee-track" id="dynamic-marquee-track"></div>
             </div>
         </section>
 
-        <!-- Grid Container -->
         <div class="max-w-6xl mx-auto px-4 relative z-20">
-            <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Loader -->
+            <!-- Search & Filter Bar -->
+            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-200 mb-8 max-w-md mx-auto flex items-center">
+                <i class="fas fa-search text-gray-400 ml-3 mr-2"></i>
+                <input type="text" oninput="filterNews(event)" placeholder="সংবাদ, তারিখ বা শিরোনাম খুঁজুন..." class="w-full p-2 bg-transparent outline-none text-gray-700 text-sm">
+            </div>
+
+            <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                <!-- Loader shown ONLY if absolutely no cache is found -->
                 <div class="col-span-full text-center py-20">
                     <i class="fas fa-circle-notch fa-spin text-4xl text-red-600 mb-3"></i>
                     <p class="text-gray-500 font-bold">ডাটা লোড হচ্ছে...</p>
                 </div>
+            </div>
+
+            <!-- Load More Button -->
+            <div class="text-center">
+                <button id="load-more-btn" onclick="loadMorePosts()" class="hidden bg-gray-900 text-white px-8 py-3 rounded-full font-bold hover:bg-red-600 transition shadow-md">
+                    আরও দেখুন <i class="fas fa-chevron-down ml-1"></i>
+                </button>
             </div>
         </div>
     </main>
 
     <div id="footer-placeholder"></div>
 
-    <!-- Details Modal (মাঝখানে ছবি বসার লজিকসহ) -->
     <div id="postModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
         <div class="bg-white w-full max-w-4xl rounded-[24px] shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden animate-fade-up">
             <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600 w-10 h-10 rounded-full flex items-center justify-center transition"><i class="fas fa-times text-xl"></i></button>
             
-            <div id="modal-content-area" class="overflow-y-auto p-6 md:p-10">
-                <p id="m-date" class="text-red-600 font-bold text-sm mb-2"></p>
-                <h2 id="m-title" class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 leading-tight border-b pb-4"></h2>
+            <div id="modal-content-area" class="overflow-y-auto p-6 md:p-10 relative">
                 
-                <!-- ডাইনামিক কন্টেন্ট (লেখা এবং মাঝখানে ছবি) এখানে বসবে -->
+                <!-- Date and Share Button -->
+                <div class="flex justify-between items-center mb-4">
+                    <p id="m-date" class="text-red-600 font-bold text-sm"></p>
+                    <button id="share-btn" class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-blue-100 transition flex items-center gap-2">
+                        <i class="fas fa-share-nodes"></i> কপি লিংক
+                    </button>
+                </div>
+
+                <h2 id="m-title" class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 leading-tight border-b pb-4"></h2>
                 <div id="m-dynamic-content"></div>
             </div>
         </div>
     </div>
 
-    <!-- Image Zoom Modal -->
     <div id="zoomModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/90 p-4" onclick="closeZoom()">
         <button class="absolute top-6 right-6 text-white hover:text-red-500 text-4xl transition">&times;</button>
         <img id="z-img" src="" class="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl border-2 border-white/20">
     </div>
 
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
