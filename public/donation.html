@@ -1,1 +1,195 @@
 
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>সহযোগিতা করুন | রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+            authDomain: "rjsomp.firebaseapp.com",
+            databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rjsomp"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // সেটিং ডাটা লোড
+        onValue(ref(db, 'pageContent/donationSettings'), (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                document.getElementById('txt-bkash').innerText = data.bkash || 'নাম্বার যুক্ত নেই';
+                document.getElementById('txt-nagad').innerText = data.nagad || 'নাম্বার যুক্ত নেই';
+                
+                const contactLink = document.getElementById('btn-contact');
+                contactLink.href = `tel:${data.contact || ''}`;
+                contactLink.innerHTML = `<i class="fa-solid fa-phone"></i> ${data.contact || 'নাম্বার যুক্ত নেই'}`;
+
+                // ব্যাংক ডিটেইলস থাকলে দেখাবে, না থাকলে লুকাবে
+                const bankBox = document.getElementById('bank-box');
+                if(data.bank && data.bank.trim() !== '') {
+                    bankBox.classList.remove('hidden');
+                    document.getElementById('txt-bank').innerHTML = data.bank.replace(/\n/g, '<br>');
+                } else {
+                    bankBox.classList.add('hidden');
+                }
+            }
+        });
+
+        // অডিট রিপোর্ট লোড
+        onValue(ref(db, 'donationsList'), (snapshot) => {
+            const tbody = document.getElementById('public-audit-tbody');
+            tbody.innerHTML = '';
+            let total = 0;
+            
+            if(!snapshot.exists()){
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500">এখনো কোনো ডোনেশন রেকর্ড যুক্ত হয়নি।</td></tr>`;
+                return;
+            }
+
+            snapshot.forEach(child => {
+                const data = child.val();
+                total += Number(data.amount);
+                tbody.innerHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-red-50 transition">
+                        <td class="p-3 text-sm text-gray-600">${data.date}</td>
+                        <td class="p-3 text-sm font-bold text-gray-900">${data.name}</td>
+                        <td class="p-3 text-sm text-gray-600"><span class="bg-gray-100 px-2 py-1 rounded text-xs">${data.method}</span></td>
+                        <td class="p-3 text-sm font-extrabold text-green-600 text-right">৳ ${data.amount}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('public-total').innerText = total;
+        });
+
+    </script>
+
+    <script>
+        function copyText(elementId, btnElement) {
+            const textToCopy = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalHtml = btnElement.innerHTML;
+                btnElement.innerHTML = '<i class="fa-solid fa-check text-green-500"></i> কপিড';
+                btnElement.classList.add('text-green-600', 'border-green-300');
+                
+                setTimeout(() => {
+                    btnElement.innerHTML = originalHtml;
+                    btnElement.classList.remove('text-green-600', 'border-green-300');
+                }, 2000);
+            });
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
+    
+    <div id="header-placeholder"></div>
+
+    <main class="flex-grow pb-16">
+        <section class="bg-[#111827] text-white pt-12 pb-24 px-4 text-center relative overflow-hidden rounded-b-[40px] shadow-lg mb-8">
+            <div class="absolute inset-0 opacity-20" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg'); background-size: cover; background-position: center; filter: blur(2px);"></div>
+            <div class="relative z-10 max-w-2xl mx-auto mt-2">
+                <span class="bg-red-600/20 text-red-400 border border-red-500/30 px-5 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4 inline-block">ডোনেশন ও স্বচ্ছতা</span>
+                <h1 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">আপনার ছোট একটি অনুদান<br>বাঁচাতে পারে একটি প্রাণ</h1>
+                <p class="text-sm md:text-base text-gray-300 font-medium">আপনার দেওয়া প্রতিটি টাকার সম্পূর্ণ হিসাব এখানে প্রকাশ করা হয়।</p>
+            </div>
+        </section>
+
+        <div class="max-w-4xl mx-auto px-4 -mt-20 relative z-20 space-y-8">
+            
+            <!-- পেমেন্ট মেথড কার্ডস -->
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 md:p-8 space-y-6">
+                <h2 class="text-xl font-extrabold text-center border-b pb-4 text-gray-800"><i class="fas fa-heart text-red-500 mr-2"></i> সহযোগিতা পাঠানোর মাধ্যম</h2>
+                
+                <!-- বিকাশ -->
+                <div class="flex flex-col md:flex-row items-center justify-between bg-pink-50 border border-pink-100 p-5 rounded-2xl hover:shadow-md transition gap-4">
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-sm border border-pink-200 shrink-0">
+                            <i class="fa-solid fa-paper-plane text-2xl text-pink-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-pink-600 uppercase tracking-wider mb-0.5">বিকাশ (পার্সোনাল)</p>
+                            <h3 id="txt-bkash" class="text-2xl font-extrabold text-gray-800 tracking-wide">লোড হচ্ছে...</h3>
+                        </div>
+                    </div>
+                    <button onclick="copyText('txt-bkash', this)" class="w-full md:w-auto px-5 py-2.5 bg-white text-pink-600 border border-pink-200 rounded-xl font-bold text-sm hover:bg-pink-600 hover:text-white transition flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-regular fa-copy"></i> কপি করুন
+                    </button>
+                </div>
+
+                <!-- নগদ -->
+                <div class="flex flex-col md:flex-row items-center justify-between bg-orange-50 border border-orange-100 p-5 rounded-2xl hover:shadow-md transition gap-4">
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-sm border border-orange-200 shrink-0">
+                            <i class="fa-solid fa-bolt text-2xl text-orange-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-0.5">নগদ (পার্সোনাল)</p>
+                            <h3 id="txt-nagad" class="text-2xl font-extrabold text-gray-800 tracking-wide">লোড হচ্ছে...</h3>
+                        </div>
+                    </div>
+                    <button onclick="copyText('txt-nagad', this)" class="w-full md:w-auto px-5 py-2.5 bg-white text-orange-600 border border-orange-200 rounded-xl font-bold text-sm hover:bg-orange-500 hover:text-white transition flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-regular fa-copy"></i> কপি করুন
+                    </button>
+                </div>
+
+                <!-- ব্যাংক (ডায়নামিক) -->
+                <div id="bank-box" class="hidden bg-blue-50 border border-blue-100 p-5 rounded-2xl">
+                    <p class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2"><i class="fas fa-building-columns"></i> ব্যাংক ডিটেইলস</p>
+                    <p id="txt-bank" class="text-sm font-bold text-gray-700 leading-relaxed"></p>
+                </div>
+
+                <!-- যোগাযোগ -->
+                <div class="text-center pt-4 border-t">
+                    <p class="text-sm text-gray-500 mb-3">যেকোনো প্রয়োজনে সরাসরি যোগাযোগ করুন:</p>
+                    <a id="btn-contact" href="#" class="inline-flex items-center justify-center gap-2 bg-gray-900 text-white px-8 py-2.5 rounded-full font-bold hover:bg-gray-800 transition shadow-md w-full md:w-auto">
+                        লোড হচ্ছে...
+                    </a>
+                </div>
+            </div>
+
+            <!-- অডিট রিপোর্ট / স্বচ্ছতা -->
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="bg-red-50 p-6 border-b border-red-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-red-700"><i class="fas fa-file-invoice-dollar mr-2"></i> ডোনেশন অডিট রিপোর্ট</h2>
+                        <p class="text-xs font-bold text-gray-500 mt-1">আমাদের ফান্ডে আসা সকল অনুদানের স্বচ্ছ হিসাব</p>
+                    </div>
+                    <div class="bg-white px-4 py-2 rounded-xl shadow-sm border border-red-100">
+                        <span class="text-xs font-bold text-gray-500 block">মোট অনুদান প্রাপ্তি</span>
+                        <span class="text-xl font-extrabold text-green-600">৳ <span id="public-total">0</span></span>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto p-4">
+                    <table class="w-full text-left border-collapse min-w-[500px]">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider">
+                                <th class="p-3 rounded-l-lg">তারিখ</th>
+                                <th class="p-3">দাতার নাম / পরিচয়</th>
+                                <th class="p-3">মাধ্যম</th>
+                                <th class="p-3 text-right rounded-r-lg">পরিমাণ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="public-audit-tbody">
+                            <tr><td colspan="4" class="p-6 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-2xl"></i></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="script.js?v=2"></script>
+</body>
+</html>
