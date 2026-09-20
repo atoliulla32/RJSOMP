@@ -34,17 +34,21 @@
                 document.getElementById('show-donors').innerText = data.donors || '0';
                 document.getElementById('show-volunteers').innerText = data.volunteers || '0';
 
-                // Committee: Modern Card Grid Layout
+                // Committee: Fixed Colon Parsing Bug
                 let committeeHtml = '';
                 if(data.committee) {
                     data.committee.split('\n').forEach(line => {
                         if(line.trim() !== '') {
-                            let parts = line.split(':');
-                            if(parts.length >= 2) {
+                            // শুধুমাত্র প্রথম কোলন (:) বরাবর লাইনটিকে দুই ভাগ করবে
+                            let splitIndex = line.indexOf(':');
+                            if(splitIndex !== -1) {
+                                let title = line.substring(0, splitIndex).trim();
+                                let name = line.substring(splitIndex + 1).trim(); // নামের ভেতরের কোলন আর কাটবে না
+                                
                                 committeeHtml += `
                                 <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
-                                    <p class="text-xs font-bold text-red-500 uppercase tracking-wider mb-1">${parts[0].trim()}</p>
-                                    <h4 class="text-base font-extrabold text-gray-800">${parts[1].trim()}</h4>
+                                    <p class="text-xs font-bold text-red-500 uppercase tracking-wider mb-1">${title}</p>
+                                    <h4 class="text-base font-extrabold text-gray-800">${name}</h4>
                                 </div>`;
                             } else {
                                 committeeHtml += `<div class="col-span-full p-3 text-sm font-bold text-white bg-red-600 rounded-lg text-center shadow">${line.trim()}</div>`;
@@ -54,7 +58,6 @@
                 }
                 document.getElementById('show-committee').innerHTML = committeeHtml;
 
-                // Advisors: Elegant List
                 let advHtml = '';
                 if(data.advisors) {
                     data.advisors.split('\n').forEach(line => {
@@ -67,7 +70,6 @@
                 }
                 document.getElementById('show-advisors').innerHTML = advHtml;
 
-                // Members: Pill Badges
                 let memHtml = '';
                 if(data.members) {
                     data.members.split('\n').forEach(line => {
@@ -87,19 +89,16 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Modern Segmented Control Style for Tabs */
         .segmented-control {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 8px;
-            background-color: #f3f4f6; /* gray-100 */
+            background-color: #f3f4f6;
             padding: 8px;
             border-radius: 16px;
         }
         @media (min-width: 768px) {
-            .segmented-control {
-                grid-template-columns: repeat(4, 1fr);
-            }
+            .segmented-control { grid-template-columns: repeat(4, 1fr); }
         }
         
         .tab-btn {
@@ -107,7 +106,7 @@
             text-align: center;
             font-size: 14px;
             font-weight: 700;
-            color: #6b7280; /* gray-500 */
+            color: #6b7280;
             border-radius: 10px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
@@ -119,10 +118,9 @@
         
         .tab-btn i { font-size: 18px; transition: transform 0.3s ease; }
         
-        /* Active Tab Style */
         .tab-btn.active {
             background-color: #ffffff;
-            color: #dc2626; /* red-600 */
+            color: #dc2626;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .tab-btn.active i { transform: scale(1.1); color: #dc2626; }
@@ -130,14 +128,9 @@
 
     <script>
         function switchTab(tabId, btnElement) {
-            // Hide all contents
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            // Remove active class from all buttons
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
-            // Show selected content
             document.getElementById(tabId).classList.remove('hidden');
-            // Add active class to clicked button
             btnElement.classList.add('active');
         }
     </script>
@@ -147,7 +140,6 @@
     <div id="header-placeholder"></div>
 
     <main class="flex-grow pb-16">
-        <!-- Premium Header -->
         <section class="bg-[#111827] text-white pt-10 pb-16 px-4 text-center relative overflow-hidden rounded-b-[40px] shadow-lg mb-8">
             <div class="absolute inset-0 opacity-20" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg'); background-size: cover; background-position: center; filter: blur(2px);"></div>
             <div class="relative z-10 max-w-4xl mx-auto mt-4">
@@ -159,7 +151,6 @@
 
         <div class="max-w-4xl mx-auto px-4 -mt-14 relative z-20">
             
-            <!-- App-Style Segmented Control Tabs -->
             <div class="segmented-control shadow-xl border border-gray-100 mb-10">
                 <div onclick="switchTab('tab-history', this)" class="tab-btn active">
                     <i class="fa-solid fa-clock-rotate-left"></i>
@@ -179,7 +170,6 @@
                 </div>
             </div>
 
-            <!-- Tab 1: History -->
             <div id="tab-history" class="tab-content animate-fade-in">
                 <div class="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-gray-100">
                     <h2 class="text-xl md:text-2xl font-extrabold text-gray-800 mb-6 flex items-center gap-3">
@@ -192,7 +182,6 @@
                 </div>
             </div>
 
-            <!-- Tab 2: Achievements -->
             <div id="tab-achievements" class="tab-content hidden animate-fade-in">
                 <div class="grid grid-cols-2 gap-4 md:gap-6">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-md transition">
@@ -226,25 +215,20 @@
                 </div>
             </div>
 
-            <!-- Tab 3: Committee (Card Layout to prevent text cutting) -->
             <div id="tab-committee" class="tab-content hidden animate-fade-in">
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
                     <h2 class="text-xl md:text-2xl font-extrabold text-gray-800 mb-6 flex items-center gap-3">
                         <span class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600"><i class="fa-solid fa-users-gear"></i></span>
                         বর্তমান কার্যনির্বাহী কমিটি
                     </h2>
-                    
-                    <!-- Grid Layout for Committee Members -->
                     <div id="show-committee" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="text-center text-gray-500 col-span-full py-10"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i> লোড হচ্ছে...</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 4: Advisors & Members -->
             <div id="tab-advisors" class="tab-content hidden animate-fade-in">
                 <div class="space-y-6">
-                    <!-- Advisors -->
                     <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100">
                         <h2 class="text-xl font-extrabold text-gray-800 mb-5 flex items-center gap-3 border-b pb-4">
                             <i class="fa-solid fa-star text-yellow-500 text-2xl"></i> উপদেষ্টা পরিষদ
@@ -254,7 +238,6 @@
                         </div>
                     </div>
                     
-                    <!-- Members -->
                     <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100">
                         <h2 class="text-xl font-extrabold text-gray-800 mb-5 flex items-center gap-3 border-b pb-4">
                             <i class="fa-solid fa-users text-blue-500 text-2xl"></i> সাধারণ সদস্যবৃন্দ
