@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>নিউজ ও গ্যালারি | রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .animate-fade-up { animation: fadeUp 0.5s ease-out forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .news-desc-clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* Modal Scrollbar */
+        #modal-content-area::-webkit-scrollbar { width: 6px; }
+        #modal-content-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+            authDomain: "rjsomp.firebaseapp.com",
+            databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rjsomp"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allPosts = [];
+
+        onValue(ref(db, 'newsAndGallery'), (snapshot) => {
+            const grid = document.getElementById('news-grid');
+            grid.innerHTML = '';
+            allPosts = [];
+            
+            if(!snapshot.exists()) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500"><i class="fas fa-folder-open text-4xl mb-3 opacity-50"></i><p>এখনো কোনো সংবাদ বা ছবি যুক্ত হয়নি।</p></div>`;
+                return;
+            }
+
+            snapshot.forEach(child => { allPosts.push(child.val()); });
+            allPosts.sort((a,b) => b.timestamp - a.timestamp);
+
+            allPosts.forEach((post, index) => {
+                const thumb = post.thumbnail || 'https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg';
+                const mediaCount = (post.media?.length || 0) + (post.youtube?.length || 0);
+                
+                grid.innerHTML += `
+                    <div class="bg-white rounded-[20px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group cursor-pointer animate-fade-up" onclick="openModal(${index})" style="animation-delay: ${index * 0.1}s">
+                        <div class="relative h-56 overflow-hidden">
+                            <img src="${thumb}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                            ${mediaCount > 1 ? `<span class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full"><i class="fas fa-images mr-1"></i> +${mediaCount}</span>` : ''}
+                            ${post.youtube?.length > 0 ? `<span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"><i class="fab fa-youtube mr-1"></i> ভিডিও</span>` : ''}
+                        </div>
+                        <div class="p-6">
+                            <p class="text-xs font-bold text-red-600 mb-2"><i class="far fa-calendar-alt"></i> ${post.date}</p>
+                            <h2 class="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-red-600 transition">${post.title}</h2>
+                            <p class="text-sm text-gray-500 news-desc-clamp">${post.description || 'বিস্তারিত দেখুন...'}</p>
+                            <span class="inline-block mt-4 text-sm font-bold text-gray-800 border-b-2 border-red-600 pb-0.5 group-hover:text-red-600 transition">আরও দেখুন <i class="fas fa-arrow-right ml-1"></i></span>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        window.openModal = (idx) => {
+            const post = allPosts[idx];
+            document.getElementById('m-title').innerText = post.title;
+            document.getElementById('m-date').innerText = post.date;
+            document.getElementById('m-desc').innerText = post.description || '';
+            
+            const mediaGrid = document.getElementById('m-media-grid');
+            mediaGrid.innerHTML = '';
+            
+            // Photos/Videos
+            if(post.media) {
+                post.media.forEach(m => {
+                    if(m.type === 'video') {
+                        mediaGrid.innerHTML += `<video src="${m.url}" controls class="w-full rounded-xl bg-black border border-gray-200"></video>`;
+                    } else {
+                        mediaGrid.innerHTML += `<img src="${m.url}" onclick="openZoom('${m.url}')" class="w-full h-64 object-cover rounded-xl cursor-zoom-in border border-gray-200 shadow-sm hover:shadow-md transition">`;
+                    }
+                });
+            }
+
+            // YouTube Links
+            if(post.youtube) {
+                post.youtube.forEach(yt => {
+                    const match = yt.match(/(?:v=|\/)([\w-]{11})/);
+                    if(match) {
+                        mediaGrid.innerHTML += `<div class="w-full aspect-video rounded-xl overflow-hidden shadow-sm border border-gray-200"><iframe src="https://www.youtube.com/embed/${match[1]}" class="w-full h-full" allowfullscreen></iframe></div>`;
+                    }
+                });
+            }
+
+            document.getElementById('postModal').classList.remove('hidden');
+            document.getElementById('postModal').classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeModal = () => {
+            document.getElementById('postModal').classList.add('hidden');
+            document.getElementById('postModal').classList.remove('flex');
+            document.body.style.overflow = 'auto';
+            document.getElementById('m-media-grid').innerHTML = '';
+        };
+
+        window.openZoom = (url) => {
+            document.getElementById('z-img').src = url;
+            document.getElementById('zoomModal').classList.remove('hidden');
+            document.getElementById('zoomModal').classList.add('flex');
+        };
+        window.closeZoom = () => {
+            document.getElementById('zoomModal').classList.add('hidden');
+            document.getElementById('zoomModal').classList.remove('flex');
+        };
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
+    
+    <div id="header-placeholder"></div>
+
+    <main class="flex-grow pb-16">
+        <!-- Hero Section -->
+        <section class="bg-[#111827] text-white pt-16 pb-24 px-4 text-center relative overflow-hidden rounded-b-[40px] shadow-lg mb-10">
+            <div class="absolute inset-0 opacity-20" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg'); background-size: cover; background-position: center; filter: blur(3px);"></div>
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <span class="bg-red-600/20 text-red-400 border border-red-500/30 px-5 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4 inline-block">আপডেট ও স্মৃতি</span>
+                <h1 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">নিউজ ও ইমেজ গ্যালারি</h1>
+                <p class="text-sm md:text-base text-gray-300 font-medium">রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদের সাম্প্রতিক কার্যাবলী, ইভেন্ট এবং স্মরণীয় মুহূর্তগুলো।</p>
+            </div>
+        </section>
+
+        <!-- Grid Container -->
+        <div class="max-w-6xl mx-auto px-4 -mt-16 relative z-20">
+            <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Loader -->
+                <div class="col-span-full text-center py-20">
+                    <i class="fas fa-circle-notch fa-spin text-4xl text-red-600 mb-3"></i>
+                    <p class="text-gray-500 font-bold">ডাটা লোড হচ্ছে...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <!-- Details Modal -->
+    <div id="postModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-4xl rounded-[24px] shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden animate-fade-up">
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600 w-10 h-10 rounded-full flex items-center justify-center transition"><i class="fas fa-times text-xl"></i></button>
+            
+            <div id="modal-content-area" class="overflow-y-auto p-6 md:p-10">
+                <p class="text-red-600 font-bold text-sm mb-2"><i class="far fa-calendar-alt"></i> <span id="m-date"></span></p>
+                <h2 id="m-title" class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 leading-tight border-b pb-4"></h2>
+                <p id="m-desc" class="text-gray-600 text-base md:text-lg leading-relaxed mb-8 whitespace-pre-wrap"></p>
+                
+                <div id="m-media-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div id="zoomModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/90 p-4" onclick="closeZoom()">
+        <button class="absolute top-6 right-6 text-white hover:text-red-500 text-4xl transition">&times;</button>
+        <img id="z-img" src="" class="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl border-2 border-white/20">
+    </div>
+
+    <script src="script.js?v=5"></script>
+</body>
+</html>
