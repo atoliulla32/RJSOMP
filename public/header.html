@@ -20,7 +20,7 @@
             </div>
         </a>
 
-        <!-- Desktop Menu (Clean & Essential) -->
+        <!-- Desktop Menu -->
         <div class="hidden xl:flex items-center gap-6 font-bold text-gray-700 text-[13.5px] tracking-wide">
             <a href="/" class="text-red-600 hover:text-red-800 transition">হোম</a>
             <a href="about" class="hover:text-red-600 transition">আমাদের সম্পর্কে</a>
@@ -31,7 +31,6 @@
 
         <!-- Desktop CTA Buttons -->
         <div class="hidden xl:flex items-center gap-3">
-            <!-- Desktop Download App Button -->
             <a href="https://api.betadrop.app/api/guest/download/ReiHQk" class="bg-green-50 text-green-600 border border-green-200 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-green-100 transition shadow-sm hover:shadow-md flex items-center gap-2">
                 <i class="fa-brands fa-android text-lg"></i> অ্যাপ ডাউনলোড
             </a>
@@ -48,8 +47,8 @@
             
             <!-- App Download Button & Timed Popup Tooltip -->
             <div class="relative flex items-center justify-center mt-1">
-                <!-- Timed Animated Popup Tooltip -->
-                <div id="app-download-tooltip" class="absolute -top-12 right-0 bg-red-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl w-max pointer-events-none z-50 opacity-0 scale-95 transition-all duration-500">
+                <!-- Tooltip Popup Box (Inline style added for absolute visibility) -->
+                <div id="app-download-tooltip" style="opacity: 0; transform: scale(0.95); transition: all 0.5s ease;" class="absolute -top-12 right-0 bg-red-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-2xl w-max pointer-events-none z-50">
                     রক্ত যোদ্ধা অ্যাপ ডাউনলোড করুন
                     <!-- Tooltip Bottom Arrow -->
                     <div class="absolute -bottom-1.5 right-3 border-t-[6px] border-t-red-600 border-x-[6px] border-x-transparent"></div>
@@ -70,7 +69,7 @@
         </div>
     </div>
 
-    <!-- Mobile Menu (Clean & Essential) -->
+    <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden xl:hidden bg-white border-t border-gray-100 shadow-2xl absolute w-full left-0 origin-top">
         <div class="flex flex-col px-5 py-4 font-bold text-gray-700 text-[15px] space-y-1">
             <a href="/" class="block py-3 text-red-600 border-b border-gray-50 hover:bg-red-50 rounded px-3 transition"><i class="fa-solid fa-house w-6 text-center mr-2"></i> হোম</a>
@@ -79,7 +78,6 @@
             <a href="gallery" class="block py-3 hover:text-red-600 border-b border-gray-50 hover:bg-red-50 rounded px-3 transition"><i class="fa-regular fa-images w-6 text-center mr-2"></i> নিউজ ও গ্যালারি</a>
             <a href="volunteer" class="block py-3 hover:text-red-600 hover:bg-red-50 rounded px-3 transition"><i class="fa-solid fa-hand-holding-hand w-6 text-center mr-2"></i> স্বেচ্ছাসেবক হোন</a>
             
-            <!-- Mobile CTA Buttons -->
             <div class="flex flex-col gap-3 mt-5 mb-2 pt-4 border-t border-gray-100">
                 <a href="search-donor" class="bg-gray-100 text-red-600 text-center px-4 py-3 rounded-xl font-extrabold hover:bg-gray-200 shadow-sm border border-gray-200 flex justify-center items-center gap-2 transition">
                     <i class="fa-solid fa-magnifying-glass"></i> রক্তদাতা খুঁজুন
@@ -97,28 +95,39 @@
     </div>
 </nav>
 
-<!-- Timed Tooltip Animation Script -->
+<!-- Guaranteed Tooltip Animation Script -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const tooltip = document.getElementById('app-download-tooltip');
-        if (tooltip) {
-            function showAndHideTooltip() {
-                // পপআপ শো করা
-                tooltip.classList.remove('opacity-0', 'scale-95');
-                tooltip.classList.add('opacity-100', 'scale-100');
+    (function() {
+        function initTooltip() {
+            const tooltip = document.getElementById('app-download-tooltip');
+            if (tooltip) {
+                function triggerPopup() {
+                    // পপআপ দৃশ্যমান করা
+                    tooltip.style.opacity = '1';
+                    tooltip.style.transform = 'scale(1)';
 
-                // ৪ সেকেন্ড পর আবার হাইড হয়ে যাওয়া
-                setTimeout(() => {
-                    tooltip.classList.remove('opacity-100', 'scale-100');
-                    tooltip.classList.add('opacity-0', 'scale-95');
-                }, 4000);
+                    // ৪ সেকেন্ড পর আবার হাইড করা
+                    setTimeout(() => {
+                        tooltip.style.opacity = '0';
+                        tooltip.style.transform = 'scale(0.95)';
+                    }, 4000);
+                }
+
+                // পেজ লোড হওয়ার ২ সেকেন্ড পর প্রথমবার দেখাবে
+                setTimeout(triggerPopup, 2000);
+
+                // প্রতি ১০ সেকেন্ড পর পর রিকারিং লুপ চলবে
+                setInterval(triggerPopup, 10000);
+            } else {
+                // যদি এলিমেন্ট পেতে দেরি হয়, তবে আবার চেষ্টা করবে
+                setTimeout(initTooltip, 500);
             }
-
-            // পেজ লোড হওয়ার ৩ সেকেন্ড পর প্রথমবার দেখাবে
-            setTimeout(showAndHideTooltip, 3000);
-
-            // প্রতি ১০ সেকেন্ড পর পর রিকারিং লুপ চলতে থাকবে
-            setInterval(showAndHideTooltip, 10000);
         }
-    });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initTooltip);
+        } else {
+            initTooltip();
+        }
+    })();
 </script>
