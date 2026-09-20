@@ -31,6 +31,10 @@
 
         <!-- Desktop CTA Buttons -->
         <div class="hidden xl:flex items-center gap-3">
+            <!-- Desktop Download App Button -->
+            <a href="https://apk.e-droid.net/apk/app4194874-xfvec2.apk?v=1" class="bg-green-50 text-green-600 border border-green-200 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-green-100 transition shadow-sm hover:shadow-md flex items-center gap-2">
+                <i class="fa-brands fa-android text-lg"></i> অ্যাপ ডাউনলোড
+            </a>
             <a href="blood-request" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-700 transition shadow-sm hover:shadow-md flex items-center gap-2">
                 <i class="fa-solid fa-droplet"></i> রক্তের আবেদন
             </a>
@@ -39,10 +43,31 @@
             </a>
         </div>
 
-        <!-- Mobile Menu Toggle Button (Script included inline) -->
-        <button onclick="var m=document.getElementById('mobile-menu'),i=document.getElementById('mobile-menu-icon'); m.classList.toggle('hidden'); if(m.classList.contains('hidden')){i.classList.remove('fa-xmark','text-red-600');i.classList.add('fa-bars','text-gray-800');i.style.transform='rotate(0deg)';}else{i.classList.remove('fa-bars','text-gray-800');i.classList.add('fa-xmark','text-red-600');i.style.transform='rotate(90deg)';}" class="xl:hidden text-gray-800 text-2xl focus:outline-none p-2 rounded-xl hover:bg-gray-100 transition active:scale-95">
-            <i id="mobile-menu-icon" class="fa-solid fa-bars transition-transform duration-300"></i>
-        </button>
+        <!-- Mobile Actions (Download App & Menu Toggle) -->
+        <div class="flex items-center gap-2.5 xl:hidden">
+            
+            <!-- App Download Button & Popup for Mobile -->
+            <div class="relative flex items-center justify-center mt-1">
+                <!-- Bouncing Popup Tooltip -->
+                <div class="absolute -top-11 right-0 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded shadow-lg animate-bounce w-max pointer-events-none z-50">
+                    রক্ত যোদ্ধা অ্যাপ ডাউনলোড করুন
+                    <!-- Tooltip Bottom Arrow -->
+                    <div class="absolute -bottom-1.5 right-3 border-t-[6px] border-t-red-600 border-x-[6px] border-x-transparent"></div>
+                </div>
+                
+                <!-- APK Download Icon -->
+                <a href="https://apk.e-droid.net/apk/app4194874-xfvec2.apk?v=1" 
+                   class="bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 h-[38px] w-[38px] flex justify-center items-center rounded-xl shadow-sm transition active:scale-95">
+                    <i class="fa-brands fa-android text-xl"></i>
+                </a>
+            </div>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button onclick="var m=document.getElementById('mobile-menu'),i=document.getElementById('mobile-menu-icon'); m.classList.toggle('hidden'); if(m.classList.contains('hidden')){i.classList.remove('fa-xmark','text-red-600');i.classList.add('fa-bars','text-gray-800');i.style.transform='rotate(0deg)';}else{i.classList.remove('fa-bars','text-gray-800');i.classList.add('fa-xmark','text-red-600');i.style.transform='rotate(90deg)';}" class="text-gray-800 text-2xl focus:outline-none p-2 h-[38px] w-[38px] flex items-center justify-center rounded-xl hover:bg-gray-100 transition active:scale-95">
+                <i id="mobile-menu-icon" class="fa-solid fa-bars transition-transform duration-300"></i>
+            </button>
+            
+        </div>
     </div>
 
     <!-- Mobile Menu (Clean & Essential) -->
