@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -18,7 +17,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
@@ -30,12 +29,12 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const newsRef = ref(db, 'newsAndGallery');
+        const metaRef = ref(db, 'newsMeta/lastSerial'); // সিরিয়াল নম্বর ট্র্যাকিং
 
         let selectedFiles = [];
         let existingMedia = [];
         let editingId = null;
 
-        // Cloudinary Upload Function
         async function uploadToCloudinary(file) {
             const formData = new FormData();
             formData.append('file', file);
@@ -49,13 +48,11 @@
             return { url: data.secure_url, type: data.resource_type };
         }
 
-        // File Selection Event
         document.getElementById('file-input').addEventListener('change', (e) => {
             selectedFiles = Array.from(e.target.files);
             renderPreviews();
         });
 
-        // Add YouTube Field
         window.addYtField = (val = '') => {
             const container = document.getElementById('yt-container');
             container.innerHTML += `
@@ -66,7 +63,6 @@
             `;
         };
 
-        // Render Previews
         window.renderPreviews = () => {
             const grid = document.getElementById('preview-grid');
             grid.innerHTML = '';
@@ -89,7 +85,6 @@
             });
         };
 
-        // Publish / Save Function
         window.publishPost = async () => {
             const title = document.getElementById('post-title').value;
             const desc = document.getElementById('post-desc').value;
@@ -112,7 +107,6 @@
                     finalMedia.push(uploaded);
                 }
 
-                // Extract YouTube Thumbnail if no image exists
                 let finalThumb = finalMedia.find(m => m.type === 'image')?.url || "";
                 if(!finalThumb && ytLinks.length > 0) {
                     const match = ytLinks[0].match(/(?:v=|\/)([\w-]{11})/);
@@ -129,7 +123,15 @@
                     await update(ref(db, 'newsAndGallery/' + editingId), postData);
                     alert("আপডেট সফল!");
                 } else {
+                    // নতুন পোস্টের ক্ষেত্রে সিরিয়াল নম্বর তৈরি করা
+                    const metaSnap = await get(metaRef);
+                    let currentSerial = metaSnap.exists() ? metaSnap.val() : 0;
+                    let newSerial = currentSerial + 1;
+                    
+                    postData.serialId = newSerial; // সিরিয়াল ডাটাবেজে যুক্ত করা হলো
+                    
                     await push(newsRef, postData);
+                    await set(metaRef, newSerial); // মেটা সিরিয়াল আপডেট করা হলো
                     alert("পাবলিশ সফল!");
                 }
                 cancelEdit();
@@ -140,20 +142,20 @@
             }
         };
 
-        // Load Posts
         onValue(newsRef, (snapshot) => {
             const grid = document.getElementById('post-list');
             grid.innerHTML = '';
             const posts = [];
             snapshot.forEach(child => { posts.push({ id: child.key, ...child.val() }); });
-            posts.sort((a,b) => b.timestamp - a.timestamp); // নতুনগুলো আগে
+            posts.sort((a,b) => b.timestamp - a.timestamp); 
 
             posts.forEach(p => {
+                const sId = p.serialId ? `#${p.serialId}` : '#N/A';
                 grid.innerHTML += `
                     <div class="glass-card p-4 flex gap-4 items-center">
                         <img src="${p.thumbnail || 'https://via.placeholder.com/150'}" class="w-24 h-24 object-cover rounded-lg border">
                         <div class="flex-grow">
-                            <h3 class="font-bold text-gray-800">${p.title}</h3>
+                            <h3 class="font-bold text-gray-800"><span class="text-red-600 font-extrabold mr-1">${sId}</span> ${p.title}</h3>
                             <p class="text-xs text-gray-500">${p.date} • ${p.media?.length || 0} মিডিয়া • ${p.youtube?.length || 0} YT লিংক</p>
                         </div>
                         <div class="flex flex-col gap-2">
@@ -180,7 +182,7 @@
         };
 
         window.deletePost = async (id) => {
-            if(confirm("পোস্টটি মুছে ফেলতে চান?")) await remove(ref(db, 'newsAndGallery/' + id));
+            if(confirm("পোস্টটি মুছে ফেলতে চান? (এর সিরিয়াল নম্বর অন্য কাউকে দেওয়া হবে না)")) await remove(ref(db, 'newsAndGallery/' + id));
         };
 
         window.cancelEdit = () => {
