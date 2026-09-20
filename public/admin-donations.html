@@ -9,7 +9,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
@@ -23,8 +23,12 @@
         
         const settingsRef = ref(db, 'pageContent/donationSettings');
         const listRef = ref(db, 'donationsList');
+        const metaRef = ref(db, 'donationsMeta/lastSerial');
 
-        // ১. পেমেন্ট মেথড লোড করা
+        let editingId = null;
+        let existingImageUrl = "";
+
+        // ১. পেমেন্ট মেথড লোড
         onValue(settingsRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -35,7 +39,7 @@
             }
         });
 
-        // ২. ডোনেশন লিস্ট লোড করা
+        // ২. ডোনেশন লিস্ট লোড
         onValue(listRef, (snapshot) => {
             const tbody = document.getElementById('donation-tbody');
             tbody.innerHTML = '';
@@ -44,13 +48,19 @@
                 const data = child.val();
                 const key = child.key;
                 total += Number(data.amount);
+                
+                const imgTag = data.imageUrl ? `<img src="${data.imageUrl}" class="w-8 h-8 rounded-full object-cover border border-gray-300">` : `<div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-user"></i></div>`;
+
                 tbody.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-3 text-xs font-bold text-red-500">#${data.serialId}</td>
+                        <td class="p-3">${imgTag}</td>
                         <td class="p-3 text-sm">${data.date}</td>
                         <td class="p-3 text-sm font-bold text-gray-800">${data.name}</td>
                         <td class="p-3 text-sm">${data.method}</td>
                         <td class="p-3 text-sm font-bold text-green-600">৳ ${data.amount}</td>
-                        <td class="p-3 text-sm text-right">
+                        <td class="p-3 text-sm text-right flex gap-2 justify-end">
+                            <button onclick="editDonation('${key}', '${data.date}', '${data.name}', '${data.method}', '${data.amount}', '${data.imageUrl || ''}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteDonation('${key}')" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
@@ -59,12 +69,11 @@
             document.getElementById('total-amount').innerText = total;
         });
 
-        // ৩. মেথড আপডেট ফাংশন
+        // ৩. মেথড আপডেট
         window.saveSettings = (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveSettingsBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...';
-
             set(settingsRef, {
                 bkash: document.getElementById('bkash').value,
                 nagad: document.getElementById('nagad').value,
@@ -76,27 +85,108 @@
             });
         };
 
-        // ৪. নতুন ডোনেশন এন্ট্রি ফাংশন
-        window.addDonation = (e) => {
+        // ৪. ক্লাউডিনারি আপলোড ফাংশন
+        async function uploadImageToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'rjsomp'); // আপনার প্রিসেট
+            
+            const res = await fetch('https://api.cloudinary.com/v1_1/h0dlj3no/image/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            return data.secure_url; // আপলোড করা ইমেজের লিংক
+        }
+
+        // ৫. ডোনেশন এন্ট্রি বা এডিট সেভ করা
+        window.saveDonation = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('addBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> যোগ করা হচ্ছে...';
+            const fileInput = document.getElementById('d-image');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> আপলোড হচ্ছে...';
+            btn.disabled = true;
 
-            push(listRef, {
-                date: document.getElementById('d-date').value,
-                name: document.getElementById('d-name').value,
-                method: document.getElementById('d-method').value,
-                amount: document.getElementById('d-amount').value
-            }).then(() => {
-                alert("ডোনেশন এন্ট্রি সফল হয়েছে!");
-                document.getElementById('donationForm').reset();
-                btn.innerHTML = '<i class="fas fa-plus"></i> এন্ট্রি যুক্ত করুন';
-            });
+            let finalImageUrl = existingImageUrl;
+
+            try {
+                // যদি নতুন ছবি সিলেক্ট করা হয়
+                if (fileInput.files.length > 0) {
+                    finalImageUrl = await uploadImageToCloudinary(fileInput.files[0]);
+                }
+
+                const donationData = {
+                    date: document.getElementById('d-date').value,
+                    name: document.getElementById('d-name').value,
+                    method: document.getElementById('d-method').value,
+                    amount: document.getElementById('d-amount').value,
+                    imageUrl: finalImageUrl
+                };
+
+                if (editingId) {
+                    // এডিট করা হচ্ছে
+                    await update(ref(db, 'donationsList/' + editingId), donationData);
+                    alert("তথ্য সফলভাবে এডিট হয়েছে!");
+                } else {
+                    // নতুন এন্ট্রি (স্থায়ী সিরিয়াল নম্বর তৈরি করা)
+                    const metaSnap = await get(metaRef);
+                    let currentSerial = metaSnap.exists() ? metaSnap.val() : 0;
+                    let newSerial = currentSerial + 1;
+
+                    donationData.serialId = newSerial; // সিরিয়াল যুক্ত করা হলো
+
+                    // প্রথমে ডাটাবেজে এন্ট্রি সেভ করা
+                    await push(listRef, donationData);
+                    // তারপর সিরিয়াল নম্বর আপডেট করা
+                    await set(metaRef, newSerial);
+                    alert("নতুন ডোনেশন যুক্ত হয়েছে!");
+                }
+
+                // ফর্ম রিসেট
+                cancelEdit();
+
+            } catch (error) {
+                alert("সমস্যা হয়েছে: " + error.message);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-save"></i> সেভ করুন';
+                btn.disabled = false;
+            }
         };
 
-        // ৫. এন্ট্রি ডিলিট ফাংশন
+        // ৬. এডিট বাটনে ক্লিক করলে
+        window.editDonation = (key, date, name, method, amount, imgUrl) => {
+            editingId = key;
+            existingImageUrl = imgUrl;
+            
+            document.getElementById('d-date').value = date;
+            document.getElementById('d-name').value = name;
+            document.getElementById('d-method').value = method;
+            document.getElementById('d-amount').value = amount;
+            
+            document.getElementById('form-title').innerText = "ডোনেশন এডিট করুন";
+            document.getElementById('addBtn').innerHTML = '<i class="fas fa-save"></i> আপডেট করুন';
+            document.getElementById('addBtn').classList.replace('bg-green-600', 'bg-blue-600');
+            document.getElementById('addBtn').classList.replace('hover:bg-green-700', 'hover:bg-blue-700');
+            document.getElementById('cancelBtn').classList.remove('hidden');
+        };
+
+        // ৭. এডিট বাতিল করা
+        window.cancelEdit = () => {
+            editingId = null;
+            existingImageUrl = "";
+            document.getElementById('donationForm').reset();
+            document.getElementById('d-image').value = '';
+            
+            document.getElementById('form-title').innerText = "নতুন ডোনেশন এন্ট্রি";
+            document.getElementById('addBtn').innerHTML = '<i class="fas fa-plus"></i> এন্ট্রি যুক্ত করুন';
+            document.getElementById('addBtn').classList.replace('bg-blue-600', 'bg-green-600');
+            document.getElementById('addBtn').classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+            document.getElementById('cancelBtn').classList.add('hidden');
+        };
+
+        // ৮. ডিলিট ফাংশন
         window.deleteDonation = (key) => {
-            if(confirm("আপনি কি নিশ্চিত যে এই এন্ট্রি ডিলিট করতে চান?")) {
+            if(confirm("আপনি কি নিশ্চিত যে এই এন্ট্রি ডিলিট করতে চান? (এর সিরিয়াল নম্বর অন্য কাউকে দেওয়া হবে না)")) {
                 remove(ref(db, 'donationsList/' + key));
             }
         };
@@ -104,81 +194,92 @@
 </head>
 <body class="bg-gray-100 p-4 md:p-8 font-sans pb-20">
 
-    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+    <div class="max-w-6xl mx-auto grid lg:grid-cols-12 gap-8">
         
         <!-- বাম দিক: সেটিং কন্ট্রোল -->
-        <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-blue-500 h-fit">
-            <h2 class="text-xl font-bold text-gray-800 mb-5 border-b pb-3"><i class="fas fa-cog text-blue-500"></i> পেমেন্ট মেথড সেটআপ</h2>
-            <form onsubmit="saveSettings(event)" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
+        <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-blue-500">
+                <h2 class="text-lg font-bold text-gray-800 mb-5 border-b pb-2"><i class="fas fa-cog text-blue-500"></i> পেমেন্ট মেথড সেটআপ</h2>
+                <form onsubmit="saveSettings(event)" class="space-y-4">
                     <div>
-                        <label class="block font-bold text-sm text-gray-700 mb-1">বিকাশ নাম্বার</label>
-                        <input type="text" id="bkash" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label class="block font-bold text-sm text-gray-700 mb-1">নগদ নাম্বার</label>
-                        <input type="text" id="nagad" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block font-bold text-sm text-gray-700 mb-1">যোগাযোগের নাম্বার</label>
-                    <input type="text" id="contact" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" required>
-                </div>
-                <div>
-                    <label class="block font-bold text-sm text-gray-700 mb-1">ব্যাংক ডিটেইলস (যদি থাকে)</label>
-                    <textarea id="bank" rows="3" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" placeholder="ব্যাংকের নাম, একাউন্ট নাম্বার, ব্রাঞ্চ..."></textarea>
-                </div>
-                <button type="submit" id="saveSettingsBtn" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 transition">
-                    <i class="fas fa-save"></i> তথ্য আপডেট করুন
-                </button>
-            </form>
-        </div>
-
-        <!-- ডান দিক: ডোনেশন এন্ট্রি -->
-        <div class="space-y-8">
-            <!-- ফর্ম -->
-            <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-green-500">
-                <h2 class="text-xl font-bold text-gray-800 mb-5 border-b pb-3"><i class="fas fa-hand-holding-dollar text-green-500"></i> নতুন ডোনেশন এন্ট্রি</h2>
-                <form id="donationForm" onsubmit="addDonation(event)" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block font-bold text-sm text-gray-700 mb-1">তারিখ</label>
-                            <input type="date" id="d-date" class="w-full border p-2 rounded focus:ring-2 focus:ring-green-500" required>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-sm text-gray-700 mb-1">টাকার পরিমাণ</label>
-                            <input type="number" id="d-amount" class="w-full border p-2 rounded focus:ring-2 focus:ring-green-500" required>
-                        </div>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">বিকাশ নাম্বার</label>
+                        <input type="text" id="bkash" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
-                        <label class="block font-bold text-sm text-gray-700 mb-1">দাতার নাম / পরিচয়</label>
-                        <input type="text" id="d-name" class="w-full border p-2 rounded focus:ring-2 focus:ring-green-500" required>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">নগদ নাম্বার</label>
+                        <input type="text" id="nagad" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
-                        <label class="block font-bold text-sm text-gray-700 mb-1">মাধ্যম (বিকাশ/নগদ/ব্যাংক)</label>
-                        <input type="text" id="d-method" class="w-full border p-2 rounded focus:ring-2 focus:ring-green-500" required>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">যোগাযোগের নাম্বার</label>
+                        <input type="text" id="contact" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-blue-500" required>
                     </div>
-                    <button type="submit" id="addBtn" class="w-full bg-green-600 text-white font-bold py-2.5 rounded-lg hover:bg-green-700 transition">
-                        <i class="fas fa-plus"></i> এন্ট্রি যুক্ত করুন
+                    <div>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">ব্যাংক ডিটেইলস</label>
+                        <textarea id="bank" rows="2" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-blue-500" placeholder="ব্যাংকের নাম, একাউন্ট নাম্বার..."></textarea>
+                    </div>
+                    <button type="submit" id="saveSettingsBtn" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg text-sm hover:bg-blue-700 transition">
+                        <i class="fas fa-save"></i> তথ্য আপডেট করুন
                     </button>
                 </form>
             </div>
+            
+            <!-- ফর্ম অংশ -->
+            <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-green-500">
+                <h2 id="form-title" class="text-lg font-bold text-gray-800 mb-5 border-b pb-2"><i class="fas fa-hand-holding-dollar text-green-500"></i> নতুন ডোনেশন এন্ট্রি</h2>
+                <form id="donationForm" onsubmit="saveDonation(event)" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-xs text-gray-700 mb-1">তারিখ</label>
+                            <input type="date" id="d-date" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-green-500" required>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-xs text-gray-700 mb-1">টাকার পরিমাণ</label>
+                            <input type="number" id="d-amount" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-green-500" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">দাতার নাম / পরিচয়</label>
+                        <input type="text" id="d-name" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">মাধ্যম (বিকাশ/নগদ/ব্যাংক)</label>
+                        <input type="text" id="d-method" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">দাতার ছবি (ঐচ্ছিক)</label>
+                        <input type="file" id="d-image" accept="image/*" class="w-full border p-1.5 rounded text-sm text-gray-600 focus:ring-2 focus:ring-green-500 bg-gray-50 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button type="submit" id="addBtn" class="flex-1 bg-green-600 text-white font-bold py-2.5 rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-plus"></i> এন্ট্রি যুক্ত করুন
+                        </button>
+                        <button type="button" id="cancelBtn" onclick="cancelEdit()" class="hidden bg-gray-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-gray-600 transition">
+                            বাতিল
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-            <!-- অডিট লিস্ট -->
+        <!-- ডান দিক: অডিট লিস্ট -->
+        <div class="lg:col-span-8">
             <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-gray-800">অডিট / ডোনেশন লিস্ট</h2>
                     <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">মোট: ৳ <span id="total-amount">0</span></span>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
                         <thead>
-                            <tr class="bg-gray-100 text-gray-600 text-sm">
+                            <tr class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider">
+                                <th class="p-3 rounded-l-lg">আইডি</th>
+                                <th class="p-3">ছবি</th>
                                 <th class="p-3">তারিখ</th>
                                 <th class="p-3">নাম</th>
                                 <th class="p-3">মাধ্যম</th>
                                 <th class="p-3">পরিমাণ</th>
-                                <th class="p-3">অ্যাকশন</th>
+                                <th class="p-3 text-right rounded-r-lg">অ্যাকশন</th>
                             </tr>
                         </thead>
                         <tbody id="donation-tbody">
@@ -193,4 +294,3 @@
 
 </body>
 </html>
-
