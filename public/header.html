@@ -8,37 +8,15 @@
 <!-- CSS Only Tooltip Animation (Downward Position) -->
 <style>
     @keyframes autoTooltipDance {
-        0%, 71% { 
-            /* ০ থেকে ৫ সেকেন্ড পর্যন্ত লুকানো থাকবে */
-            opacity: 0; 
-            transform: scale(0.8) translateY(-10px); 
-        }
-        73% { 
-            /* ৫ সেকেন্ড পার হলে লাফিয়ে নিচে নামবে */
-            opacity: 1; 
-            transform: scale(1.1) translateY(8px); 
-        }
-        76% { 
-            transform: scale(1) translateY(0); 
-        }
-        80% { 
-            transform: scale(1.05) translateY(4px); 
-        }
-        85% { 
-            transform: scale(1) translateY(0); 
-        }
-        95% { 
-            /* ২ সেকেন্ড স্ক্রিনে থাকার পর হাইড হওয়া শুরু করবে */
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
-        }
-        100% { 
-            opacity: 0; 
-            transform: scale(0.8) translateY(-10px); 
-        }
+        0%, 71% { opacity: 0; transform: scale(0.8) translateY(-10px); }
+        73% { opacity: 1; transform: scale(1.1) translateY(8px); }
+        76% { transform: scale(1) translateY(0); }
+        80% { transform: scale(1.05) translateY(4px); }
+        85% { transform: scale(1) translateY(0); }
+        95% { opacity: 1; transform: scale(1) translateY(0); }
+        100% { opacity: 0; transform: scale(0.8) translateY(-10px); }
     }
     .auto-dancing-tooltip {
-        /* ৭ সেকেন্ডের লুপ (৫ সেকেন্ড অফ, ২ সেকেন্ড অন) */
         animation: autoTooltipDance 7s infinite ease-in-out;
     }
 </style>
@@ -64,7 +42,6 @@
             <a href="about" class="hover:text-red-600 transition">আমাদের সম্পর্কে</a>
             <a href="activities" class="hover:text-red-600 transition">কার্যক্রম</a>
             <a href="gallery" class="hover:text-red-600 transition">নিউজ ও গ্যালারি</a>
-            <a href="volunteer" class="hover:text-red-600 transition">স্বেচ্ছাসেবক হোন</a>
         </div>
 
         <!-- Desktop CTA Buttons -->
@@ -72,11 +49,11 @@
             <a href="https://api.betadrop.app/api/guest/download/ReiHQk" class="bg-green-50 text-green-600 border border-green-200 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-green-100 transition shadow-sm hover:shadow-md flex items-center gap-2">
                 <i class="fa-brands fa-android text-lg"></i> অ্যাপ ডাউনলোড
             </a>
-            <a href="blood-request" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-700 transition shadow-sm hover:shadow-md flex items-center gap-2">
-                <i class="fa-solid fa-droplet"></i> রক্তের আবেদন
+            <a href="join-us" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-700 transition shadow-sm hover:shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-users"></i> আমাদের সাথে যুক্ত হোন
             </a>
-            <a href="register-donor" class="bg-gray-900 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-black transition shadow-sm hover:shadow-md flex items-center gap-2">
-                <i class="fa-solid fa-user-plus"></i> নিবন্ধন
+            <a href="donate" class="bg-gray-900 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-black transition shadow-sm hover:shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-hand-holding-dollar"></i> সহযোগিতা করুন
             </a>
         </div>
 
@@ -85,14 +62,11 @@
             
             <!-- App Download Button & Dancing Popup Tooltip -->
             <div class="relative flex items-center justify-center mt-1">
-                <!-- Tooltip Popup Box (Moved BELOW the button using top-12) -->
                 <div class="auto-dancing-tooltip absolute top-[46px] right-0 bg-red-600 text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl shadow-2xl w-max pointer-events-none z-50 opacity-0">
                     রক্তযোদ্ধা অ্যাপ ডাউনলোড করুন
-                    <!-- Tooltip Top Arrow (Pointing Upwards) -->
                     <div class="absolute -top-1.5 right-[13px] border-b-[6px] border-b-red-600 border-x-[6px] border-x-transparent"></div>
                 </div>
                 
-                <!-- APK Download Icon -->
                 <a href="https://api.betadrop.app/api/guest/download/ReiHQk" 
                    class="bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 h-[38px] w-[38px] flex justify-center items-center rounded-xl shadow-sm transition active:scale-95">
                     <i class="fa-brands fa-android text-xl"></i>
@@ -107,27 +81,27 @@
         </div>
     </div>
 
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden xl:hidden bg-white border-t border-gray-100 shadow-2xl absolute w-full left-0 origin-top">
-        <div class="flex flex-col px-5 py-4 font-bold text-gray-700 text-[15px] space-y-1">
-            <a href="/" class="block py-3 text-red-600 border-b border-gray-50 hover:bg-red-50 rounded px-3 transition"><i class="fa-solid fa-house w-6 text-center mr-2"></i> হোম</a>
-            <a href="about" class="block py-3 hover:text-red-600 border-b border-gray-50 hover:bg-red-50 rounded px-3 transition"><i class="fa-solid fa-circle-info w-6 text-center mr-2"></i> আমাদের সম্পর্কে</a>
-            <a href="activities" class="block py-3 hover:text-red-600 border-b border-gray-50 hover:bg-red-50 rounded px-3 transition"><i class="fa-solid fa-briefcase w-6 text-center mr-2"></i> কার্যক্রম</a>
-            <a href="gallery" class="block py-3 hover:text-red-600 border-b border-gray-50 hover:bg-red-50 rounded px-3 transition"><i class="fa-regular fa-images w-6 text-center mr-2"></i> নিউজ ও গ্যালারি</a>
-            <a href="volunteer" class="block py-3 hover:text-red-600 hover:bg-red-50 rounded px-3 transition"><i class="fa-solid fa-hand-holding-hand w-6 text-center mr-2"></i> স্বেচ্ছাসেবক হোন</a>
+    <!-- Mobile Menu (3D Separated Style) -->
+    <div id="mobile-menu" class="hidden xl:hidden bg-gray-50 border-t border-gray-200 shadow-2xl absolute w-full left-0 origin-top pb-6">
+        <div class="flex flex-col px-5 py-5 font-bold text-gray-700 text-[15px] space-y-3">
             
-            <div class="flex flex-col gap-3 mt-5 mb-2 pt-4 border-t border-gray-100">
-                <a href="search-donor" class="bg-gray-100 text-red-600 text-center px-4 py-3 rounded-xl font-extrabold hover:bg-gray-200 shadow-sm border border-gray-200 flex justify-center items-center gap-2 transition">
-                    <i class="fa-solid fa-magnifying-glass"></i> রক্তদাতা খুঁজুন
+            <!-- Separated Menu Items -->
+            <a href="/" class="flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 text-red-600 hover:shadow-md transition active:scale-95"><i class="fa-solid fa-house w-8 text-center text-lg"></i> হোম</a>
+            
+            <a href="about" class="flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95"><i class="fa-solid fa-circle-info w-8 text-center text-lg"></i> আমাদের সম্পর্কে</a>
+            
+            <a href="activities" class="flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95"><i class="fa-solid fa-briefcase w-8 text-center text-lg"></i> কার্যক্রম</a>
+            
+            <a href="gallery" class="flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95"><i class="fa-regular fa-images w-8 text-center text-lg"></i> নিউজ ও গ্যালারি</a>
+            
+            <!-- Mobile CTA Buttons -->
+            <div class="flex flex-col gap-3 mt-4">
+                <a href="join-us" class="bg-red-600 text-white text-center px-4 py-3.5 rounded-xl font-bold hover:bg-red-700 shadow-md flex justify-center items-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-users text-lg"></i> আমাদের সাথে যুক্ত হোন
                 </a>
-                <div class="flex gap-3">
-                    <a href="blood-request" class="flex-1 bg-red-600 text-white text-center px-4 py-3 rounded-xl font-bold hover:bg-red-700 shadow-md flex justify-center items-center gap-2 transition">
-                        <i class="fa-solid fa-droplet"></i> রক্তের আবেদন
-                    </a>
-                    <a href="register-donor" class="flex-1 bg-gray-900 text-white text-center px-4 py-3 rounded-xl font-bold hover:bg-black shadow-md flex justify-center items-center gap-2 transition">
-                        <i class="fa-solid fa-user-plus"></i> নিবন্ধন
-                    </a>
-                </div>
+                <a href="donate" class="bg-gray-900 text-white text-center px-4 py-3.5 rounded-xl font-bold hover:bg-black shadow-md flex justify-center items-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-hand-holding-dollar text-lg"></i> সহযোগিতা করুন
+                </a>
             </div>
         </div>
     </div>
