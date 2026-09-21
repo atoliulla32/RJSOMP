@@ -147,15 +147,13 @@
     </nav>
     
     <!-- ================= Live Notification Board ================= -->
-    <div class="header-live-board" id="headerLiveBoard">
+    <div class="header-live-board" id="headerLiveBoard" style="display: none;">
         <div class="header-board-badge">
             <i class="fas fa-bell bell-icon text-yellow-300"></i> আপডেট নোটিশ
         </div>
         <div class="header-marquee-wrapper">
             <marquee width="100%" behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop();" onmouseout="this.start();">
-                <span class="header-marquee-text" id="header-marquee-content">
-                    <span class="date"><i class="fas fa-spinner fa-spin"></i></span> লোড হচ্ছে...
-                </span>
+                <span class="header-marquee-text" id="header-marquee-content"></span>
             </marquee>
         </div>
     </div>
@@ -164,7 +162,7 @@
 <!-- Firebase Live Notice Fetch Script -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Your blood donation website Firebase config
     const firebaseConfig = {
@@ -183,25 +181,30 @@
     // Fetch live notices from Firestore
     function loadLiveNotices() {
         const marqueeContent = document.getElementById('header-marquee-content');
+        const headerBoard = document.getElementById('headerLiveBoard');
         
-        // এখানে আপনার ডাটাবেজের নোটিশ টেবিলের নাম দেবেন (যেমন: "notices" বা "news")
-        const q = query(collection(db, "notices"), where("isLive", "==", true), orderBy("timestamp", "desc"));
+        // শুধু orderBy ব্যবহার করা হলো যাতে Index Error না দেয়
+        const q = query(collection(db, "notices"), orderBy("timestamp", "desc"));
         
         onSnapshot(q, (snapshot) => {
-            if (snapshot.empty) {
-                document.getElementById('headerLiveBoard').style.display = 'none'; // নোটিশ না থাকলে বোর্ড হাইড হবে
-                return;
-            }
-
-            document.getElementById('headerLiveBoard').style.display = 'flex'; // নোটিশ থাকলে বোর্ড শো হবে
             let html = '';
+            let hasLiveNotice = false;
             
             snapshot.forEach((doc) => {
                 const notice = doc.data();
-                html += `<span class="date">[${notice.date || 'নতুন আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
+                // শুধু লাইভ নোটিশগুলো ফিল্টার করে দেখানো হচ্ছে
+                if(notice.isLive === true) {
+                    hasLiveNotice = true;
+                    html += `<span class="date">[${notice.date || 'নতুন আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
+                }
             });
             
-            marqueeContent.innerHTML = html;
+            if (!hasLiveNotice) {
+                headerBoard.style.display = 'none'; // নোটিশ না থাকলে হাইড
+            } else {
+                headerBoard.style.display = 'flex'; // নোটিশ থাকলে শো
+                marqueeContent.innerHTML = html;
+            }
         }, (error) => {
             console.error("Notice Load Error: ", error);
         });
