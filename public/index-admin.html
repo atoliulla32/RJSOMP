@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>হোমপেজ কন্ট্রোল প্যানেল | রক্তযোদ্ধা</title>
+    
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; }
+        .tab-btn { transition: all 0.3s ease; }
+        .tab-btn.active { background: #1e293b; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .disabled-input { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- ================= Login Section ================= -->
+    <div id="login-section" class="min-h-screen flex items-center justify-center bg-gray-900 p-4 absolute inset-0 z-50 transition-opacity duration-300">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center transform transition-transform">
+            <div class="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto text-4xl mb-4 shadow-inner border border-red-100">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-1">অ্যাডমিন প্যানেল</h2>
+            <p class="text-sm text-gray-500 mb-6 font-medium">কন্ট্রোল প্যানেলে প্রবেশ করতে লগইন করুন</p>
+            
+            <form onsubmit="event.preventDefault(); loginAdmin();" class="space-y-4">
+                <div class="relative">
+                    <i class="fas fa-envelope absolute left-4 top-4 text-gray-400"></i>
+                    <input type="email" id="admin_email" required placeholder="অ্যাডমিন ইমেইল" class="w-full pl-11 pr-4 py-3.5 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-left font-medium transition">
+                </div>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-4 text-gray-400"></i>
+                    <input type="password" id="admin_password" required placeholder="পাসওয়ার্ড" class="w-full pl-11 pr-4 py-3.5 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-left font-medium transition">
+                </div>
+                <button type="submit" id="loginBtn" class="w-full bg-red-600 text-white font-bold text-lg py-3.5 rounded-xl shadow-lg hover:bg-red-700 transition flex justify-center items-center gap-2 mt-2">
+                    <i class="fas fa-sign-in-alt"></i> লগইন করুন
+                </button>
+                <p id="login_error" class="text-sm text-red-600 font-bold hidden mt-3 bg-red-50 py-2 rounded-lg"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= Main Admin Dashboard (Hidden before login) ================= -->
+    <div id="admin_dashboard_wrapper" class="hidden p-3 sm:p-8 max-w-6xl mx-auto pb-10">
+        
+        <!-- Header -->
+        <div class="bg-gray-900 text-white p-5 md:p-6 rounded-2xl shadow-lg mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-xl md:text-2xl">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold">হোমপেজ কন্ট্রোল প্যানেল</h1>
+                    <p class="text-xs md:text-sm text-gray-300 mt-1">টপার এবং ৩ডি কিউবের ছবি নিয়ন্ত্রণ</p>
+                </div>
+            </div>
+            <button onclick="logoutAdmin()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2 w-full md:w-auto">
+                <i class="fas fa-sign-out-alt"></i> লগআউট
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-200 mb-8 flex gap-2">
+            <button onclick="switchTab('toppers')" id="tab-toppers" class="tab-btn active flex-1 py-3 px-4 rounded-lg font-bold text-gray-700 text-sm md:text-base flex items-center justify-center gap-2">
+                <i class="fas fa-crown text-yellow-500"></i> টপার নিয়ন্ত্রণ
+            </button>
+            <button onclick="switchTab('cube')" id="tab-cube" class="tab-btn flex-1 py-3 px-4 rounded-lg font-bold text-gray-700 text-sm md:text-base flex items-center justify-center gap-2">
+                <i class="fas fa-cube text-purple-500"></i> 3D কিউব গ্যালারি
+            </button>
+        </div>
+
+        <!-- ================= TAB 1: Topper Control ================= -->
+        <div id="section-toppers" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- 1. Top Donor -->
+            <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-red-500 flex flex-col h-full">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-tint text-red-500"></i> সর্বোচ্চ রক্তদাতা</h2>
+                <form onsubmit="event.preventDefault(); saveTopper('blood_donors', 'isTopDonor');" class="space-y-4 flex-grow flex flex-col">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">নতুন ছবি আপলোড</label>
+                        <input type="file" accept="image/*" onchange="uploadImage(this, 'img_donor', 'status_donor')" class="w-full p-2 border border-gray-300 rounded-lg text-sm bg-gray-50">
+                        <input type="hidden" id="img_donor">
+                        <p id="status_donor" class="text-xs font-bold text-gray-500 mt-1"></p>
+                    </div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">নাম</label><input type="text" id="name_donor" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">ঠিকানা / এলাকা</label><input type="text" id="address_donor" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block text-sm font-bold text-gray-700 mb-1">রক্তদান (কতবার)</label><input type="number" id="count_donor" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500"></div>
+                        <div><label class="block text-sm font-bold text-gray-700 mb-1">শেষ তারিখ</label><input type="date" id="date_donor" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500"></div>
+                    </div>
+                    
+                    <div class="flex gap-2 mt-auto pt-4">
+                        <button type="submit" id="btn_blood_donors" class="flex-1 bg-red-600 text-white font-bold py-2.5 rounded-lg hover:bg-red-700 transition shadow-sm text-sm">আপডেট</button>
+                        <button type="button" onclick="resetToAuto('blood_donors', 'isTopDonor', this)" class="flex-1 bg-gray-800 text-white font-bold py-2.5 rounded-lg hover:bg-gray-900 transition shadow-sm text-sm flex items-center justify-center gap-1" title="ডাটাবেজ থেকে অটোমেটিক টপার দেখাবে"><i class="fas fa-sync-alt"></i> অটোমেটিক</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 2. Top Volunteer -->
+            <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-blue-500 flex flex-col h-full">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-star text-blue-500"></i> সেরা স্বেচ্ছাসেবক</h2>
+                <form onsubmit="event.preventDefault(); saveTopper('volunteers', 'isTopVolunteer');" class="space-y-4 flex-grow flex flex-col">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">নতুন ছবি আপলোড</label>
+                        <input type="file" accept="image/*" onchange="uploadImage(this, 'img_vol', 'status_vol')" class="w-full p-2 border border-gray-300 rounded-lg text-sm bg-gray-50">
+                        <input type="hidden" id="img_vol">
+                        <p id="status_vol" class="text-xs font-bold text-gray-500 mt-1"></p>
+                    </div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">নাম</label><input type="text" id="name_vol" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-blue-500"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">ঠিকানা / এলাকা</label><input type="text" id="address_vol" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-blue-500"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">উপস্থিতি (কতটি কার্যক্রমে)</label><input type="number" id="count_vol" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-blue-500"></div>
+                    
+                    <div class="flex gap-2 mt-auto pt-4">
+                        <button type="submit" id="btn_volunteers" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 transition shadow-sm text-sm">আপডেট</button>
+                        <button type="button" onclick="resetToAuto('volunteers', 'isTopVolunteer', this)" class="flex-1 bg-gray-800 text-white font-bold py-2.5 rounded-lg hover:bg-gray-900 transition shadow-sm text-sm flex items-center justify-center gap-1" title="ডাটাবেজ থেকে অটোমেটিক টপার দেখাবে"><i class="fas fa-sync-alt"></i> অটোমেটিক</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 3. Top Funder -->
+            <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-emerald-500 flex flex-col h-full">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-coins text-emerald-500"></i> সর্বোচ্চ অনুদানদাতা</h2>
+                <form onsubmit="event.preventDefault(); saveTopper('donations', 'isTopFunder');" class="space-y-4 flex-grow flex flex-col">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">নতুন ছবি আপলোড</label>
+                        <input type="file" accept="image/*" onchange="uploadImage(this, 'img_fund', 'status_fund')" class="w-full p-2 border border-gray-300 rounded-lg text-sm bg-gray-50">
+                        <input type="hidden" id="img_fund">
+                        <p id="status_fund" class="text-xs font-bold text-gray-500 mt-1"></p>
+                    </div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">নাম</label><input type="text" id="name_fund" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-emerald-500"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">ঠিকানা / এলাকা</label><input type="text" id="address_fund" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-emerald-500"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">মোট অনুদান (টাকা)</label><input type="number" id="count_fund" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-emerald-500"></div>
+                    
+                    <div class="flex gap-2 mt-auto pt-4">
+                        <button type="submit" id="btn_donations" class="flex-1 bg-emerald-600 text-white font-bold py-2.5 rounded-lg hover:bg-emerald-700 transition shadow-sm text-sm">আপডেট</button>
+                        <button type="button" onclick="resetToAuto('donations', 'isTopFunder', this)" class="flex-1 bg-gray-800 text-white font-bold py-2.5 rounded-lg hover:bg-gray-900 transition shadow-sm text-sm flex items-center justify-center gap-1" title="ডাটাবেজ থেকে অটোমেটিক টপার দেখাবে"><i class="fas fa-sync-alt"></i> অটোমেটিক</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 2: Cube Images (Smart Limit 6) ================= -->
+        <div id="section-cube" class="hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-8">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                    <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-cube text-purple-500"></i> 3D কিউবে ছবি যুক্ত করুন</h3>
+                    <span class="bg-gray-100 text-gray-700 font-bold px-3 py-1 rounded-lg text-sm border border-gray-200">
+                        বর্তমান ছবি: <span id="cube_count_text" class="text-purple-600 text-lg">0</span>/6
+                    </span>
+                </div>
+                
+                <p class="text-sm text-gray-600 mb-4 font-medium"><i class="fas fa-info-circle text-blue-500"></i> আপনি একসাথে একাধিক (সর্বোচ্চ ৬টি) ছবি সিলেক্ট করতে পারবেন। ডাটাবেজে ঠিক ৬টি ছবি থাকলেই হোমপেজের কিউব সুন্দর দেখাবে।</p>
+                
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <input type="file" id="cube_file" accept="image/*" multiple class="w-full md:flex-1 p-3 border border-gray-300 rounded-xl bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 transition">
+                    <button onclick="addCubeImages()" id="btn_cube_upload" class="w-full md:w-auto bg-purple-600 text-white font-bold px-8 py-3.5 rounded-xl shadow-md hover:bg-purple-700 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-cloud-upload-alt text-lg"></i> আপলোড করুন
+                    </button>
+                </div>
+                <p id="status_cube" class="text-sm font-bold mt-3 text-gray-600"></p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                <h3 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-images text-blue-500"></i> গ্যালারির বর্তমান ছবিসমূহ</h3>
+                <div id="cube_grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div class="col-span-full text-center py-10 text-gray-500"><i class="fas fa-spinner fa-spin text-3xl mb-2"></i><br>লোড হচ্ছে...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase Logic & Authentication -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        // ================= নতুন: Firebase Authentication ইম্পোর্ট =================
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, setDoc, deleteDoc, addDoc, doc, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
+            projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+        };
+        const app = initializeApp(firebaseConfig); 
+        const db = getFirestore(app);
+        const auth = getAuth(app); // Auth Initialization
+
+        let currentCubeCount = 0; 
+
+        // ================= Auth State Listener (চেক করবে লগইন করা আছে কিনা) =================
+        onAuthStateChanged(auth, (user) => {
+            const loginSection = document.getElementById('login-section');
+            const dashboardWrapper = document.getElementById('admin_dashboard_wrapper');
+            
+            if (user) {
+                // User is logged in: Show dashboard
+                loginSection.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    loginSection.classList.add('hidden');
+                    dashboardWrapper.classList.remove('hidden');
+                    loadCurrentToppers(); // Load data only after login
+                }, 300);
+            } else {
+                // User is logged out: Show login screen
+                dashboardWrapper.classList.add('hidden');
+                loginSection.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+            }
+        });
+
+        // ================= Login Function =================
+        window.loginAdmin = async () => {
+            const email = document.getElementById('admin_email').value;
+            const pass = document.getElementById('admin_password').value;
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('login_error');
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> যাচাই করা হচ্ছে...';
+            btn.disabled = true;
+            err.classList.add('hidden');
+
+            try {
+                // Firebase Login Call
+                await signInWithEmailAndPassword(auth, email, pass);
+                // সফল হলে onAuthStateChanged অটোমেটিক ড্যাশবোর্ড ওপেন করে দেবে
+            } catch (error) {
+                err.innerText = "ভুল ইমেইল বা পাসওয়ার্ড! দয়া করে আবার চেষ্টা করুন।";
+                err.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন';
+                btn.disabled = false;
+            }
+        };
+
+        // ================= Logout Function =================
+        window.logoutAdmin = () => {
+            if(confirm("আপনি কি কন্ট্রোল প্যানেল থেকে বের হতে চান?")) {
+                signOut(auth).catch((error) => console.error("Logout Error:", error));
+            }
+        };
+
+        // ================= Tab Switching =================
+        window.switchTab = (tab) => {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            if(tab === 'toppers') {
+                document.getElementById('section-toppers').classList.remove('hidden');
+                document.getElementById('section-cube').classList.add('hidden');
+                loadCurrentToppers();
+            } else {
+                document.getElementById('section-toppers').classList.add('hidden');
+                document.getElementById('section-cube').classList.remove('hidden');
+                loadCubeGallery();
+            }
+        };
+
+        // ================= Cloudinary Image Uploader =================
+        window.uploadImage = async (input, hiddenFieldId, statusId) => {
+            const file = input.files[0];
+            const statusEl = document.getElementById(statusId);
+            const hiddenInput = document.getElementById(hiddenFieldId);
+            if(!file) return;
+
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-500"></i> ছবি আপলোড হচ্ছে...';
+            
+            try {
+                const fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "rjsomp"); 
+                const res = await fetch(`https://api.cloudinary.com/v1_1/h0dlj3no/image/upload`, { method: "POST", body: fd });
+                const data = await res.json();
+                
+                hiddenInput.value = data.secure_url;
+                statusEl.innerHTML = '<i class="fas fa-check-circle text-green-600"></i> আপলোড সফল হয়েছে!';
+            } catch(e) {
+                statusEl.innerHTML = '<i class="fas fa-times-circle text-red-600"></i> আপলোড ব্যর্থ হয়েছে!';
+                input.value = ""; 
+            }
+        };
+
+        // ================= Topper Management =================
+        async function loadCurrentToppers() {
+            try {
+                // Load Donor
+                let q1 = query(collection(db, "blood_donors"), where("isTopDonor", "==", true));
+                let snap1 = await getDocs(q1);
+                if(!snap1.empty) {
+                    const data = snap1.docs[0].data();
+                    document.getElementById('name_donor').value = data.name || "";
+                    document.getElementById('address_donor').value = data.upazila || data.district || "";
+                    document.getElementById('count_donor').value = data.donationCount || "";
+                    document.getElementById('date_donor').value = data.lastDonation || "";
+                    document.getElementById('img_donor').value = data.profileImageUrl || "";
+                }
+
+                // Load Volunteer
+                let q2 = query(collection(db, "volunteers"), where("isTopVolunteer", "==", true));
+                let snap2 = await getDocs(q2);
+                if(!snap2.empty) {
+                    const data = snap2.docs[0].data();
+                    document.getElementById('name_vol').value = data.name || "";
+                    document.getElementById('address_vol').value = data.upazila || data.district || "";
+                    document.getElementById('count_vol').value = data.activityCount || "";
+                    document.getElementById('img_vol').value = data.profileImageUrl || "";
+                }
+
+                // Load Funder
+                let q3 = query(collection(db, "donations"), where("isTopFunder", "==", true));
+                let snap3 = await getDocs(q3);
+                if(!snap3.empty) {
+                    const data = snap3.docs[0].data();
+                    document.getElementById('name_fund').value = data.name || data.donorName || "";
+                    document.getElementById('address_fund').value = data.address || data.district || "";
+                    document.getElementById('count_fund').value = data.amount || "";
+                    document.getElementById('img_fund').value = data.profileImageUrl || "";
+                }
+            } catch (error) { console.error("Error loading toppers", error); }
+        }
+
+        window.saveTopper = async (collectionName, topFlag) => {
+            const btn = document.getElementById('btn_' + collectionName);
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> আপডেট হচ্ছে...'; btn.disabled = true;
+
+            try {
+                const q = query(collection(db, collectionName), where(topFlag, "==", true));
+                const snap = await getDocs(q);
+                let promises = [];
+                snap.forEach(d => { promises.push(setDoc(doc(db, collectionName, d.id), { [topFlag]: false }, { merge: true })); });
+                await Promise.all(promises);
+
+                const docId = "MANUAL_TOP_" + collectionName.toUpperCase();
+                let newData = {};
+
+                if(collectionName === 'blood_donors') {
+                    newData = {
+                        name: document.getElementById('name_donor').value,
+                        upazila: document.getElementById('address_donor').value,
+                        donationCount: parseInt(document.getElementById('count_donor').value) || 0,
+                        lastDonation: document.getElementById('date_donor').value,
+                        profileImageUrl: document.getElementById('img_donor').value,
+                        isTopDonor: true, timestamp: serverTimestamp()
+                    };
+                } else if (collectionName === 'volunteers') {
+                    newData = {
+                        name: document.getElementById('name_vol').value,
+                        upazila: document.getElementById('address_vol').value,
+                        activityCount: parseInt(document.getElementById('count_vol').value) || 0,
+                        profileImageUrl: document.getElementById('img_vol').value,
+                        isTopVolunteer: true, timestamp: serverTimestamp()
+                    };
+                } else if (collectionName === 'donations') {
+                    newData = {
+                        name: document.getElementById('name_fund').value,
+                        address: document.getElementById('address_fund').value,
+                        amount: parseInt(document.getElementById('count_fund').value) || 0,
+                        profileImageUrl: document.getElementById('img_fund').value,
+                        isTopFunder: true, timestamp: serverTimestamp()
+                    };
+                }
+
+                await setDoc(doc(db, collectionName, docId), newData, { merge: true });
+                alert("সফলভাবে হোমপেজের টপার আপডেট হয়েছে!");
+                
+            } catch (error) {
+                alert("আপডেট করতে সমস্যা হয়েছে!"); console.error(error);
+            } finally {
+                btn.innerHTML = 'আপডেট'; btn.disabled = false;
+            }
+        };
+
+        // ================= 100% Fixed Reset to Auto System =================
+        window.resetToAuto = async (collectionName, topFlag, btnElement) => {
+            if(!confirm("আপনি কি ম্যানুয়াল টপার মুছে ডাটাবেজের অটোমেটিক সিস্টেমে ফিরে যেতে চান?")) return;
+
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> রিসেট হচ্ছে...'; 
+            btnElement.disabled = true;
+
+            try {
+                const q = query(collection(db, collectionName), where(topFlag, "==", true));
+                const snap = await getDocs(q);
+                let promises = [];
+                snap.forEach(d => { promises.push(setDoc(doc(db, collectionName, d.id), { [topFlag]: false }, { merge: true })); });
+                await Promise.all(promises);
+
+                const docId = "MANUAL_TOP_" + collectionName.toUpperCase();
+                await deleteDoc(doc(db, collectionName, docId));
+
+                if(collectionName === 'blood_donors') {
+                    document.getElementById('name_donor').value = ""; document.getElementById('address_donor').value = "";
+                    document.getElementById('count_donor').value = ""; document.getElementById('date_donor').value = "";
+                    document.getElementById('img_donor').value = ""; document.getElementById('status_donor').innerText = "";
+                } else if (collectionName === 'volunteers') {
+                    document.getElementById('name_vol').value = ""; document.getElementById('address_vol').value = "";
+                    document.getElementById('count_vol').value = ""; document.getElementById('img_vol').value = "";
+                    document.getElementById('status_vol').innerText = "";
+                } else if (collectionName === 'donations') {
+                    document.getElementById('name_fund').value = ""; document.getElementById('address_fund').value = "";
+                    document.getElementById('count_fund').value = ""; document.getElementById('img_fund').value = "";
+                    document.getElementById('status_fund').innerText = "";
+                }
+
+                alert("সফলভাবে অটোমেটিক সিস্টেমে ফিরে গেছে! এখন হোম পেজে ডাটাবেজ থেকে সর্বোচ্চ সংখ্যার ভিত্তিতে টপার দেখাবে।");
+            } catch(e) {
+                alert("রিসেট করতে সমস্যা হয়েছে!"); console.error(e);
+            } finally {
+                btnElement.innerHTML = originalText;
+                btnElement.disabled = false;
+            }
+        };
+
+        // ================= Cube Gallery Management =================
+        window.loadCubeGallery = async () => {
+            const grid = document.getElementById('cube_grid');
+            const fileInput = document.getElementById('cube_file');
+            const btnUpload = document.getElementById('btn_cube_upload');
+            const statusEl = document.getElementById('status_cube');
+
+            try {
+                const qCube = query(collection(db, "cube_images"), orderBy("timestamp", "asc"));
+                const snap = await getDocs(qCube);
+                
+                currentCubeCount = snap.size;
+                document.getElementById('cube_count_text').innerText = currentCubeCount;
+
+                if(currentCubeCount >= 6) {
+                    fileInput.disabled = true; btnUpload.disabled = true;
+                    fileInput.classList.add('disabled-input'); btnUpload.classList.add('disabled-input');
+                    statusEl.innerHTML = '<span class="text-red-600 bg-red-50 p-2 rounded-lg border border-red-200 inline-block"><i class="fas fa-exclamation-circle"></i> গ্যালারি পূর্ণ (৬/৬)! নতুন ছবি দিতে চাইলে আগে পুরনো ছবি মুছুন।</span>';
+                } else {
+                    fileInput.disabled = false; btnUpload.disabled = false;
+                    fileInput.classList.remove('disabled-input'); btnUpload.classList.remove('disabled-input');
+                    statusEl.innerHTML = '';
+                }
+
+                if(snap.empty) {
+                    grid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-500 font-bold">কোনো ছবি পাওয়া যায়নি।</div>`;
+                    return;
+                }
+
+                let html = '';
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `
+                        <div class="bg-gray-50 p-2 rounded-xl border border-gray-200 relative group overflow-hidden">
+                            <img src="${data.imageUrl}" class="w-full h-24 md:h-32 object-cover rounded-lg shadow-sm">
+                            <button onclick="deleteCubeImage('${d.id}')" class="absolute inset-0 bg-red-600/80 text-white font-bold opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center cursor-pointer">
+                                <i class="fas fa-trash-alt text-2xl mb-1"></i> ডিলিট
+                            </button>
+                        </div>
+                    `;
+                });
+                grid.innerHTML = html;
+            } catch(e) { grid.innerHTML = `<div class="col-span-full text-center py-6 text-red-500 font-bold">লোড করতে সমস্যা হয়েছে!</div>`; }
+        };
+
+        window.addCubeImages = async () => {
+            const fileInput = document.getElementById('cube_file');
+            const files = fileInput.files;
+            const statusEl = document.getElementById('status_cube');
+            const btn = document.getElementById('btn_cube_upload');
+
+            if(files.length === 0) return alert("আগে ছবি সিলেক্ট করুন!");
+            if(currentCubeCount + files.length > 6) {
+                return alert(`আপনি সর্বোচ্চ ৬টি ছবি রাখতে পারবেন। আপনার গ্যালারিতে ইতিমধ্যে ${currentCubeCount}টি ছবি আছে। আপনি আর মাত্র ${6 - currentCubeCount}টি ছবি আপলোড করতে পারবেন।`);
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin text-lg"></i> আপলোড হচ্ছে...'; btn.disabled = true;
+            statusEl.innerHTML = '<span class="text-blue-600"><i class="fas fa-circle-notch fa-spin"></i> ছবিগুলো সার্ভারে যাচ্ছে, দয়া করে অপেক্ষা করুন...</span>';
+
+            try {
+                for(let i = 0; i < files.length; i++) {
+                    const fd = new FormData(); fd.append("file", files[i]); fd.append("upload_preset", "rjsomp"); 
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/h0dlj3no/image/upload`, { method: "POST", body: fd });
+                    const data = await res.json();
+                    await addDoc(collection(db, "cube_images"), { imageUrl: data.secure_url, timestamp: serverTimestamp() });
+                }
+                fileInput.value = ""; 
+                statusEl.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle"></i> ছবিগুলো সফলভাবে যুক্ত হয়েছে!</span>';
+                loadCubeGallery(); 
+            } catch(e) {
+                statusEl.innerHTML = '<span class="text-red-600"><i class="fas fa-times-circle"></i> আপলোড ব্যর্থ হয়েছে! ইন্টারনেট চেক করুন।</span>';
+            } finally {
+                btn.innerHTML = '<i class="fas fa-cloud-upload-alt text-lg"></i> আপলোড করুন'; btn.disabled = false;
+            }
+        };
+
+        window.deleteCubeImage = async (id) => {
+            if(confirm("আপনি কি নিশ্চিতভাবে এই ছবিটি মুছতে চান?")) {
+                try {
+                    await deleteDoc(doc(db, "cube_images", id));
+                    loadCubeGallery();
+                } catch(e) { alert("ছবি মুছতে সমস্যা হয়েছে!"); }
+            }
+        };
+
+    </script>
+</body>
+</html>
