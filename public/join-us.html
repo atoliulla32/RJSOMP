@@ -1,150 +1,384 @@
-<!-- Website Favicon & PWA Manifest Links -->
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#dc2626">
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সংগঠনে যুক্ত হোন | রক্তযোদ্ধা</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans Bengali', sans-serif; background: #f8fafc; }
+        input[type="checkbox"] { width: 24px; height: 24px; cursor: pointer; accent-color: #dc2626; }
+        .rules-box li { margin-bottom: 10px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
 
-<!-- Custom CSS Animations (Tooltip & Laser Button) -->
-<style>
-    /* Tooltip Bounce Animation */
-    @keyframes autoTooltipDance {
-        0%, 71% { opacity: 0; transform: scale(0.8) translateY(-10px); }
-        73% { opacity: 1; transform: scale(1.1) translateY(8px); }
-        76% { transform: scale(1) translateY(0); }
-        80% { transform: scale(1.05) translateY(4px); }
-        85% { transform: scale(1) translateY(0); }
-        95% { opacity: 1; transform: scale(1) translateY(0); }
-        100% { opacity: 0; transform: scale(0.8) translateY(-10px); }
-    }
-    .auto-dancing-tooltip {
-        animation: autoTooltipDance 7s infinite ease-in-out;
-    }
+    <section class="bg-red-600 text-white text-center py-16 px-4" style="background: linear-gradient(rgba(220, 38, 38, 0.9), rgba(153, 27, 27, 0.9)), url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789866764/46240_d0rpcy.jpg') center/cover;">
+        <h1 class="text-3xl md:text-5xl font-extrabold mb-3">আমাদের সুন্দর পরিবারে যুক্ত হোন</h1>
+        <p class="text-base md:text-lg opacity-90">মানবতার সেবায় রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদে আপনাকে সাদর আমন্ত্রণ</p>
+    </section>
 
-    /* Laser Glowing Border Animation */
-    @keyframes rotateLaser {
-        100% { transform: rotate(360deg); }
-    }
-    .btn-laser {
-        position: relative;
-        overflow: hidden;
-        border-radius: 0.75rem; /* xl border radius */
-        z-index: 1;
-        background-color: #111827; /* gray-900 */
-    }
-    .btn-laser::before {
-        content: '';
-        position: absolute;
-        top: -150%; left: -150%; right: -150%; bottom: -150%;
-        background: conic-gradient(from 0deg, transparent 70%, #ef4444 80%, #ef4444 100%);
-        animation: rotateLaser 2s linear infinite;
-        z-index: -2;
-    }
-    .btn-laser::after {
-        content: '';
-        position: absolute;
-        inset: 2px; /* Border thickness */
-        background: #111827;
-        border-radius: 0.65rem;
-        z-index: -1;
-        transition: background 0.3s;
-    }
-    .btn-laser:hover::after {
-        background: #000000;
-    }
-</style>
-
-<!-- Main Header / Navbar -->
-<nav class="bg-white/95 backdrop-blur-md shadow-md sticky top-0 z-50 border-b-[3px] border-red-600 transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        
-        <!-- Logo & Brand Name -->
-        <a href="/" class="flex items-center gap-3 group">
-            <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" 
-                 alt="RJSOMP Logo" 
-                 class="h-11 w-11 md:h-12 md:w-12 rounded-full object-cover shadow-sm border border-red-100 group-hover:scale-105 transition-transform duration-300">
-            <div class="flex flex-col justify-center">
-                <h1 class="text-xl md:text-2xl font-extrabold text-red-600 tracking-tight leading-none mb-1">রক্তযোদ্ধা</h1>
-                <p class="text-[9px] md:text-[10px] text-gray-600 font-bold uppercase tracking-widest leading-none">সমাজ ও মানব কল্যাণ পরিষদ</p>
-            </div>
-        </a>
-
-        <!-- Desktop Menu -->
-        <div class="hidden xl:flex items-center gap-6 font-bold text-gray-700 text-[13.5px] tracking-wide">
-            <a href="/" class="text-red-600 hover:text-red-800 transition">হোম</a>
-            <a href="about" class="hover:text-red-600 transition">আমাদের সম্পর্কে</a>
-            <a href="activities" class="hover:text-red-600 transition">কার্যক্রম</a>
-            <a href="gallery" class="hover:text-red-600 transition">নিউজ ও গ্যালারি</a>
-        </div>
-
-        <!-- Desktop CTA Buttons -->
-        <div class="hidden xl:flex items-center gap-3">
-            <a href="https://api.betadrop.app/api/guest/download/ReiHQk" class="bg-green-50 text-green-600 border border-green-200 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-green-100 transition shadow-sm hover:shadow-md flex items-center gap-2">
-                <i class="fa-brands fa-android text-lg"></i> অ্যাপ ডাউনলোড
-            </a>
-            <a href="join-us" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-700 transition shadow-sm hover:shadow-md flex items-center gap-2">
-                <i class="fa-solid fa-droplet text-lg"></i> আমাদের সাথে যুক্ত হোন
-            </a>
-            <a href="donation" class="btn-laser text-white px-5 py-2.5 font-bold text-sm flex items-center gap-2 shadow-lg">
-                <i class="fa-solid fa-hand-holding-dollar text-lg"></i> সহযোগিতা করুন
-            </a>
-        </div>
-
-        <!-- Mobile Actions (Download App & Menu Toggle) -->
-        <div class="flex items-center gap-2.5 xl:hidden">
+    <div class="max-w-4xl mx-auto my-10 px-4">
+        <form id="unifiedForm" class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border-t-4 border-red-600 space-y-6">
             
-            <!-- App Download Button & Dancing Popup Tooltip -->
-            <div class="relative flex items-center justify-center mt-1">
-                <div class="auto-dancing-tooltip absolute top-[46px] right-0 bg-red-600 text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl shadow-2xl w-max pointer-events-none z-50 opacity-0">
-                    রক্তযোদ্ধা অ্যাপ ডাউনলোড করুন
-                    <div class="absolute -top-1.5 right-[13px] border-b-[6px] border-b-red-600 border-x-[6px] border-x-transparent"></div>
+            <!-- রোল সিলেকশন -->
+            <div class="mb-8">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-2 text-center">আপনি কীভাবে যুক্ত হতে চান? <span class="text-red-500">*</span></h2>
+                <p class="text-center text-gray-500 mb-6 font-medium">(বক্সগুলোতে টিক দিন। আপনি চাইলে একসাথে ৩টিতেও টিক দিতে পারবেন, আবার টিক তুলেও নিতে পারবেন)</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label id="card_volunteer" class="flex items-center justify-between p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-red-400 transition-all">
+                        <div class="flex items-center gap-3"><i class="fas fa-hand-holding-heart text-2xl text-red-500"></i><span class="text-lg font-bold text-gray-700">স্বেচ্ছাসেবক</span></div>
+                        <input type="checkbox" id="role_volunteer" value="volunteer" onchange="toggleDynamicFields()">
+                    </label>
+                    <label id="card_donor" class="flex items-center justify-between p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-red-400 transition-all">
+                        <div class="flex items-center gap-3"><i class="fas fa-tint text-2xl text-red-500"></i><span class="text-lg font-bold text-gray-700">রক্তদাতা</span></div>
+                        <input type="checkbox" id="role_donor" value="donor" onchange="toggleDynamicFields()">
+                    </label>
+                    <label id="card_member" class="flex items-center justify-between p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-red-400 transition-all">
+                        <div class="flex items-center gap-3"><i class="fas fa-id-badge text-2xl text-blue-500"></i><span class="text-lg font-bold text-gray-700">সদস্য</span></div>
+                        <input type="checkbox" id="role_member" value="member" onchange="toggleDynamicFields()">
+                    </label>
                 </div>
-                
-                <a href="https://api.betadrop.app/api/guest/download/ReiHQk" 
-                   class="bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 h-[38px] w-[38px] flex justify-center items-center rounded-xl shadow-sm transition active:scale-95">
-                    <i class="fa-brands fa-android text-xl"></i>
-                </a>
             </div>
 
-            <!-- Mobile Menu Toggle Button -->
-            <button onclick="var m=document.getElementById('mobile-menu'),i=document.getElementById('mobile-menu-icon'); m.classList.toggle('hidden'); if(m.classList.contains('hidden')){i.classList.remove('fa-xmark','text-red-600');i.classList.add('fa-bars','text-gray-800');i.style.transform='rotate(0deg)';}else{i.classList.remove('fa-bars','text-gray-800');i.classList.add('fa-xmark','text-red-600');i.style.transform='rotate(90deg)';}" class="text-gray-800 text-2xl focus:outline-none p-2 h-[38px] w-[38px] flex items-center justify-center rounded-xl hover:bg-gray-100 transition active:scale-95">
-                <i id="mobile-menu-icon" class="fa-solid fa-bars transition-transform duration-300"></i>
-            </button>
-            
-        </div>
+            <!-- নিয়মাবলি -->
+            <div id="rules-container" class="hidden bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-xl mb-6 shadow-sm text-sm md:text-base font-medium text-gray-700">
+                <h3 class="font-bold text-blue-800 text-xl mb-4"><i class="fas fa-heart text-red-500"></i> আমাদের পরিবারের কিছু সুন্দর নিয়ম:</h3>
+                <ul id="rules-list" class="list-decimal pl-5 rules-box"></ul>
+            </div>
+
+            <!-- সাধারণ তথ্য -->
+            <div id="form-fields" class="hidden space-y-6">
+                <h2 class="text-xl font-bold text-gray-800 border-b pb-2"><i class="fas fa-user-edit text-red-600"></i> আপনার তথ্য প্রদান করুন</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label class="block font-bold text-gray-700 mb-1">আপনার সুন্দর নাম <span class="text-red-500">*</span></label><input type="text" id="u_name" required class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
+                    <div><label class="block font-bold text-gray-700 mb-1">বাবার নাম <span class="text-red-500">*</span></label><input type="text" id="u_fname" required class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
+                    <div id="field_mname" class="hidden"><label class="block font-bold text-gray-700 mb-1">মায়ের নাম <span class="text-red-500">*</span></label><input type="text" id="u_mname" class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
+                    <div><label class="block font-bold text-gray-700 mb-1">সচল মোবাইল নাম্বার <span class="text-red-500">*</span></label><input type="tel" id="u_phone" required maxlength="11" class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
+                    <div><label class="block font-bold text-gray-700 mb-1">রক্তের গ্রুপ <span class="text-red-500">*</span></label><select id="u_blood" required class="w-full p-3 border rounded-xl outline-none focus:border-red-500"><option value="">নির্বাচন করুন</option><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div>
+                    <div id="field_last_donate" class="hidden"><label class="block font-bold text-gray-700 mb-1">সর্বশেষ রক্তদানের তারিখ</label><input type="date" id="u_lastdate" class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
+                    <div><label class="block font-bold text-gray-700 mb-1">পেশা <span class="text-red-500">*</span></label><input type="text" id="u_prof" required placeholder="যেমন: ছাত্র, চাকরিজীবী, ব্যবসায়ী" class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
+                </div>
+
+                <!-- স্মার্ট ডাইনামিক ঠিকানা সেকশন -->
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-4"><i class="fas fa-map-marker-alt text-red-500"></i> বিস্তারিত ঠিকানা <span class="text-red-500">*</span></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1 text-sm">বিভাগ</label>
+                            <select id="u_division" required onchange="loadDistricts()" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-white">
+                                <option value="">বিভাগ লোড হচ্ছে...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1 text-sm">জেলা</label>
+                            <select id="u_district" required onchange="loadUpazilas()" disabled class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-100">
+                                <option value="">আগে বিভাগ নির্বাচন করুন</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1 text-sm">উপজেলা / থানা</label>
+                            <select id="u_upazila" required disabled class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-100">
+                                <option value="">আগে জেলা নির্বাচন করুন</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1 text-sm">গ্রাম / মহল্লা / বিস্তারিত</label>
+                            <input type="text" id="u_vill" required placeholder="বাড়ি/রাস্তা/গ্রাম নিজে লিখুন..." class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- অটো আপলোড ডকুমেন্ট সেকশন -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 bg-gray-50 rounded-xl border border-red-200">
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1"><i class="fas fa-camera text-red-500"></i> আপনার সুন্দর একটি ছবি দিন <span class="text-red-500">*</span></label>
+                        <input type="file" accept="image/*" required onchange="autoUploadFile(this, 'profile_url', 'profile_status')" class="w-full p-2 border border-gray-300 bg-white rounded-lg text-sm">
+                        <input type="hidden" id="profile_url" required>
+                        <div id="profile_status" class="text-sm font-bold mt-1 text-gray-500"></div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1"><i class="fas fa-id-card text-blue-500"></i> এনআইডি/জন্ম নিবন্ধন ছবি <span class="text-red-500">*</span></label>
+                        <input type="file" accept="image/*" required onchange="autoUploadFile(this, 'nid_url', 'nid_status')" class="w-full p-2 border border-gray-300 bg-white rounded-lg text-sm">
+                        <input type="hidden" id="nid_url" required>
+                        <div id="nid_status" class="text-sm font-bold mt-1 text-gray-500"></div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 text-center">*(আপনার দেওয়া তথ্য ও ছবি সম্পূর্ণ নিরাপদ থাকবে এবং শুধুমাত্র সংগঠনের ভেরিফিকেশনের জন্য ব্যবহার করা হবে)*</p>
+
+                <div id="final-status" class="hidden text-center font-bold text-white bg-green-600 p-3 rounded-lg"></div>
+
+                <button type="submit" id="submitBtn" class="w-full bg-red-600 text-white font-bold text-lg p-4 rounded-xl hover:bg-red-700 transition shadow-lg"><i class="fas fa-paper-plane"></i> আবেদন জমা দিন</button>
+            </div>
+        </form>
     </div>
 
-    <!-- Premium Dark Mobile Menu (3D Separated Style) -->
-    <div id="mobile-menu" class="hidden xl:hidden bg-slate-900 border-t-[3px] border-red-600 shadow-2xl absolute w-full left-0 origin-top pb-6">
-        <div class="flex flex-col px-5 py-5 font-bold text-gray-200 text-[15px] space-y-3">
+    <div id="footer-placeholder"></div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("header-placeholder").innerHTML = d; });
+            fetch("footer.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("footer-placeholder").innerHTML = d; });
             
-            <!-- Separated Menu Items -->
-            <a href="/" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 text-red-500 hover:bg-slate-700 transition active:scale-95">
-                <i class="fa-solid fa-house w-8 text-center text-lg"></i> হোম
-            </a>
+            loadDivisions();
+        });
+
+        // ================= API লজিক (ফলব্যাক সহ) =================
+        let bdDistrictsData = [];
+
+        async function loadDivisions() {
+            try {
+                const res = await fetch('https://bdapis.com/api/v1.1/divisions');
+                const data = await res.json();
+                const divSelect = document.getElementById('u_division');
+                divSelect.innerHTML = '<option value="">বিভাগ নির্বাচন করুন</option>';
+                data.data.forEach(div => {
+                    const divName = div.divisionbn ? div.divisionbn : div.division;
+                    divSelect.innerHTML += `<option value="${div.division}">${divName}</option>`;
+                });
+            } catch (error) {
+                console.error("API Error:", error);
+                document.getElementById('u_division').innerHTML = '<option value="">দুঃখিত, লোড করা যায়নি!</option>';
+            }
+        }
+
+        async function loadDistricts() {
+            const div = document.getElementById('u_division').value;
+            const distSelect = document.getElementById('u_district');
+            const upaSelect = document.getElementById('u_upazila');
+
+            distSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
+            upaSelect.innerHTML = '<option value="">আগে জেলা নির্বাচন করুন</option>';
             
-            <a href="about" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 hover:text-red-400 hover:bg-slate-700 transition active:scale-95">
-                <i class="fa-solid fa-circle-info w-8 text-center text-lg"></i> আমাদের সম্পর্কে
-            </a>
-            
-            <a href="activities" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 hover:text-red-400 hover:bg-slate-700 transition active:scale-95">
-                <i class="fa-solid fa-briefcase w-8 text-center text-lg"></i> কার্যক্রম
-            </a>
-            
-            <a href="gallery" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 hover:text-red-400 hover:bg-slate-700 transition active:scale-95">
-                <i class="fa-regular fa-images w-8 text-center text-lg"></i> নিউজ ও গ্যালারি
-            </a>
-            
-            <!-- Mobile CTA Buttons -->
-            <div class="flex flex-col gap-3 mt-4 pt-4 border-t border-slate-700">
-                <a href="join-us" class="bg-red-600 text-white text-center px-4 py-4 rounded-xl font-bold text-base hover:bg-red-700 shadow-lg flex justify-center items-center gap-2 transition active:scale-95">
-                    <i class="fa-solid fa-droplet text-lg"></i> আমাদের সাথে যুক্ত হোন
-                </a>
+            if(!div) {
+                distSelect.disabled = true; distSelect.classList.add('bg-gray-100');
+                upaSelect.disabled = true; upaSelect.classList.add('bg-gray-100');
+                return;
+            }
+
+            distSelect.innerHTML = '<option value="">লোড হচ্ছে...</option>';
+            try {
+                const res = await fetch(`https://bdapis.com/api/v1.1/division/${div}`);
+                const data = await res.json();
+                bdDistrictsData = data.data; 
+
+                distSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
+                bdDistrictsData.forEach(dist => {
+                    // যদি districtbn সার্ভার থেকে না আসে, তবে ইংরেজি নামটাই দেখাবে। undefined আর দেখাবে না।
+                    const distName = dist.districtbn ? dist.districtbn : dist.district; 
+                    distSelect.innerHTML += `<option value="${dist.district}">${distName}</option>`;
+                });
                 
-                <a href="donation" class="btn-laser text-white text-center px-4 py-4 font-bold text-base flex justify-center items-center gap-2 shadow-lg transition active:scale-95">
-                    <i class="fa-solid fa-hand-holding-dollar text-lg text-green-400"></i> সহযোগিতা করুন
-                </a>
-            </div>
-        </div>
-    </div>
-</nav>
+                distSelect.disabled = false;
+                distSelect.classList.remove('bg-gray-100');
+            } catch(e) { 
+                distSelect.innerHTML = '<option value="">সমস্যা হয়েছে!</option>';
+            }
+        }
+
+        function loadUpazilas() {
+            const distName = document.getElementById('u_district').value;
+            const upaSelect = document.getElementById('u_upazila');
+
+            upaSelect.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>';
+            
+            if(!distName) {
+                upaSelect.disabled = true; upaSelect.classList.add('bg-gray-100');
+                return;
+            }
+
+            const selectedDistData = bdDistrictsData.find(d => d.district === distName);
+            if(selectedDistData && selectedDistData.upazilla) {
+                selectedDistData.upazilla.forEach(upa => {
+                    upaSelect.innerHTML += `<option value="${upa}">${upa}</option>`; 
+                });
+                upaSelect.disabled = false;
+                upaSelect.classList.remove('bg-gray-100');
+            }
+        }
+
+        // ================= ডাইনামিক ফিল্ড ও পুরো ১২টি নিয়মাবলি =================
+        function toggleDynamicFields() {
+            const isVol = document.getElementById('role_volunteer').checked;
+            const isDon = document.getElementById('role_donor').checked;
+            const isMem = document.getElementById('role_member').checked;
+
+            const formFields = document.getElementById('form-fields');
+            const rulesContainer = document.getElementById('rules-container');
+            const rulesList = document.getElementById('rules-list');
+
+            const updateCardDesign = (role, isChecked) => {
+                const card = document.getElementById('card_' + role);
+                if(isChecked) {
+                    card.classList.add('border-red-600', 'bg-red-50'); card.classList.remove('border-gray-200');
+                } else {
+                    card.classList.remove('border-red-600', 'bg-red-50'); card.classList.add('border-gray-200');
+                }
+            };
+
+            updateCardDesign('volunteer', isVol);
+            updateCardDesign('donor', isDon);
+            updateCardDesign('member', isMem);
+
+            if(isVol || isDon || isMem) {
+                formFields.classList.remove('hidden'); rulesContainer.classList.remove('hidden');
+            } else {
+                formFields.classList.add('hidden'); rulesContainer.classList.add('hidden'); return;
+            }
+
+            document.getElementById('field_mname').style.display = isMem ? 'block' : 'none';
+            document.getElementById('u_mname').required = isMem;
+
+            document.getElementById('field_last_donate').style.display = isDon ? 'block' : 'none';
+
+            let rulesHTML = '';
+            
+            if(isMem) {
+                rulesHTML += `
+                    <p class="font-bold text-blue-900 mt-2 mb-2 border-b border-blue-200 pb-1">সদস্যদের জন্য নিয়মাবলি:</p>
+                    <li>১. সংগঠনের মহৎ আদর্শ, উদ্দেশ্য ও গঠনতন্ত্রের প্রতি আন্তরিক সম্মান ও ভালোবাসা থাকতে হবে।</li>
+                    <li>২. মানবসেবা, স্বেচ্ছায় রক্তদান এবং সমাজকল্যাণমূলক কর্মকাণ্ডে হাসিমুখে অংশগ্রহণের মানসিকতা থাকতে হবে।</li>
+                    <li>৩. সদস্য হওয়ার জন্য নির্ধারিত সদস্য ফরমটি যথাযথভাবে পূরণ করতে হবে।</li>
+                    <li>৪. আবেদনকারীর প্রয়োজনীয় তথ্যগুলো সঠিক ও নির্ভুলভাবে প্রদান করতে হবে, যাতে আমরা সহজে যোগাযোগ করতে পারি।</li>
+                    <li>৫. সংগঠনের দায়িত্বশীল কর্তৃপক্ষ আনন্দের সাথে আপনার আবেদনটি যাচাই-বাছাই করে সদস্যপদ অনুমোদন করবেন।</li>
+                    <li>৬. সংগঠনের নির্ধারিত সদস্য ফি বা চাঁদা (যদি থাকে) নিয়ম অনুযায়ী সানন্দে পরিশোধ করতে হবে।</li>
+                    <li>৭. আমাদের এই পরিবারের সকল নিয়ম-কানুন, সিদ্ধান্ত ও শৃঙ্খলাকে নিজের মনে করে মেনে চলতে হবে।</li>
+                    <li>৮. সংগঠনের সুন্দর নাম, পরিচয় বা পদমর্যাদা কোনোভাবেই ব্যক্তিগত স্বার্থে ব্যবহার করা থেকে বিরত থাকতে হবে।</li>
+                    <li>৯. সংগঠনের পূর্বানুমতি ছাড়া সংগঠনের নামে কোনো আর্থিক লেনদেন, প্রচার বা কার্যক্রম পরিচালনা করা যাবে না।</li>
+                    <li>১০. আমরা বিশ্বাস করি কেউ এমন কিছু করবেন না, তবুও কেউ সংগঠনের ভাবমূর্তি ক্ষুণ্ন করে এমন কাজে জড়ালে কর্তৃপক্ষ প্রয়োজনীয় ব্যবস্থা বা সদস্যপদ স্থগিত করতে পারবেন।</li>
+                    <li>১১. নিজেদের সামর্থ্য ও সময় অনুযায়ী সংগঠনের যেকোনো সভা, রক্তদান কর্মসূচি ও মানবিক কার্যক্রমে সানন্দে অংশগ্রহণ করতে উৎসাহিত করা হচ্ছে।</li>
+                    <li>১২. সদস্যপদ গ্রহণের মাধ্যমে আপনি সংগঠনের মানবিক ও সামাজিক কার্যক্রমকে একধাপ এগিয়ে নিতে সহযোগিতা করার একটি সুন্দর অঙ্গীকার করছেন।</li>
+                    <p class="text-xs text-gray-500 mt-2 italic">নোট: শৃঙ্খলা ভঙ্গ বা সুনাম ক্ষুণ্ন হয় এমন কোনো অনাকাঙ্ক্ষিত কাজ প্রমাণিত হলে, কর্তৃপক্ষ যথাযথ সিদ্ধান্ত নিতে পারবেন। আমরা আশা করি আমাদের সবার বন্ধন অটুট থাকবে।</p>
+                `;
+            }
+            if(isVol) {
+                rulesHTML += `
+                    <p class="font-bold text-blue-900 mt-4 mb-2 border-b border-blue-200 pb-1">স্বেচ্ছাসেবকদের জন্য নিয়মাবলি:</p>
+                    <li>স্বেচ্ছায় ও আনন্দের সাথে সামাজিক কাজ করার মানসিকতা রাখা।</li>
+                    <li>নিজের সুবিধামতো সময়ে সংগঠনের কার্যক্রমে স্বশরীরে উপস্থিত থাকার চেষ্টা করা।</li>
+                    <li>রক্তদানে মানুষকে উৎসাহিত করা এবং জরুরি মুহূর্তে রক্তদাতা খুঁজে দিতে সহায়তা করা।</li>
+                    <li>সংগঠনের নিয়ম-শৃঙ্খলা মেনে চলা এবং সহকর্মীদের প্রতি সম্মান প্রদর্শন করা।</li>
+                `;
+            }
+            if(isDon) {
+                rulesHTML += `
+                    <p class="font-bold text-blue-900 mt-4 mb-2 border-b border-blue-200 pb-1">রক্তদাতাদের জন্য নিয়মাবলি:</p>
+                    <li>আপনার বয়স ১৮ থেকে ৬০ বছরের মধ্যে এবং ওজন কমপক্ষে ৫০ কেজি হতে হবে।</li>
+                    <li>শারীরিকভাবে সম্পূর্ণ সুস্থ থাকতে হবে (জ্বর, সর্দি বা অ্যান্টিবায়োটিক চলাকালীন রক্তদান থেকে বিরত থাকুন)।</li>
+                    <li>পুরুষরা ৩ মাস এবং নারীরা ৪ মাস অন্তর অন্তর রক্তদান করতে পারবেন।</li>
+                    <li>জরুরি প্রয়োজনে একজন মুমূর্ষু রোগীকে রক্ত দিয়ে জীবন বাঁচাতে হাসিমুখে এগিয়ে আসার সদিচ্ছা রাখা।</li>
+                `;
+            }
+            rulesHTML += `<div class="mt-5 bg-red-100 p-3 rounded-lg border border-red-200 text-red-700 font-bold text-center"><i class="fas fa-shield-alt"></i> নিরাপত্তার স্বার্থে আপনার সঠিক তথ্য, ছবি এবং এনআইডি/জন্ম নিবন্ধন প্রদান করা বাধ্যতামূলক।</div>`;
+            
+            rulesList.innerHTML = rulesHTML;
+        }
+
+        async function autoUploadFile(input, hiddenFieldId, statusId) {
+            const file = input.files[0];
+            const statusEl = document.getElementById(statusId);
+            const hiddenInput = document.getElementById(hiddenFieldId);
+            if(!file) return;
+
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-500"></i> ছবিটি আমাদের সার্ভারে যাচ্ছে... একটু অপেক্ষা করুন।';
+            hiddenInput.value = ""; 
+
+            try {
+                const fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "rjsomp"); 
+                const res = await fetch(`https://api.cloudinary.com/v1_1/h0dlj3no/image/upload`, { method: "POST", body: fd });
+                const data = await res.json();
+                
+                hiddenInput.value = data.secure_url;
+                statusEl.innerHTML = '<i class="fas fa-check-circle text-green-600"></i> বাহ! ছবি সফলভাবে যুক্ত হয়েছে।';
+            } catch(e) {
+                statusEl.innerHTML = '<i class="fas fa-times-circle text-red-600"></i> দুঃখিত! ছবিটি যুক্ত হয়নি। আবার চেষ্টা করুন।';
+                input.value = ""; 
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
+            projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('unifiedForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const isVol = document.getElementById('role_volunteer').checked;
+            const isDon = document.getElementById('role_donor').checked;
+            const isMem = document.getElementById('role_member').checked;
+
+            const profileUrl = document.getElementById('profile_url').value;
+            const nidUrl = document.getElementById('nid_url').value;
+
+            if(!profileUrl || !nidUrl) return alert("দয়া করে ছবিগুলো আপলোড হওয়া পর্যন্ত একটু অপেক্ষা করুন!");
+
+            const btn = document.getElementById('submitBtn');
+            const finalStatus = document.getElementById('final-status');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> আপনার আবেদনটি পাঠানো হচ্ছে...';
+
+            const divSel = document.getElementById('u_division');
+            const distSel = document.getElementById('u_district');
+            
+            const divisionName = divSel.options[divSel.selectedIndex].text;
+            const districtName = distSel.options[distSel.selectedIndex].text;
+            const upazilaName = document.getElementById('u_upazila').value;
+
+            const commonData = {
+                name: document.getElementById('u_name').value.trim(),
+                fname: document.getElementById('u_fname').value.trim(),
+                phone: document.getElementById('u_phone').value.trim(),
+                bloodGroup: document.getElementById('u_blood').value,
+                profession: document.getElementById('u_prof').value.trim(),
+                village: document.getElementById('u_vill').value.trim(),
+                upazila: upazilaName,
+                district: districtName,
+                division: divisionName,
+                profileImageUrl: profileUrl,
+                nidImageUrl: nidUrl,
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                let promises = [];
+                if(isVol) { promises.push(addDoc(collection(db, "volunteers"), { ...commonData, status: "Pending" })); }
+                if(isDon) { promises.push(addDoc(collection(db, "blood_donors"), { ...commonData, lastDonation: document.getElementById('u_lastdate').value || "দেওয়া হয়নি" })); }
+                if(isMem) { promises.push(addDoc(collection(db, "members"), { ...commonData, mname: document.getElementById('u_mname').value.trim(), status: "Pending" })); }
+
+                await Promise.all(promises);
+
+                finalStatus.style.display = 'block';
+                finalStatus.innerHTML = '<i class="fas fa-check-circle text-2xl mb-2"></i><br>আলহামদুলিল্লাহ! আপনার আবেদন সফলভাবে আমাদের কাছে পৌঁছেছে।';
+                
+                document.getElementById('unifiedForm').reset();
+                document.getElementById('profile_url').value = ""; document.getElementById('nid_url').value = "";
+                document.getElementById('profile_status').innerText = ""; document.getElementById('nid_status').innerText = "";
+                
+                document.getElementById('card_volunteer').classList.replace('border-red-600', 'border-gray-200'); document.getElementById('card_volunteer').classList.remove('bg-red-50');
+                document.getElementById('card_donor').classList.replace('border-red-600', 'border-gray-200'); document.getElementById('card_donor').classList.remove('bg-red-50');
+                document.getElementById('card_member').classList.replace('border-red-600', 'border-gray-200'); document.getElementById('card_member').classList.remove('bg-red-50');
+                
+                setTimeout(() => { toggleDynamicFields(); finalStatus.style.display = 'none'; window.scrollTo({top: 0, behavior: 'smooth'}); }, 6000);
+
+            } catch(err) {
+                alert("দুঃখিত, একটু সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।"); console.error(err);
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> আবেদন জমা দিন';
+            }
+        });
+    </script>
+</body>
+</html>
