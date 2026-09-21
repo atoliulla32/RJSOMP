@@ -9,56 +9,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; }
-        /* Tab CSS - Active state overrides all colors */
         .admin-tab { transition: all 0.3s ease; }
         .admin-tab.active { background: #dc2626 !important; color: white !important; border-color: #dc2626 !important; box-shadow: 0 4px 10px rgba(220,38,38,0.3); }
         .admin-tab.active i { color: white !important; }
-        
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); }
     </style>
 </head>
-<body class="p-4 sm:p-8 relative">
+<body class="p-3 sm:p-8 relative">
 
-    <!-- ================= Admin Dashboard Section ================= -->
     <div id="admin-dashboard" class="max-w-7xl mx-auto pb-10">
         
-        <!-- Dashboard Header -->
-        <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-md mb-6 border-l-4 border-red-600 gap-4">
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-5 rounded-2xl shadow-sm mb-5 border-l-4 border-red-600 gap-3">
             <div class="flex items-center gap-4">
-                <div class="bg-red-50 w-14 h-14 rounded-full flex items-center justify-center border border-red-200">
-                    <i class="fas fa-user-shield text-2xl text-red-600"></i>
+                <div class="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center border border-red-200">
+                    <i class="fas fa-user-shield text-xl text-red-600"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">সেন্ট্রাল ডাটাবেজ প্যানেল</h1>
-                    <p class="text-sm font-bold text-gray-500 mt-1">আবেদন নিয়ন্ত্রণ, ফিল্টার, শেয়ার ও এডিট সিস্টেম</p>
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-800">সেন্ট্রাল ডাটাবেজ প্যানেল</h1>
+                    <p class="text-xs md:text-sm font-bold text-gray-500 mt-1">আবেদন নিয়ন্ত্রণ, ফিল্টার ও এডিট সিস্টেম</p>
                 </div>
             </div>
         </div>
 
-        <!-- Dashboard Tabs (Grid Style to avoid scrolling) -->
-        <div class="bg-white p-2 md:p-3 rounded-2xl shadow-sm border border-gray-100 mb-6 grid grid-cols-3 gap-2 md:gap-4">
-            <button onclick="changeTab('volunteers')" id="tab-volunteers" class="admin-tab active py-3 px-1 md:px-4 rounded-xl font-bold border border-gray-200 text-gray-600 text-[12px] md:text-lg flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
-                <i class="fas fa-hand-holding-heart text-lg md:text-xl"></i> <span class="text-center leading-tight">স্বেচ্ছাসেবক</span>
+        <div class="bg-white p-1.5 rounded-xl shadow-sm border border-gray-100 mb-6 flex justify-between gap-1">
+            <button onclick="changeTab('volunteers')" id="tab-volunteers" class="admin-tab active flex-1 py-2 px-1 rounded-lg font-bold text-gray-600 text-[11px] md:text-sm flex flex-col items-center justify-center gap-1">
+                <i class="fas fa-hand-holding-heart text-lg"></i> <span class="leading-none">স্বেচ্ছাসেবক</span>
             </button>
-            <button onclick="changeTab('blood_donors')" id="tab-blood_donors" class="admin-tab py-3 px-1 md:px-4 rounded-xl font-bold border border-gray-200 text-gray-600 text-[12px] md:text-lg flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
-                <i class="fas fa-tint text-red-500 text-lg md:text-xl"></i> <span class="text-center leading-tight">রক্তদাতা</span>
+            <button onclick="changeTab('blood_donors')" id="tab-blood_donors" class="admin-tab flex-1 py-2 px-1 rounded-lg font-bold text-gray-600 text-[11px] md:text-sm flex flex-col items-center justify-center gap-1">
+                <i class="fas fa-tint text-red-500 text-lg"></i> <span class="leading-none">রক্তদাতা</span>
             </button>
-            <button onclick="changeTab('members')" id="tab-members" class="admin-tab py-3 px-1 md:px-4 rounded-xl font-bold border border-gray-200 text-gray-600 text-[12px] md:text-lg flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
-                <i class="fas fa-id-badge text-blue-500 text-lg md:text-xl"></i> <span class="text-center leading-tight">সদস্য</span>
+            <button onclick="changeTab('members')" id="tab-members" class="admin-tab flex-1 py-2 px-1 rounded-lg font-bold text-gray-600 text-[11px] md:text-sm flex flex-col items-center justify-center gap-1">
+                <i class="fas fa-id-badge text-blue-500 text-lg"></i> <span class="leading-none">সদস্য</span>
             </button>
         </div>
 
-        <!-- Search & Filter Bar -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row gap-4 items-center">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row gap-3 items-center">
             <div class="relative w-full md:flex-1">
-                <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
-                <input type="text" id="searchInput" onkeyup="filterData()" placeholder="নাম, ঠিকানা বা নাম্বার দিয়ে খুঁজুন..." class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 focus:bg-white font-medium transition">
+                <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                <input type="text" id="searchInput" onkeyup="filterData()" placeholder="নাম, ঠিকানা, নাম্বার অথবা গোপন কোড দিয়ে খুঁজুন..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 bg-gray-50 focus:bg-white text-sm font-medium">
             </div>
-            <div class="w-full md:w-48">
-                <select id="bloodFilter" onchange="filterData()" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 font-bold text-gray-700 bg-gray-50 transition">
+            <div class="w-full md:w-40">
+                <select id="bloodFilter" onchange="filterData()" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 text-sm font-bold text-gray-700 bg-gray-50">
                     <option value="all">সব রক্তের গ্রুপ</option>
                     <option value="A+">A+</option><option value="A-">A-</option>
                     <option value="B+">B+</option><option value="B-">B-</option>
@@ -68,74 +62,72 @@
             </div>
         </div>
 
-        <!-- Data Grid -->
-        <div id="data-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+        <div id="data-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
     </div>
 
-    <!-- ================= Edit Modal ================= -->
     <div id="editModal" class="fixed inset-0 modal-bg z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="editModalContent">
-            <div class="bg-gray-50 border-b border-gray-200 p-5 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-user-edit text-blue-600 mr-2"></i> তথ্য সংশোধন করুন</h2>
+            <div class="bg-gray-50 border-b border-gray-200 p-4 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-gray-800"><i class="fas fa-user-edit text-blue-600 mr-2"></i> তথ্য সংশোধন করুন</h2>
                 <button onclick="closeEditModal()" class="text-gray-400 hover:text-red-500 transition text-3xl leading-none">&times;</button>
             </div>
-            <form onsubmit="event.preventDefault(); saveEditData();" class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <form onsubmit="event.preventDefault(); saveEditData();" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
                 <input type="hidden" id="edit_id">
                 
-                <div><label class="block font-bold text-gray-700 mb-1">নাম</label><input type="text" id="e_name" required class="w-full p-3 border rounded-xl outline-none focus:border-blue-500"></div>
-                <div><label class="block font-bold text-gray-700 mb-1">মোবাইল নাম্বার</label><input type="text" id="e_phone" required class="w-full p-3 border rounded-xl outline-none focus:border-blue-500"></div>
-                <div><label class="block font-bold text-gray-700 mb-1">রক্তের গ্রুপ</label><select id="e_blood" class="w-full p-3 border rounded-xl outline-none focus:border-blue-500"><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div>
+                <div><label class="block font-bold text-gray-700 text-sm mb-1">নাম</label><input type="text" id="e_name" required class="w-full p-2.5 border rounded-lg outline-none focus:border-blue-500 text-sm"></div>
+                <div><label class="block font-bold text-gray-700 text-sm mb-1">মোবাইল নাম্বার</label><input type="text" id="e_phone" required class="w-full p-2.5 border rounded-lg outline-none focus:border-blue-500 text-sm"></div>
                 
-                <div id="edit_last_donate_div" class="hidden">
-                    <label class="block font-bold text-gray-700 mb-1 text-red-600"><i class="fas fa-calendar-alt"></i> সর্বশেষ রক্তদানের তারিখ</label>
-                    <input type="date" id="e_lastdate" class="w-full p-3 border border-red-200 rounded-xl outline-none focus:border-red-500 bg-red-50">
+                <div>
+                    <label class="block font-bold text-gray-700 text-sm mb-1">গোপন কোড (ID)</label>
+                    <input type="text" id="e_secret" class="w-full p-2.5 border border-red-200 bg-red-50 rounded-lg outline-none focus:border-red-500 text-sm font-bold text-red-600">
                 </div>
 
-                <div><label class="block font-bold text-gray-700 mb-1">পেশা</label><input type="text" id="e_prof" class="w-full p-3 border rounded-xl outline-none focus:border-blue-500"></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-gray-700 mb-1">গ্রাম</label><input type="text" id="e_vill" class="w-full p-3 border rounded-xl outline-none focus:border-blue-500"></div>
-                    <div><label class="block font-bold text-gray-700 mb-1">থানা</label><input type="text" id="e_thana" class="w-full p-3 border rounded-xl outline-none focus:border-blue-500"></div>
-                </div>
-                <div><label class="block font-bold text-gray-700 mb-1">জেলা</label><input type="text" id="e_dist" class="w-full p-3 border rounded-xl outline-none focus:border-blue-500"></div>
+                <div><label class="block font-bold text-gray-700 text-sm mb-1">রক্তের গ্রুপ</label><select id="e_blood" class="w-full p-2.5 border rounded-lg outline-none focus:border-blue-500 text-sm"><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div>
                 
-                <div class="pt-4 flex gap-3">
-                    <button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-100 text-gray-700 p-3 rounded-xl font-bold hover:bg-gray-200 transition">বাতিল</button>
-                    <button type="submit" id="saveEditBtn" class="flex-1 bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md"><i class="fas fa-save"></i> সেভ করুন</button>
+                <div id="edit_last_donate_div" class="hidden">
+                    <label class="block font-bold text-gray-700 text-sm mb-1 text-red-600"><i class="fas fa-calendar-alt"></i> সর্বশেষ রক্তদানের তারিখ</label>
+                    <input type="date" id="e_lastdate" class="w-full p-2.5 border border-red-200 rounded-lg outline-none focus:border-red-500 bg-red-50 text-sm">
+                </div>
+
+                <div><label class="block font-bold text-gray-700 text-sm mb-1">পেশা</label><input type="text" id="e_prof" class="w-full p-2.5 border rounded-lg outline-none focus:border-blue-500 text-sm"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block font-bold text-gray-700 text-sm mb-1">গ্রাম</label><input type="text" id="e_vill" class="w-full p-2.5 border rounded-lg outline-none focus:border-blue-500 text-sm"></div>
+                    <div><label class="block font-bold text-gray-700 text-sm mb-1">থানা</label><input type="text" id="e_thana" class="w-full p-2.5 border rounded-lg outline-none focus:border-blue-500 text-sm"></div>
+                </div>
+                <div><label class="block font-bold text-gray-700 text-sm mb-1">জেলা</label><input type="text" id="e_dist" class="w-full p-2.5 border rounded-lg outline-none focus:border-blue-500 text-sm"></div>
+                
+                <div class="pt-3 flex gap-3">
+                    <button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-100 text-gray-700 p-2.5 rounded-lg font-bold hover:bg-gray-200 transition text-sm">বাতিল</button>
+                    <button type="submit" id="saveEditBtn" class="flex-1 bg-blue-600 text-white p-2.5 rounded-lg font-bold hover:bg-blue-700 transition shadow-sm text-sm"><i class="fas fa-save"></i> সেভ করুন</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- ================= NID View Modal ================= -->
     <div id="nidModal" class="fixed inset-0 modal-bg z-[100] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-4 md:p-6 transform scale-95 transition-transform duration-300" id="nidModalContent">
-            
-            <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-                <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-id-card text-blue-600 mr-2"></i> এনআইডি / জন্ম সনদ</h3>
-                <button onclick="closeNidModal()" class="text-gray-400 hover:text-red-600 transition text-4xl leading-none">&times;</button>
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-4 transform scale-95 transition-transform duration-300" id="nidModalContent">
+            <div class="flex justify-between items-center mb-3 border-b border-gray-100 pb-2">
+                <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-id-card text-blue-600 mr-2"></i> এনআইডি / জন্ম সনদ</h3>
+                <button onclick="closeNidModal()" class="text-gray-400 hover:text-red-600 transition text-3xl leading-none">&times;</button>
             </div>
-            
-            <div class="bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center min-h-[40vh] mb-5 border border-gray-200">
+            <div class="bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center min-h-[30vh] mb-4 border border-gray-200">
                 <img id="nidImagePreview" src="" alt="NID Image" class="max-h-[60vh] object-contain w-full">
             </div>
-            
-            <div class="flex gap-3">
-                <a id="nidDownloadBtn" href="" download="NID_Image.jpg" class="flex-1 bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 transition text-center shadow-lg flex items-center justify-center gap-2">
-                    <i class="fas fa-download"></i> ডাউনলোড করুন
+            <div class="flex gap-2">
+                <a id="nidDownloadBtn" href="" download="NID_Image.jpg" class="flex-1 bg-green-600 text-white font-bold py-2.5 rounded-lg hover:bg-green-700 transition text-center shadow flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-download"></i> ডাউনলোড
                 </a>
-                <button onclick="closeNidModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition shadow-sm border border-gray-200">
+                <button onclick="closeNidModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-2.5 rounded-lg hover:bg-gray-200 transition shadow-sm border border-gray-200 text-sm">
                     বন্ধ করুন
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification for Copy -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white px-6 py-3 rounded-xl font-bold shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 z-[200]">
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white px-5 py-3 rounded-lg font-bold shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 z-[200] text-sm">
         <i class="fas fa-check-circle text-green-400 mr-2"></i> তথ্য কপি করা হয়েছে!
     </div>
 
-    <!-- Firebase & Custom Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, deleteDoc, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -144,16 +136,13 @@
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
             projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
         };
-        
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
         
         let currentCollection = 'volunteers';
-        let allDataSnapshot = []; // মূল ডাটাবেজ
+        let allDataSnapshot = []; 
 
-        document.addEventListener("DOMContentLoaded", () => {
-            window.loadData(currentCollection);
-        });
+        document.addEventListener("DOMContentLoaded", () => { window.loadData(currentCollection); });
 
         function convertToEngNumber(bnNum) {
             if(!bnNum) return "";
@@ -174,7 +163,6 @@
             return num;
         }
 
-        // গ্লোবাল ফাংশন করে দেওয়া হলো যাতে HTML থেকে কল করা যায়
         window.changeTab = (colName) => {
             document.getElementById('searchInput').value = "";
             document.getElementById('bloodFilter').value = "all";
@@ -187,7 +175,7 @@
             document.getElementById(`tab-${colName}`).classList.add('active');
             
             const grid = document.getElementById('data-grid');
-            grid.innerHTML = `<div class="col-span-full text-center py-16"><i class="fas fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i><p class="font-bold">লোড হচ্ছে...</p></div>`;
+            grid.innerHTML = `<div class="col-span-full text-center py-16"><i class="fas fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i><p class="font-bold text-gray-500">লোড হচ্ছে...</p></div>`;
             
             try {
                 const q = query(collection(db, colName), orderBy("timestamp", "desc"));
@@ -204,7 +192,8 @@
 
             const filteredData = allDataSnapshot.filter(d => {
                 const matchBlood = (bloodGroup === 'all' || d.bloodGroup === bloodGroup);
-                const searchString = `${d.name} ${d.phone} ${d.village} ${d.upazila} ${d.district}`.toLowerCase();
+                // গোপন কোড (secretCode) যুক্ত করা হলো ফিল্টারিং এ
+                const searchString = `${d.name} ${d.phone} ${d.village} ${d.upazila} ${d.district} ${d.secretCode || ''}`.toLowerCase();
                 const matchSearch = searchString.includes(searchText);
                 return matchBlood && matchSearch;
             });
@@ -214,7 +203,7 @@
         window.renderGrid = (dataArray) => {
             const grid = document.getElementById('data-grid');
             if(dataArray.length === 0) { 
-                grid.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-2xl shadow-sm border"><i class="fas fa-search text-5xl text-gray-300 mb-4"></i><p class="text-gray-500 font-bold text-lg">কোনো তথ্য পাওয়া যায়নি!</p></div>`; return; 
+                grid.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-xl shadow-sm border"><i class="fas fa-search text-4xl text-gray-300 mb-3"></i><p class="text-gray-500 font-bold text-sm">কোনো তথ্য পাওয়া যায়নি!</p></div>`; return; 
             }
 
             let html = '';
@@ -228,48 +217,48 @@
                 
                 let nidPart = '';
                 if(d.nidImageUrl && d.nidImageUrl !== "দেওয়া হয়নি") {
-                    nidPart = `<button onclick="openNidModal('${d.nidImageUrl}')" class="w-full bg-blue-50 text-blue-700 border border-blue-200 p-2.5 rounded-xl font-bold text-center text-sm mb-3 hover:bg-blue-600 hover:text-white transition flex items-center justify-center gap-2"><i class="fas fa-id-card"></i> NID দেখুন / ডাউনলোড</button>`;
+                    nidPart = `<button onclick="openNidModal('${d.nidImageUrl}')" class="w-full bg-blue-50 text-blue-700 border border-blue-200 p-2 rounded-lg font-bold text-center text-[13px] mb-3 hover:bg-blue-600 hover:text-white transition flex items-center justify-center gap-2"><i class="fas fa-id-card"></i> NID দেখুন / ডাউনলোড</button>`;
                 } else {
-                    nidPart = `<div class="w-full bg-gray-100 text-gray-400 p-2.5 rounded-xl font-bold text-center text-sm mb-3 border border-gray-200"><i class="fas fa-times-circle"></i> NID দেওয়া হয়নি</div>`;
+                    nidPart = `<div class="w-full bg-gray-100 text-gray-400 p-2 rounded-lg font-bold text-center text-[13px] mb-3 border border-gray-200"><i class="fas fa-times-circle"></i> NID দেওয়া হয়নি</div>`;
                 }
 
-                // ID পাস করা হচ্ছে, JSON স্ট্রিং নয়। এটি ১০০% কাজ করবে।
+                // ID Code badge
+                const secretBadge = d.secretCode ? `<span class="absolute top-3 left-3 bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-1 rounded shadow-sm border border-indigo-200 z-10"><i class="fas fa-key"></i> ID: ${d.secretCode}</span>` : '';
+
+                const safeDataStr = encodeURIComponent(JSON.stringify(d)).replace(/'/g, "%27");
+
                 html += `
-                    <div class="bg-white p-5 rounded-2xl shadow-lg border border-gray-200 flex flex-col transition relative group">
+                    <div class="bg-white p-4 rounded-2xl shadow border border-gray-200 flex flex-col transition relative">
                         
-                        <!-- Top Actions: Copy, Share, Edit -->
-                        <div class="absolute top-4 right-4 flex gap-2">
-                            <button onclick="copyProfile('${d.id}')" class="text-gray-500 bg-gray-100 hover:bg-gray-200 hover:text-gray-800 p-2 rounded-lg transition shadow-sm text-sm" title="তথ্য কপি করুন"><i class="fas fa-copy"></i></button>
-                            <button onclick="shareProfile('${d.id}')" class="text-indigo-500 bg-indigo-50 hover:bg-indigo-600 hover:text-white p-2 rounded-lg transition shadow-sm text-sm" title="শেয়ার করুন"><i class="fas fa-share-nodes"></i></button>
-                            <button onclick="openEditModal('${d.id}')" class="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white p-2 rounded-lg transition shadow-sm text-sm" title="এডিট করুন"><i class="fas fa-user-edit"></i></button>
+                        ${secretBadge}
+
+                        <div class="absolute top-3 right-3 flex gap-1.5 z-10">
+                            <button onclick="copyProfile('${safeDataStr}')" class="text-gray-500 bg-gray-100 hover:bg-gray-200 p-2 rounded-lg transition shadow-sm text-xs" title="কপি করুন"><i class="fas fa-copy"></i></button>
+                            <button onclick="shareProfile('${safeDataStr}')" class="text-indigo-500 bg-indigo-50 hover:bg-indigo-100 p-2 rounded-lg transition shadow-sm text-xs" title="শেয়ার করুন"><i class="fas fa-share-nodes"></i></button>
+                            <button onclick="openEditModal('${safeDataStr}')" class="text-blue-600 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition shadow-sm text-xs" title="এডিট করুন"><i class="fas fa-user-edit"></i></button>
                         </div>
 
-                        <!-- Profile Head -->
-                        <div class="flex items-center gap-4 border-b border-gray-100 pb-4 mb-4 relative mt-1">
-                            <div class="relative">
-                                <img src="${profileImgUrl}" class="w-20 h-20 rounded-full object-cover border-4 border-red-200 shadow-md">
-                            </div>
+                        <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-3 relative mt-6">
+                            <img src="${profileImgUrl}" class="w-16 h-16 rounded-full object-cover border-[3px] border-red-100 shadow-sm">
                             <div class="flex-1 pr-24">
-                                <h3 class="text-lg font-bold text-gray-800 leading-tight mb-1 truncate">${d.name}</h3>
-                                <span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-200"><i class="fas fa-tint"></i> ${d.bloodGroup || "N/A"}</span>
+                                <h3 class="text-base font-bold text-gray-800 leading-tight mb-1 truncate">${d.name}</h3>
+                                <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded border border-red-200"><i class="fas fa-tint"></i> ${d.bloodGroup || "N/A"}</span>
                             </div>
                         </div>
 
-                        <!-- Info Section -->
-                        <div class="space-y-2 text-sm text-gray-700 font-medium bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4 flex-grow">
-                            <div class="flex items-center gap-2.5"><i class="fas fa-phone-alt text-green-600 w-4 text-center"></i> ${d.phone}</div>
-                            <div class="flex items-start gap-2.5"><i class="fas fa-map-marker-alt text-blue-500 w-4 text-center mt-1"></i> <span class="text-xs leading-relaxed">${fullAddress}</span></div>
-                            ${d.profession ? `<div class="flex items-center gap-2.5"><i class="fas fa-briefcase text-orange-500 w-4 text-center"></i> ${d.profession}</div>` : ''}
-                            ${currentCollection === 'blood_donors' && d.lastDonation ? `<div class="flex items-center gap-2.5 text-red-600"><i class="fas fa-calendar-check text-red-500 w-4 text-center"></i> <b>শেষ রক্তদান:</b> ${d.lastDonation}</div>` : ''}
+                        <div class="space-y-1.5 text-[13px] text-gray-700 font-medium bg-gray-50 p-3 rounded-lg border border-gray-100 mb-3 flex-grow">
+                            <div class="flex items-center gap-2"><i class="fas fa-phone-alt text-green-600 w-3 text-center"></i> ${d.phone}</div>
+                            <div class="flex items-start gap-2"><i class="fas fa-map-marker-alt text-blue-500 w-3 text-center mt-1"></i> <span class="leading-relaxed">${fullAddress}</span></div>
+                            ${d.profession ? `<div class="flex items-center gap-2"><i class="fas fa-briefcase text-orange-500 w-3 text-center"></i> ${d.profession}</div>` : ''}
+                            ${currentCollection === 'blood_donors' && d.lastDonation ? `<div class="flex items-center gap-2 text-red-600"><i class="fas fa-calendar-check text-red-500 w-3 text-center"></i> <b>শেষ রক্তদান:</b> ${d.lastDonation}</div>` : ''}
                         </div>
 
                         ${nidPart}
 
-                        <!-- Action Buttons Row -->
                         <div class="grid grid-cols-3 gap-2 mt-auto">
-                            <a href="tel:${engPhone}" class="bg-green-50 text-green-700 hover:bg-green-600 hover:text-white border border-green-200 p-2.5 rounded-xl font-bold transition text-center text-sm shadow-sm flex flex-col items-center justify-center"><i class="fas fa-phone-alt mb-1"></i> কল</a>
-                            <a href="https://wa.me/${waPhone}?text=${waMessage}" target="_blank" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-200 p-2.5 rounded-xl font-bold transition text-center text-sm shadow-sm flex flex-col items-center justify-center"><i class="fab fa-whatsapp text-lg mb-0.5"></i> চ্যাট</a>
-                            <button onclick="deleteRecord('${d.id}')" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 p-2.5 rounded-xl font-bold transition text-center text-sm shadow-sm flex flex-col items-center justify-center"><i class="fas fa-trash-alt mb-1"></i> মুছুন</button>
+                            <a href="tel:${engPhone}" class="bg-green-50 text-green-700 hover:bg-green-600 hover:text-white border border-green-200 p-2 rounded-lg font-bold transition text-center text-xs shadow-sm flex flex-col items-center justify-center"><i class="fas fa-phone-alt mb-1"></i> কল</a>
+                            <a href="https://wa.me/${waPhone}?text=${waMessage}" target="_blank" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-200 p-2 rounded-lg font-bold transition text-center text-xs shadow-sm flex flex-col items-center justify-center"><i class="fab fa-whatsapp text-sm mb-0.5"></i> চ্যাট</a>
+                            <button onclick="deleteRecord('${d.id}')" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 p-2 rounded-lg font-bold transition text-center text-xs shadow-sm flex flex-col items-center justify-center"><i class="fas fa-trash-alt mb-1"></i> মুছুন</button>
                         </div>
                     </div>
                 `;
@@ -277,65 +266,74 @@
             grid.innerHTML = html;
         };
 
-        // ================= Share, Copy & Edit Logic (ID Based) =================
-        window.getDataById = (id) => allDataSnapshot.find(item => item.id === id);
-
         window.getProfileText = (d) => {
             let address = [d.village, d.upazila, d.district, d.division].filter(Boolean).join(", ");
             let typeName = currentCollection === 'blood_donors' ? 'রক্তদাতা' : (currentCollection === 'volunteers' ? 'স্বেচ্ছাসেবক' : 'সদস্য');
             return `🩸 রক্তযোদ্ধা ${typeName} প্রোফাইল\n\n👤 নাম: ${d.name}\n🩸 রক্তের গ্রুপ: ${d.bloodGroup || "N/A"}\n📞 মোবাইল: ${d.phone}\n📍 ঠিকানা: ${address}${d.profession ? `\n💼 পেশা: ${d.profession}` : ''}`;
         }
 
-        window.shareProfile = async (id) => {
-            const data = window.getDataById(id);
-            if(!data) return;
-            const textToShare = window.getProfileText(data);
-            
-            if (navigator.share) {
-                try { await navigator.share({ title: 'রক্তযোদ্ধা প্রোফাইল', text: textToShare }); } 
-                catch(e) { window.copyProfile(id); }
-            } else { window.copyProfile(id); }
+        window.showToast = () => {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+        }
+
+        window.fallbackCopy = (text) => {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try { document.execCommand('copy'); window.showToast(); } catch (err) { alert("তথ্য কপি করা সম্ভব হয়নি!"); }
+            document.body.removeChild(textArea);
         };
 
-        window.copyProfile = (id) => {
-            const data = window.getDataById(id);
-            if(!data) return;
-            const textToCopy = window.getProfileText(data);
-            
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                const toast = document.getElementById('toast');
-                toast.classList.remove('translate-y-20', 'opacity-0');
-                setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
-            }).catch(() => { alert("তথ্য কপি করতে সমস্যা হয়েছে!"); });
+        window.copyProfile = (dataStr) => {
+            try {
+                const data = JSON.parse(decodeURIComponent(dataStr));
+                const textToCopy = window.getProfileText(data);
+                if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(textToCopy).then(() => window.showToast()).catch(() => window.fallbackCopy(textToCopy)); } 
+                else { window.fallbackCopy(textToCopy); }
+            } catch(e) { alert("কপি করতে সমস্যা হয়েছে!"); }
         };
 
-        window.openEditModal = (id) => {
-            const data = window.getDataById(id);
-            if(!data) return;
-
-            document.getElementById('edit_id').value = data.id;
-            document.getElementById('e_name').value = data.name || "";
-            document.getElementById('e_phone').value = data.phone || "";
-            document.getElementById('e_blood').value = data.bloodGroup || "";
-            document.getElementById('e_prof').value = data.profession || "";
-            document.getElementById('e_vill').value = data.village || "";
-            document.getElementById('e_thana').value = data.upazila || "";
-            document.getElementById('e_dist').value = data.district || "";
-
-            if(currentCollection === 'blood_donors') {
-                document.getElementById('edit_last_donate_div').classList.remove('hidden');
-                document.getElementById('e_lastdate').value = (data.lastDonation && data.lastDonation !== "দেওয়া হয়নি") ? data.lastDonation : "";
-            } else {
-                document.getElementById('edit_last_donate_div').classList.add('hidden');
-            }
-
-            const modal = document.getElementById('editModal');
-            const content = document.getElementById('editModalContent');
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+        window.shareProfile = async (dataStr) => {
+            try {
+                const data = JSON.parse(decodeURIComponent(dataStr));
+                const textToShare = window.getProfileText(data);
+                if (navigator.share) { await navigator.share({ title: 'রক্তযোদ্ধা প্রোফাইল', text: textToShare }); } 
+                else { window.copyProfile(dataStr); }
+            } catch(e) {}
         };
 
-        // ================= NID Modal Logic =================
+        window.openEditModal = (dataStr) => {
+            try {
+                const data = JSON.parse(decodeURIComponent(dataStr));
+                document.getElementById('edit_id').value = data.id;
+                document.getElementById('e_name').value = data.name || "";
+                document.getElementById('e_phone').value = data.phone || "";
+                document.getElementById('e_secret').value = data.secretCode || ""; // Secret code added here
+                document.getElementById('e_blood').value = data.bloodGroup || "";
+                document.getElementById('e_prof').value = data.profession || "";
+                document.getElementById('e_vill').value = data.village || "";
+                document.getElementById('e_thana').value = data.upazila || "";
+                document.getElementById('e_dist').value = data.district || "";
+
+                if(currentCollection === 'blood_donors') {
+                    document.getElementById('edit_last_donate_div').classList.remove('hidden');
+                    document.getElementById('e_lastdate').value = (data.lastDonation && data.lastDonation !== "দেওয়া হয়নি") ? data.lastDonation : "";
+                } else {
+                    document.getElementById('edit_last_donate_div').classList.add('hidden');
+                }
+
+                const modal = document.getElementById('editModal');
+                const content = document.getElementById('editModalContent');
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+            } catch(e) { alert("ডাটা ওপেন করতে সমস্যা হয়েছে!"); }
+        };
+
         window.openNidModal = (url) => {
             document.getElementById('nidImagePreview').src = url;
             const downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
@@ -370,6 +368,7 @@
             const newData = {
                 name: document.getElementById('e_name').value,
                 phone: document.getElementById('e_phone').value,
+                secretCode: document.getElementById('e_secret').value, // Secret Code updated in database
                 bloodGroup: document.getElementById('e_blood').value,
                 profession: document.getElementById('e_prof').value,
                 village: document.getElementById('e_vill').value,
