@@ -1,63 +1,418 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="bn" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ (RJSOMP)</title>
-    <!-- Tailwind CSS -->
+    <title>হোম পেজ | রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Noto Sans Bengali', sans-serif; }
+        body { font-family: 'Noto Sans Bengali', sans-serif; background: #f8fafc; overflow-x: hidden; }
+        
+        /* ================= 1. Premium Royal Gold Animations ================= */
+        @keyframes bounceCrown { 
+            0%, 100% { transform: translateY(0) rotate(-15deg) scale(1); } 
+            50% { transform: translateY(-6px) rotate(15deg) scale(1.1); } 
+        }
+        .animate-crown { animation: bounceCrown 1.2s infinite ease-in-out; }
+
+        @keyframes royalGlow {
+            0% { box-shadow: 0 0 5px #fbbf24, 0 0 10px #f59e0b, inset 0 0 5px #fef3c7; border-color: #f59e0b; }
+            50% { box-shadow: 0 0 15px #f59e0b, 0 0 25px #d97706, inset 0 0 10px #fde68a; border-color: #fbbf24; transform: scale(1.01); }
+            100% { box-shadow: 0 0 5px #fbbf24, 0 0 10px #f59e0b, inset 0 0 5px #fef3c7; border-color: #f59e0b; }
+        }
+        .premium-gold-card { 
+            background: linear-gradient(135deg, #fffbeb, #fef3c7, #fde68a); 
+            border: 2px solid #f59e0b; 
+            animation: royalGlow 2s infinite ease-in-out; 
+            color: #78350f; 
+        }
+
+        /* ================= 2. 3D Floating & Pressable Buttons ================= */
+        @keyframes floatUpDown { 
+            0%, 100% { transform: translateY(0px); } 
+            50% { transform: translateY(-10px); } 
+        }
+        .float-card { animation: floatUpDown 4s ease-in-out infinite; }
+        .float-delay-1 { animation-delay: 0s; } 
+        .float-delay-2 { animation-delay: 1.5s; } 
+        .float-delay-3 { animation-delay: 3s; }
+
+        .card-3d { transition: all 0.15s ease; position: relative; top: 0; }
+        .card-3d:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0) !important; }
+        
+        .c3d-blue { box-shadow: 0 6px 0 #1e3a8a; }
+        .c3d-red { box-shadow: 0 6px 0 #991b1b; }
+        .c3d-purple { box-shadow: 0 6px 0 #581c87; }
+        .c3d-green { box-shadow: 0 6px 0 #064e3b; }
+
+        /* ================= 3. 3D Image Cube CSS ================= */
+        #cube-container { width: 220px; height: 220px; margin: 0 auto; perspective: 1000px; }
+        .cube { height: 100%; width: 100%; position: relative; transform-style: preserve-3d; transition: all 0.8s ease-in-out; animation: rotate 24s infinite linear; }
+        .cube img { position: absolute; width: 100%; height: 100%; background: white; border-radius: 16px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); object-fit: cover; border: 3px solid #fff; }
+        
+        .cube img:nth-child(1) { transform: rotateY(0deg) translateZ(110px); }    
+        .cube img:nth-child(2) { transform: rotateY(90deg) translateZ(110px); }   
+        .cube img:nth-child(3) { transform: rotateY(180deg) translateZ(110px); }  
+        .cube img:nth-child(4) { transform: rotateY(-90deg) translateZ(110px); }  
+        .cube img:nth-child(5) { transform: rotateX(90deg) translateZ(110px); }   
+        .cube img:nth-child(6) { transform: rotateX(-90deg) translateZ(110px); }  
+
+        @keyframes rotate { 
+            0% { transform: rotateX(0deg) rotateY(0deg); } 
+            16.66% { transform: rotateX(0deg) rotateY(-90deg); } 
+            33.33% { transform: rotateX(0deg) rotateY(-180deg); } 
+            50% { transform: rotateX(0deg) rotateY(-270deg); } 
+            66.66% { transform: rotateX(-90deg) rotateY(-360deg); } 
+            83.33% { transform: rotateX(90deg) rotateY(-360deg); } 
+            100% { transform: rotateX(0deg) rotateY(-360deg); } 
+        }
+
+        /* ================= 4. Hero Banner Background ================= */
+        .hero-banner { background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://res.cloudinary.com/h0dlj3no/image/upload/v1789866764/46240_d0rpcy.jpg') center/cover; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
+<body>
 
-    <!-- Header Placeholder -->
     <div id="header-placeholder"></div>
 
-    <!-- Main Content -->
-    <main class="flex-grow flex items-center justify-center py-16 px-4">
-        <div class="max-w-xl w-full text-center">
+    <section class="hero-banner text-white pt-24 pb-16 md:pt-32 md:pb-24 px-4 text-center">
+        <div class="max-w-5xl mx-auto">
+            <span class="bg-red-600 text-white font-bold px-4 py-1.5 rounded-full text-[10px] md:text-xs uppercase tracking-widest inline-block mb-4 shadow-md">মানবতার তরে আমরা সর্বদা নিবেদিত</span>
+            <h1 class="text-3xl md:text-6xl font-extrabold mb-4 leading-tight drop-shadow-md">রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</h1>
+            <p class="text-lg md:text-3xl font-semibold text-red-400 italic mt-4 mb-10">“জীবনের জন্য রক্ত, সমাজের জন্য দায়িত্ব”</p>
             
-            <!-- Minimalist & Professional Working Notice Card -->
-            <div class="bg-white border-t-4 border-red-600 shadow-xl rounded-3xl p-8 md:p-12 relative overflow-hidden transition-all duration-300">
-                <div class="absolute -right-6 -bottom-6 text-red-50 opacity-50 pointer-events-none">
-                    <i class="fa-solid fa-code text-9k" style="font-size: 140px;"></i>
+            <div class="grid grid-cols-3 gap-2 md:gap-6 max-w-3xl mx-auto bg-white/10 backdrop-blur-md p-4 md:p-6 rounded-2xl border border-white/20 shadow-2xl">
+                <div class="text-center border-r border-white/20">
+                    <h3 class="text-2xl md:text-5xl font-black text-white drop-shadow-md" id="count_donors"><i class="fas fa-spinner fa-spin text-sm"></i></h3>
+                    <p class="text-[10px] md:text-sm text-red-200 font-bold mt-1 uppercase tracking-wider">রক্তদাতা</p>
                 </div>
-                
-                <div class="inline-flex items-center justify-center bg-red-100 text-red-600 w-20 h-20 rounded-full font-bold mb-6 shadow-sm animate-pulse">
-                    <i class="fa-solid fa-person-digging text-3xl"></i>
+                <div class="text-center border-r border-white/20">
+                    <h3 class="text-2xl md:text-5xl font-black text-white drop-shadow-md" id="count_vols"><i class="fas fa-spinner fa-spin text-sm"></i></h3>
+                    <p class="text-[10px] md:text-sm text-blue-200 font-bold mt-1 uppercase tracking-wider">স্বেচ্ছাসেবক</p>
                 </div>
+                <div class="text-center">
+                    <h3 class="text-2xl md:text-5xl font-black text-white drop-shadow-md" id="count_mems"><i class="fas fa-spinner fa-spin text-sm"></i></h3>
+                    <p class="text-[10px] md:text-sm text-emerald-200 font-bold mt-1 uppercase tracking-wider">সদস্য/উপকারভোগী</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">
-                    ওয়েবসাইটের কাজ চলমান রয়েছে
-                </h1>
-                
-                <p class="text-gray-500 text-sm md:text-base leading-relaxed mb-8">
-                    “রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ”-এর অফিশিয়াল ওয়েবসাইটের ডেটা ও ডিজাইনিংয়ের কাজ খুব দ্রুতগতিতে এগিয়ে চলছে। খুব শীঘ্রই পূর্ণাঙ্গ রূপে এটি উন্মুক্ত করা হবে।
+    <section class="py-16 md:py-24 bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-5 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            <div class="text-center lg:text-left">
+                <h2 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-4 md:mb-6 border-b-4 border-red-500 inline-block pb-1.5 md:pb-2">আমাদের পরিচিতি</h2>
+                <p class="text-gray-700 text-sm md:text-lg font-medium leading-relaxed mb-4">
+                    রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ একটি সম্পূর্ণ অরাজনৈতিক ও স্বেচ্ছাসেবী সংগঠন। জরুরি মুহূর্তে মুমূর্ষু রোগীর শরীরে রক্ত পৌঁছে দেওয়ার পবিত্র লক্ষ্য নিয়ে আমাদের যাত্রা।
                 </p>
+                <p class="text-gray-700 text-sm md:text-lg font-medium leading-relaxed mb-6">
+                    রক্তদান ছাড়াও আমরা শীতার্তদের শীতবস্ত্র বিতরণ, বৃক্ষরোপণ, গরিব শিক্ষার্থীদের সহায়তা এবং সামাজিক সচেতনতামূলক কার্যক্রম পরিচালনা করে আসছি।
+                </p>
+                <a href="about.html" class="inline-block bg-red-600 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg hover:bg-red-700 transition text-sm md:text-base">
+                    আমাদের গল্প জানুন <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
 
-                <div class="flex flex-col sm:flex-row justify-center gap-3">
-                    <a href="register-donor" class="bg-red-600 text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-red-700 transition shadow-md flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-user-plus"></i> রক্তদাতা হোন
-                    </a>
-                    <a href="search-donor" class="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-200 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-magnifying-glass"></i> ডোনার খুঁজুন
-                    </a>
+            <div class="flex justify-center items-center py-6 md:py-0">
+                <div id="cube-container">
+                    <div class="cube" id="dynamic-cube">
+                        <img src="https://via.placeholder.com/300" alt="Gallery">
+                        <img src="https://via.placeholder.com/300" alt="Gallery">
+                        <img src="https://via.placeholder.com/300" alt="Gallery">
+                        <img src="https://via.placeholder.com/300" alt="Gallery"> 
+                        <img src="https://via.placeholder.com/300" alt="Gallery">
+                        <img src="https://via.placeholder.com/300" alt="Gallery">
+                    </div>
                 </div>
             </div>
 
         </div>
-    </main>
+    </section>
 
-    <!-- Footer Placeholder -->
+    <section class="py-12 md:py-16 bg-gradient-to-b from-gray-900 to-gray-800 overflow-hidden">
+        <div class="max-w-5xl mx-auto px-2 md:px-4">
+            <div class="text-center mb-8 md:mb-12 px-2">
+                <h2 class="text-2xl md:text-4xl font-extrabold text-yellow-400 mb-1.5 md:mb-2 drop-shadow-md">আমাদের শ্রেষ্ঠ মানবসেবক</h2>
+                <p class="text-gray-300 text-[11px] md:text-base font-medium">যাঁরা সেবামূলক কার্যক্রমে অনন্য দৃষ্টান্ত স্থাপন করেছেন</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8" id="topPerformersContainer">
+                
+                <div class="premium-gold-card rounded-xl md:rounded-2xl p-2 md:p-6 relative flex flex-col items-center justify-center text-center w-full h-full">
+                    <div class="absolute -top-3 md:-top-4 bg-red-600 text-white px-2 py-0.5 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[11px] font-bold shadow-lg border border-red-300 whitespace-nowrap">সর্বোচ্চ রক্তদাতা</div>
+                    <div class="w-14 h-14 md:w-28 md:h-28 mx-auto mb-2 md:mb-4 relative mt-3 md:mt-4">
+                        <img id="top_donor_img" src="https://ui-avatars.com/api/?name=Donor&background=fca5a5&color=991b1b" class="w-full h-full object-cover rounded-full border-2 md:border-4 border-yellow-500 shadow-xl bg-white">
+                        <span class="absolute -top-3.5 -right-1.5 md:-top-6 md:-right-2 text-xl md:text-4xl animate-crown drop-shadow-lg text-yellow-500"><i class="fas fa-crown"></i></span>
+                    </div>
+                    <h3 id="top_donor_name" class="text-[12px] md:text-xl font-extrabold mb-0.5 md:mb-1 w-full truncate px-1">লোড হচ্ছে...</h3>
+                    <p id="top_donor_details" class="text-[9px] md:text-sm font-bold opacity-80 mb-2 w-full truncate text-gray-700">-</p>
+                    <div class="w-full bg-yellow-900/10 py-1 md:py-2 rounded px-1 font-bold text-red-700 text-[9px] md:text-sm shadow-inner flex flex-col gap-0.5 mt-auto border border-red-200">
+                        <span class="truncate"><i class="fas fa-hand-holding-water text-[8px] md:text-xs"></i> রক্তদান: <span id="donor_times" class="text-lg md:text-xl font-black">০</span> বার</span>
+                        <span class="truncate text-[8px] md:text-xs text-gray-700"><i class="fas fa-calendar-alt"></i> শেষ: <span id="donor_last_date">N/A</span></span>
+                    </div>
+                </div>
+
+                <div class="premium-gold-card rounded-xl md:rounded-2xl p-2 md:p-6 relative flex flex-col items-center justify-center text-center w-full h-full">
+                    <div class="absolute -top-3 md:-top-4 bg-blue-600 text-white px-2 py-0.5 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[11px] font-bold shadow-lg border border-blue-300 whitespace-nowrap">সেরা স্বেচ্ছাসেবক</div>
+                    <div class="w-14 h-14 md:w-28 md:h-28 mx-auto mb-2 md:mb-4 relative mt-3 md:mt-4">
+                        <img id="top_vol_img" src="https://ui-avatars.com/api/?name=Volunteer&background=93c5fd&color=1e3a8a" class="w-full h-full object-cover rounded-full border-2 md:border-4 border-yellow-500 shadow-xl bg-white">
+                        <span class="absolute -top-3.5 -right-1.5 md:-top-6 md:-right-2 text-xl md:text-4xl animate-crown drop-shadow-lg text-blue-500"><i class="fas fa-crown"></i></span>
+                    </div>
+                    <h3 id="top_vol_name" class="text-[12px] md:text-xl font-extrabold mb-0.5 md:mb-1 w-full truncate px-1">লোড হচ্ছে...</h3>
+                    <p id="top_vol_details" class="text-[9px] md:text-sm font-bold opacity-80 mb-2 w-full truncate text-gray-700">-</p>
+                    <div class="w-full bg-yellow-900/10 py-1 md:py-2 rounded px-1 font-bold text-blue-800 text-[9px] md:text-sm shadow-inner flex flex-col justify-center mt-auto border border-blue-200">
+                        <span class="truncate"><i class="fas fa-tasks text-[8px] md:text-xs"></i> কার্যক্রমে উপস্থিতি</span>
+                        <span class="text-lg md:text-xl font-black"><span id="vol_activities">০</span> টি</span>
+                    </div>
+                </div>
+
+                <div class="premium-gold-card rounded-xl md:rounded-2xl p-2 md:p-6 relative flex flex-col items-center justify-center text-center w-full h-full">
+                    <div class="absolute -top-3 md:-top-4 bg-emerald-600 text-white px-2 py-0.5 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[11px] font-bold shadow-lg border border-emerald-300 whitespace-nowrap">সর্বোচ্চ অনুদানদাতা</div>
+                    <div class="w-14 h-14 md:w-28 md:h-28 mx-auto mb-2 md:mb-4 relative mt-3 md:mt-4">
+                        <img id="top_fund_img" src="https://ui-avatars.com/api/?name=Donor&background=6ee7b7&color=064e3b" class="w-full h-full object-cover rounded-full border-2 md:border-4 border-yellow-500 shadow-xl bg-white">
+                        <span class="absolute -top-3.5 -right-1.5 md:-top-6 md:-right-2 text-xl md:text-4xl animate-crown drop-shadow-lg text-emerald-500"><i class="fas fa-crown"></i></span>
+                    </div>
+                    <h3 id="top_fund_name" class="text-[12px] md:text-xl font-extrabold mb-0.5 md:mb-1 w-full truncate px-1">লোড হচ্ছে...</h3>
+                    <p id="top_fund_details" class="text-[9px] md:text-sm font-bold opacity-80 mb-2 w-full truncate text-gray-700">-</p>
+                    <div class="w-full bg-yellow-900/10 py-1 md:py-2 rounded px-1 font-bold text-emerald-800 text-[9px] md:text-sm shadow-inner flex flex-col justify-center mt-auto border border-emerald-200">
+                        <span class="truncate"><i class="fas fa-coins text-[8px] md:text-xs"></i> মোট অনুদান</span>
+                        <span class="text-lg md:text-xl font-black"><span id="fund_amount">০</span> ৳</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 md:py-24 bg-gray-100">
+        <div class="max-w-6xl mx-auto px-5">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                
+                <a href="search-donor.html" class="block">
+                    <div class="bg-blue-600 text-white rounded-2xl p-5 md:p-8 text-center card-3d c3d-blue h-full flex flex-col justify-center items-center group">
+                        <div class="bg-white/20 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                            <i class="fas fa-search text-2xl md:text-3xl"></i>
+                        </div>
+                        <h3 class="text-sm md:text-xl font-bold">রক্তদাতা খুঁজুন</h3>
+                    </div>
+                </a>
+
+                <a href="join-us.html" class="block">
+                    <div class="bg-red-600 text-white rounded-2xl p-5 md:p-8 text-center card-3d c3d-red h-full flex flex-col justify-center items-center group">
+                        <div class="bg-white/20 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                            <i class="fas fa-user-plus text-2xl md:text-3xl"></i>
+                        </div>
+                        <h3 class="text-sm md:text-xl font-bold">আমাদের সাথে যুক্ত হোন</h3>
+                    </div>
+                </a>
+
+                <a href="blood-request.html" class="block">
+                    <div class="bg-purple-700 text-white rounded-2xl p-5 md:p-8 text-center card-3d c3d-purple h-full flex flex-col justify-center items-center group">
+                        <div class="bg-white/20 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                            <i class="fas fa-heartbeat text-2xl md:text-3xl"></i>
+                        </div>
+                        <h3 class="text-sm md:text-xl font-bold">রক্তের আবেদন</h3>
+                    </div>
+                </a>
+
+                <a href="donate.html" class="block">
+                    <div class="bg-emerald-600 text-white rounded-2xl p-5 md:p-8 text-center card-3d c3d-green h-full flex flex-col justify-center items-center group">
+                        <div class="bg-white/20 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                            <i class="fas fa-hand-holding-dollar text-2xl md:text-3xl"></i>
+                        </div>
+                        <h3 class="text-sm md:text-xl font-bold">ডোনেশন করুন</h3>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 md:py-20 bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-5 text-center">
+            <h2 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-10 md:mb-12 border-b-4 border-red-500 inline-block pb-1.5 md:pb-2">আমাদের কার্যক্রম সমূহ</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <div class="bg-gray-50 border border-gray-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition">
+                    <div class="bg-red-100 text-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl mb-4"><i class="fas fa-tint"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">স্বেচ্ছায় রক্তদান</h3>
+                    <p class="text-gray-600 text-sm">রোগীর প্রয়োজনে তাৎক্ষণিক রক্ত জোগাড় করা ও রক্তদান ক্যাম্পেইন পরিচালনা।</p>
+                </div>
+                <div class="bg-gray-50 border border-gray-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition">
+                    <div class="bg-emerald-100 text-emerald-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl mb-4"><i class="fas fa-seedling"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">বৃক্ষরোপণ কর্মসূচি</h3>
+                    <p class="text-gray-600 text-sm">পরিবেশের ভারসাম্য রক্ষার্থে সবুজ প্রকৃতি গঠনে বৃক্ষরোপণ।</p>
+                </div>
+                <div class="bg-gray-50 border border-gray-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition">
+                    <div class="bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl mb-4"><i class="fas fa-hand-holding-heart"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">ত্রাণ ও মানবিক সহায়তা</h3>
+                    <p class="text-gray-600 text-sm">দুর্যোগে অসহায় মানুষের মাঝে খাদ্য ও জরুরি সহায়তা প্রদান।</p>
+                </div>
+            </div>
+            <a href="activities.html" class="inline-block mt-10 bg-gray-900 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg hover:bg-gray-800 transition text-sm md:text-base">সকল কার্যক্রম দেখুন <i class="fas fa-arrow-right ml-2"></i></a>
+        </div>
+    </section>
+
     <div id="footer-placeholder"></div>
 
-    <!-- External Script for Header, Footer, Favicon & Manifest -->
-    <script src="script.js"></script>
-    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("header-placeholder").innerHTML = d; });
+            fetch("footer.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("footer-placeholder").innerHTML = d; });
+            loadFirebaseData();
+        });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy, limit, where, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        // ================= নতুন: Realtime Database ইম্পোর্ট (অডিট রিপোর্টের জন্য) =================
+        import { getDatabase, ref as rtRef, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // আপনার ফায়ারবেস কনফিগ (Realtime Database URL সহ)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", 
+            authDomain: "rjsomp.firebaseapp.com",
+            databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app", // RTDB link
+            projectId: "rjsomp", 
+            storageBucket: "rjsomp.firebasestorage.app", 
+            messagingSenderId: "1033528754332", 
+            appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const rtdb = getDatabase(app); // অডিট রিপোর্টের ডাটাবেজ
+
+        // ================= স্মার্ট ফলব্যাক সিস্টেম (রক্তদাতা ও স্বেচ্ছাসেবকের জন্য) =================
+        async function fetchTopperSafely(collectionName, topField, countField) {
+            try {
+                let q1 = query(collection(db, collectionName), where(topField, "==", true), limit(1));
+                let snap = await getDocs(q1);
+                if (!snap.empty) return snap.docs[0].data();
+
+                try {
+                    let q2 = query(collection(db, collectionName), orderBy(countField, "desc"), limit(1));
+                    snap = await getDocs(q2);
+                    if (!snap.empty) return snap.docs[0].data();
+                } catch(e) {}
+
+                let q3 = query(collection(db, collectionName), orderBy("timestamp", "desc"), limit(1));
+                snap = await getDocs(q3);
+                if (!snap.empty) return snap.docs[0].data();
+
+                return null; 
+            } catch(e) {
+                console.error("Topper Error:", e);
+                return null;
+            }
+        }
+
+        window.loadFirebaseData = async () => {
+            try {
+                // ================= ১. রিয়েল-টাইম কাউন্টার =================
+                try {
+                    const snapDonorCount = await getCountFromServer(collection(db, "blood_donors"));
+                    document.getElementById('count_donors').innerText = snapDonorCount.data().count + "+";
+                } catch(e) { document.getElementById('count_donors').innerText = "০+"; }
+
+                try {
+                    const snapVolCount = await getCountFromServer(collection(db, "volunteers"));
+                    document.getElementById('count_vols').innerText = snapVolCount.data().count + "+";
+                } catch(e) { document.getElementById('count_vols').innerText = "০+"; }
+
+                try {
+                    const snapMemCount = await getCountFromServer(collection(db, "members"));
+                    document.getElementById('count_mems').innerText = snapMemCount.data().count + "+";
+                } catch(e) { document.getElementById('count_mems').innerText = "০+"; }
+
+                // ================= ২. সর্বোচ্চ রক্তদাতা =================
+                const topDonor = await fetchTopperSafely("blood_donors", "isTopDonor", "donationCount");
+                if(topDonor) {
+                    document.getElementById('top_donor_name').innerText = topDonor.name || "অজ্ঞাত";
+                    document.getElementById('top_donor_details').innerText = topDonor.upazila || topDonor.district || "ঠিকানা নেই";
+                    if(topDonor.profileImageUrl) document.getElementById('top_donor_img').src = topDonor.profileImageUrl;
+                    document.getElementById('donor_times').innerText = topDonor.donationCount || "১";
+                    document.getElementById('donor_last_date').innerText = topDonor.lastDonation || "জানা নেই";
+                }
+
+                // ================= ৩. সেরা স্বেচ্ছাসেবক =================
+                const topVol = await fetchTopperSafely("volunteers", "isTopVolunteer", "activityCount");
+                if(topVol) {
+                    document.getElementById('top_vol_name').innerText = topVol.name || "অজ্ঞাত";
+                    document.getElementById('top_vol_details').innerText = topVol.upazila || topVol.district || "ঠিকানা নেই";
+                    if(topVol.profileImageUrl) document.getElementById('top_vol_img').src = topVol.profileImageUrl;
+                    document.getElementById('vol_activities').innerText = topVol.activityCount || "১";
+                }
+
+                // ================= ৪. সর্বোচ্চ অনুদানদাতা (RTDB Audit Report থেকে) =================
+                let topFundData = null;
+                
+                // প্রথমে চেক করবে অ্যাডমিন ম্যানুয়ালি ফায়ারস্টোরে (donations) কাউকে টপার করেছে কিনা
+                let qFund = query(collection(db, "donations"), where("isTopFunder", "==", true), limit(1));
+                let snapFund = await getDocs(qFund);
+                
+                if (!snapFund.empty) {
+                    topFundData = snapFund.docs[0].data();
+                } else {
+                    // ম্যানুয়ালি না থাকলে Realtime Database (donationsList) থেকে সর্বোচ্চ টাকার ডোনেশন খুঁজবে
+                    try {
+                        const rtdbSnapshot = await get(child(rtRef(rtdb), 'donationsList'));
+                        if (rtdbSnapshot.exists()) {
+                            let maxAmount = -1;
+                            rtdbSnapshot.forEach(childSnapshot => {
+                                let val = childSnapshot.val();
+                                let amt = Number(val.amount) || 0;
+                                if (amt > maxAmount) {
+                                    maxAmount = amt;
+                                    topFundData = {
+                                        name: val.name,
+                                        address: val.method || "অডিট রিপোর্ট",
+                                        amount: amt,
+                                        profileImageUrl: val.imageUrl || ""
+                                    };
+                                }
+                            });
+                        }
+                    } catch(e) { console.error("RTDB Error:", e); }
+                }
+
+                // সর্বোচ্চ অনুদানদাতার ডাটা এইচটিএমএল-এ বসানো
+                if (topFundData) {
+                    document.getElementById('top_fund_name').innerText = topFundData.name || topFundData.donorName || "অজ্ঞাত";
+                    document.getElementById('top_fund_details').innerText = topFundData.address || topFundData.district || "ঠিকানা নেই";
+                    if (topFundData.profileImageUrl) {
+                        document.getElementById('top_fund_img').src = topFundData.profileImageUrl;
+                    } else {
+                        document.getElementById('top_fund_img').src = "https://ui-avatars.com/api/?name=Donor&background=6ee7b7&color=064e3b";
+                    }
+                    document.getElementById('fund_amount').innerText = topFundData.amount || "০";
+                }
+
+                // ================= ৫. 3D Cube Data =================
+                try {
+                    const qCube = query(collection(db, "cube_images"), orderBy("timestamp", "desc"), limit(6));
+                    const snapCube = await getDocs(qCube);
+                    let cubeImages = [];
+                    snapCube.forEach(doc => { if(doc.data().imageUrl) cubeImages.push(doc.data().imageUrl); });
+                    
+                    if(cubeImages.length > 0) {
+                        const cubeDiv = document.getElementById('dynamic-cube');
+                        let cubeHtml = '';
+                        for(let i=0; i<6; i++) {
+                            let imgUrl = cubeImages[i % cubeImages.length]; 
+                            cubeHtml += `<img src="${imgUrl}" alt="Cube Image ${i+1}">`;
+                        }
+                        cubeDiv.innerHTML = cubeHtml;
+                    }
+                } catch(e) { console.error("Cube image error:", e); }
+
+            } catch(e) { console.error("General Error: ", e); }
+        };
+    </script>
 </body>
 </html>
