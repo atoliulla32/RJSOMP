@@ -32,7 +32,7 @@
     </div>
 
     <!-- ================= Main Admin Dashboard ================= -->
-    <div id="admin-dashboard" class="max-w-5xl mx-auto hidden">
+    <div id="admin-dashboard" class="max-w-6xl mx-auto hidden">
         
         <!-- Header -->
         <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm mb-6 flex flex-wrap justify-between items-center border-l-4 border-red-600 gap-4">
@@ -59,6 +59,10 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">তারিখ</label>
                             <input type="text" id="nDate" placeholder="যেমন: ২২ সেপ্টেম্বর ২০২৬" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">বিস্তারিত বিবরণ</label>
+                            <textarea id="nDesc" rows="4" placeholder="বিজ্ঞপ্তির বিস্তারিত লিখুন..." class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm"></textarea>
                         </div>
                         
                         <label class="flex items-center gap-3 bg-red-50 p-3 rounded-xl border border-red-100 cursor-pointer">
@@ -152,15 +156,16 @@
         window.saveNotice = async function() {
             const title = document.getElementById('nTitle').value.trim();
             const date = document.getElementById('nDate').value.trim();
+            const desc = document.getElementById('nDesc').value.trim();
             const isLive = document.getElementById('nIsLive').checked;
             const btn = document.getElementById('submitBtn');
 
-            if(!title || !date) { alert("শিরোনাম এবং তারিখ অবশ্যই দিতে হবে!"); return; }
+            if(!title || !date || !desc) { alert("শিরোনাম, তারিখ এবং বিস্তারিত বিবরণ অবশ্যই দিতে হবে!"); return; }
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...';
             btn.disabled = true;
             
-            const noticeData = { title: title, date: date, isLive: isLive };
+            const noticeData = { title: title, date: date, description: desc, isLive: isLive };
 
             try {
                 if(editingId) {
@@ -185,6 +190,7 @@
             editingId = null;
             document.getElementById('formTitle').innerText = "নতুন নোটিশ যুক্ত করুন";
             document.getElementById('nTitle').value = '';
+            document.getElementById('nDesc').value = '';
             
             // আজকের তারিখ অটোমেটিক বসানো
             const today = new Date();
@@ -203,6 +209,7 @@
                 document.getElementById('formTitle').innerText = "নোটিশ এডিট করুন";
                 document.getElementById('nTitle').value = notice.title;
                 document.getElementById('nDate').value = notice.date;
+                document.getElementById('nDesc').value = notice.description;
                 document.getElementById('nIsLive').checked = notice.isLive;
 
                 document.getElementById('submitBtn').innerText = "আপডেট করুন";
