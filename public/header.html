@@ -5,7 +5,7 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#dc2626">
 
-<!-- Custom CSS Animations (Tooltip & Laser Button) -->
+<!-- Custom CSS Animations -->
 <style>
     /* Tooltip Bounce Animation */
     @keyframes autoTooltipDance {
@@ -21,36 +21,38 @@
         animation: autoTooltipDance 7s infinite ease-in-out;
     }
 
-    /* Laser Glowing Border Animation */
-    @keyframes rotateLaser {
+    /* Blood Flow Border Animation */
+    @keyframes bloodFlow {
         100% { transform: rotate(360deg); }
     }
-    .btn-laser {
+    .btn-blood-flow {
         position: relative;
         overflow: hidden;
-        border-radius: 0.75rem; /* xl border radius */
+        border-radius: 0.75rem; 
         z-index: 1;
-        background-color: #111827; /* gray-900 */
+        color: #dc2626; /* Red text */
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
     }
-    .btn-laser::before {
+    .btn-blood-flow::before {
         content: '';
         position: absolute;
         top: -150%; left: -150%; right: -150%; bottom: -150%;
-        background: conic-gradient(from 0deg, transparent 70%, #ef4444 80%, #ef4444 100%);
-        animation: rotateLaser 2s linear infinite;
+        /* রক্তের কালার গ্রেডিয়েন্ট: হালকা থেকে গাঢ় লাল */
+        background: conic-gradient(from 0deg, transparent 60%, rgba(239, 68, 68, 0.4) 75%, #dc2626 90%, #7f1d1d 100%);
+        animation: bloodFlow 1.5s linear infinite;
         z-index: -2;
     }
-    .btn-laser::after {
+    .btn-blood-flow::after {
         content: '';
         position: absolute;
-        inset: 2px; /* Border thickness */
-        background: #111827;
+        inset: 2.5px; /* রক্তের প্রবাহের পুরুত্ব */
+        background: #ffffff;
         border-radius: 0.65rem;
         z-index: -1;
         transition: background 0.3s;
     }
-    .btn-laser:hover::after {
-        background: #000000;
+    .btn-blood-flow:hover::after {
+        background: #fef2f2; /* Hover-এ হালকা লালচে সাদা */
     }
 </style>
 
@@ -82,11 +84,15 @@
             <a href="https://api.betadrop.app/api/guest/download/ReiHQk" class="bg-green-50 text-green-600 border border-green-200 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-green-100 transition shadow-sm hover:shadow-md flex items-center gap-2">
                 <i class="fa-brands fa-android text-lg"></i> অ্যাপ ডাউনলোড
             </a>
+            
+            <!-- আমাদের সাথে যুক্ত হোন (রক্তের আইকন সহ) -->
             <a href="join-us" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-700 transition shadow-sm hover:shadow-md flex items-center gap-2">
                 <i class="fa-solid fa-droplet text-lg"></i> আমাদের সাথে যুক্ত হোন
             </a>
-            <a href="donation" class="btn-laser text-white px-5 py-2.5 font-bold text-sm flex items-center gap-2 shadow-lg">
-                <i class="fa-solid fa-hand-holding-dollar text-lg"></i> সহযোগিতা করুন
+            
+            <!-- রক্তের প্রবাহ অ্যানিমেশন বাটন -->
+            <a href="donation" class="btn-blood-flow px-5 py-2.5 font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-hand-holding-dollar text-lg text-red-600"></i> সহযোগিতা করুন
             </a>
         </div>
 
@@ -114,35 +120,36 @@
         </div>
     </div>
 
-    <!-- Premium Dark Mobile Menu (3D Separated Style) -->
-    <div id="mobile-menu" class="hidden xl:hidden bg-slate-900 border-t-[3px] border-red-600 shadow-2xl absolute w-full left-0 origin-top pb-6">
-        <div class="flex flex-col px-5 py-5 font-bold text-gray-200 text-[15px] space-y-3">
+    <!-- Mobile Menu (Glassmorphism Frosted Glass Style) -->
+    <!-- bg-white/70 এবং backdrop-blur-xl দিয়ে সুন্দর ঝাপসা পর্দার ইফেক্ট তৈরি করা হয়েছে -->
+    <div id="mobile-menu" class="hidden xl:hidden bg-white/70 backdrop-blur-xl border-t border-gray-200 shadow-2xl absolute w-full left-0 origin-top pb-6 min-h-[50vh]">
+        <div class="flex flex-col px-5 py-6 font-bold text-gray-800 text-[15px] space-y-3.5">
             
-            <!-- Separated Menu Items -->
-            <a href="/" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 text-red-500 hover:bg-slate-700 transition active:scale-95">
+            <!-- Separated 3D Menu Items (White Cards) -->
+            <a href="/" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 text-red-600 hover:shadow-md transition active:scale-95">
                 <i class="fa-solid fa-house w-8 text-center text-lg"></i> হোম
             </a>
             
-            <a href="about" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 hover:text-red-400 hover:bg-slate-700 transition active:scale-95">
+            <a href="about" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95">
                 <i class="fa-solid fa-circle-info w-8 text-center text-lg"></i> আমাদের সম্পর্কে
             </a>
             
-            <a href="activities" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 hover:text-red-400 hover:bg-slate-700 transition active:scale-95">
+            <a href="activities" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95">
                 <i class="fa-solid fa-briefcase w-8 text-center text-lg"></i> কার্যক্রম
             </a>
             
-            <a href="gallery" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 hover:text-red-400 hover:bg-slate-700 transition active:scale-95">
+            <a href="gallery" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95">
                 <i class="fa-regular fa-images w-8 text-center text-lg"></i> নিউজ ও গ্যালারি
             </a>
             
             <!-- Mobile CTA Buttons -->
-            <div class="flex flex-col gap-3 mt-4 pt-4 border-t border-slate-700">
+            <div class="flex flex-col gap-4 mt-5 pt-5 border-t border-gray-200">
                 <a href="join-us" class="bg-red-600 text-white text-center px-4 py-4 rounded-xl font-bold text-base hover:bg-red-700 shadow-lg flex justify-center items-center gap-2 transition active:scale-95">
                     <i class="fa-solid fa-droplet text-lg"></i> আমাদের সাথে যুক্ত হোন
                 </a>
                 
-                <a href="donation" class="btn-laser text-white text-center px-4 py-4 font-bold text-base flex justify-center items-center gap-2 shadow-lg transition active:scale-95">
-                    <i class="fa-solid fa-hand-holding-dollar text-lg text-green-400"></i> সহযোগিতা করুন
+                <a href="donation" class="btn-blood-flow text-center px-4 py-4 font-bold text-base flex justify-center items-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-hand-holding-dollar text-lg text-red-600"></i> সহযোগিতা করুন
                 </a>
             </div>
         </div>
