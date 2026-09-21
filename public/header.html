@@ -5,8 +5,9 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#dc2626">
 
-<!-- CSS Only Tooltip Animation (Downward Position) -->
+<!-- Custom CSS Animations (Tooltip & Laser Button) -->
 <style>
+    /* Tooltip Bounce Animation */
     @keyframes autoTooltipDance {
         0%, 71% { opacity: 0; transform: scale(0.8) translateY(-10px); }
         73% { opacity: 1; transform: scale(1.1) translateY(8px); }
@@ -18,6 +19,38 @@
     }
     .auto-dancing-tooltip {
         animation: autoTooltipDance 7s infinite ease-in-out;
+    }
+
+    /* Laser Glowing Border Animation */
+    @keyframes rotateLaser {
+        100% { transform: rotate(360deg); }
+    }
+    .btn-laser {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.75rem; /* xl border radius */
+        z-index: 1;
+        background-color: #111827; /* gray-900 */
+    }
+    .btn-laser::before {
+        content: '';
+        position: absolute;
+        top: -150%; left: -150%; right: -150%; bottom: -150%;
+        background: conic-gradient(from 0deg, transparent 70%, #ef4444 80%, #ef4444 100%);
+        animation: rotateLaser 2s linear infinite;
+        z-index: -2;
+    }
+    .btn-laser::after {
+        content: '';
+        position: absolute;
+        inset: 2px; /* Border thickness */
+        background: #111827;
+        border-radius: 0.65rem;
+        z-index: -1;
+        transition: background 0.3s;
+    }
+    .btn-laser:hover::after {
+        background: #000000;
     }
 </style>
 
@@ -50,10 +83,10 @@
                 <i class="fa-brands fa-android text-lg"></i> অ্যাপ ডাউনলোড
             </a>
             <a href="join-us" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-700 transition shadow-sm hover:shadow-md flex items-center gap-2">
-                <i class="fa-solid fa-users"></i> আমাদের সাথে যুক্ত হোন
+                <i class="fa-solid fa-droplet text-lg"></i> আমাদের সাথে যুক্ত হোন
             </a>
-            <a href="donate" class="bg-gray-900 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-black transition shadow-sm hover:shadow-md flex items-center gap-2">
-                <i class="fa-solid fa-hand-holding-dollar"></i> সহযোগিতা করুন
+            <a href="donation" class="btn-laser text-white px-5 py-2.5 font-bold text-sm flex items-center gap-2 shadow-lg">
+                <i class="fa-solid fa-hand-holding-dollar text-lg"></i> সহযোগিতা করুন
             </a>
         </div>
 
@@ -81,26 +114,35 @@
         </div>
     </div>
 
-    <!-- Mobile Menu (3D Separated Style) -->
-    <div id="mobile-menu" class="hidden xl:hidden bg-gray-50 border-t border-gray-200 shadow-2xl absolute w-full left-0 origin-top pb-6">
-        <div class="flex flex-col px-5 py-5 font-bold text-gray-700 text-[15px] space-y-3">
+    <!-- Premium Dark Mobile Menu (3D Separated Style) -->
+    <div id="mobile-menu" class="hidden xl:hidden bg-slate-900 border-t-[3px] border-red-600 shadow-2xl absolute w-full left-0 origin-top pb-6">
+        <div class="flex flex-col px-5 py-5 font-bold text-gray-200 text-[15px] space-y-3">
             
             <!-- Separated Menu Items -->
-            <a href="/" class="flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 text-red-600 hover:shadow-md transition active:scale-95"><i class="fa-solid fa-house w-8 text-center text-lg"></i> হোম</a>
+            <a href="/" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 text-red-500 hover:bg-slate-700 transition active:scale-95">
+                <i class="fa-solid fa-house w-8 text-center text-lg"></i> হোম
+            </a>
             
-            <a href="about" class="flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95"><i class="fa-solid fa-circle-info w-8 text-center text-lg"></i> আমাদের সম্পর্কে</a>
+            <a href="about" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 hover:text-red-400 hover:bg-slate-700 transition active:scale-95">
+                <i class="fa-solid fa-circle-info w-8 text-center text-lg"></i> আমাদের সম্পর্কে
+            </a>
             
-            <a href="activities" class="flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95"><i class="fa-solid fa-briefcase w-8 text-center text-lg"></i> কার্যক্রম</a>
+            <a href="activities" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 hover:text-red-400 hover:bg-slate-700 transition active:scale-95">
+                <i class="fa-solid fa-briefcase w-8 text-center text-lg"></i> কার্যক্রম
+            </a>
             
-            <a href="gallery" class="flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95"><i class="fa-regular fa-images w-8 text-center text-lg"></i> নিউজ ও গ্যালারি</a>
+            <a href="gallery" class="flex items-center bg-slate-800 p-3.5 rounded-xl shadow-md border border-slate-700 hover:text-red-400 hover:bg-slate-700 transition active:scale-95">
+                <i class="fa-regular fa-images w-8 text-center text-lg"></i> নিউজ ও গ্যালারি
+            </a>
             
             <!-- Mobile CTA Buttons -->
-            <div class="flex flex-col gap-3 mt-4">
-                <a href="join-us" class="bg-red-600 text-white text-center px-4 py-3.5 rounded-xl font-bold hover:bg-red-700 shadow-md flex justify-center items-center gap-2 transition active:scale-95">
-                    <i class="fa-solid fa-users text-lg"></i> আমাদের সাথে যুক্ত হোন
+            <div class="flex flex-col gap-3 mt-4 pt-4 border-t border-slate-700">
+                <a href="join-us" class="bg-red-600 text-white text-center px-4 py-4 rounded-xl font-bold text-base hover:bg-red-700 shadow-lg flex justify-center items-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-droplet text-lg"></i> আমাদের সাথে যুক্ত হোন
                 </a>
-                <a href="donate" class="bg-gray-900 text-white text-center px-4 py-3.5 rounded-xl font-bold hover:bg-black shadow-md flex justify-center items-center gap-2 transition active:scale-95">
-                    <i class="fa-solid fa-hand-holding-dollar text-lg"></i> সহযোগিতা করুন
+                
+                <a href="donation" class="btn-laser text-white text-center px-4 py-4 font-bold text-base flex justify-center items-center gap-2 shadow-lg transition active:scale-95">
+                    <i class="fa-solid fa-hand-holding-dollar text-lg text-green-400"></i> সহযোগিতা করুন
                 </a>
             </div>
         </div>
