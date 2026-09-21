@@ -10,7 +10,7 @@
     <style>
         body { font-family: 'Noto Sans Bengali', sans-serif; background: #f8fafc; }
         input[type="checkbox"] { width: 24px; height: 24px; cursor: pointer; accent-color: #dc2626; }
-        .rules-box li { margin-bottom: 10px; line-height: 1.6; }
+        .rules-box li { margin-bottom: 8px; line-height: 1.6; }
         .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); }
     </style>
 </head>
@@ -45,8 +45,8 @@
                 </div>
             </div>
 
-            <div id="rules-container" class="hidden bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-xl mb-6 shadow-sm text-sm md:text-base font-medium text-gray-700">
-                <h3 class="font-bold text-blue-800 text-xl mb-4"><i class="fas fa-heart text-red-500"></i> আমাদের পরিবারের কিছু সুন্দর নিয়ম:</h3>
+            <div id="rules-container" class="hidden bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl mb-6 shadow-sm text-sm md:text-base font-medium text-gray-700">
+                <h3 class="font-bold text-blue-800 text-lg mb-3"><i class="fas fa-heart text-red-500"></i> আমাদের পরিবারের কিছু সুন্দর নিয়ম:</h3>
                 <ul id="rules-list" class="list-decimal pl-5 rules-box"></ul>
             </div>
 
@@ -57,48 +57,18 @@
                     <div><label class="block font-bold text-gray-700 mb-1">আপনার সুন্দর নাম <span class="text-red-500">*</span></label><input type="text" id="u_name" required class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
                     <div><label class="block font-bold text-gray-700 mb-1">বাবার নাম <span class="text-red-500">*</span></label><input type="text" id="u_fname" required class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
                     <div id="field_mname" class="hidden"><label class="block font-bold text-gray-700 mb-1">মায়ের নাম <span class="text-red-500">*</span></label><input type="text" id="u_mname" class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
-                    
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="col-span-2">
-                            <label class="block font-bold text-gray-700 mb-1">মোবাইল নাম্বার <span class="text-red-500">*</span></label>
-                            <input type="tel" id="u_phone" required maxlength="11" onkeyup="generateSecretCode()" placeholder="০১৭XXXXXXXX" class="w-full p-3 border rounded-xl outline-none focus:border-red-500">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-gray-700 mb-1 text-sm text-red-600" title="এই কোডটি দিয়ে পরবর্তীতে আপনি আপনার তথ্য আপডেট করতে পারবেন">গোপন কোড</label>
-                            <input type="text" id="u_secret" required maxlength="4" class="w-full p-3 border border-red-300 rounded-xl outline-none focus:border-red-500 bg-red-50 font-bold text-center tracking-widest text-red-700">
-                        </div>
-                    </div>
-
+                    <div><label class="block font-bold text-gray-700 mb-1">সচল মোবাইল নাম্বার <span class="text-red-500">*</span></label><input type="tel" id="u_phone" required maxlength="11" class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
                     <div><label class="block font-bold text-gray-700 mb-1">রক্তের গ্রুপ <span class="text-red-500">*</span></label><select id="u_blood" required class="w-full p-3 border rounded-xl outline-none focus:border-red-500"><option value="">নির্বাচন করুন</option><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div>
                     <div id="field_last_donate" class="hidden"><label class="block font-bold text-gray-700 mb-1">সর্বশেষ রক্তদানের তারিখ</label><input type="date" id="u_lastdate" class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
                     <div><label class="block font-bold text-gray-700 mb-1">পেশা <span class="text-red-500">*</span></label><input type="text" id="u_prof" required placeholder="যেমন: ছাত্র, চাকরিজীবী, ব্যবসায়ী" class="w-full p-3 border rounded-xl outline-none focus:border-red-500"></div>
                 </div>
 
-                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                    <h3 class="font-bold text-gray-800 mb-4"><i class="fas fa-map-marker-alt text-red-500"></i> বিস্তারিত ঠিকানা <span class="text-red-500">*</span></h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block font-bold text-gray-700 mb-1 text-sm">বিভাগ</label>
-                            <select id="u_division" required onchange="loadDistricts()" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-white">
-                                <option value="">বিভাগ লোড হচ্ছে...</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-gray-700 mb-1 text-sm">জেলা</label>
-                            <select id="u_district" required onchange="loadUpazilas()" disabled class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-100">
-                                <option value="">আগে বিভাগ নির্বাচন করুন</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-gray-700 mb-1 text-sm">উপজেলা / থানা</label>
-                            <select id="u_upazila" required disabled class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-100">
-                                <option value="">আগে জেলা নির্বাচন করুন</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-gray-700 mb-1 text-sm">গ্রাম / মহল্লা / বিস্তারিত</label>
-                            <input type="text" id="u_vill" required placeholder="বাড়ি/রাস্তা/গ্রাম নিজে লিখুন..." class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-white">
-                        </div>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-3"><i class="fas fa-map-marker-alt text-red-500"></i> বিস্তারিত ঠিকানা <span class="text-red-500">*</span></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div><input type="text" id="u_vill" required placeholder="গ্রাম/মহল্লা" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500"></div>
+                        <div><input type="text" id="u_thana" required placeholder="উপজেলা/থানা" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500"></div>
+                        <div><input type="text" id="u_dist" required placeholder="জেলা" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500"></div>
                     </div>
                 </div>
 
@@ -118,30 +88,26 @@
                 </div>
                 <p class="text-xs text-gray-500 text-center">*(আপনার দেওয়া তথ্য ও ছবি সম্পূর্ণ নিরাপদ থাকবে এবং শুধুমাত্র সংগঠনের ভেরিফিকেশনের জন্য ব্যবহার করা হবে)*</p>
 
-                <div id="final-status" class="hidden text-center font-bold text-white bg-green-600 p-3 rounded-lg"></div>
-
-                <button type="button" onclick="showSecretCodeModal()" id="submitBtn" class="w-full bg-red-600 text-white font-bold text-lg p-4 rounded-xl hover:bg-red-700 transition shadow-lg"><i class="fas fa-paper-plane"></i> আবেদন জমা দিন</button>
+                <button type="submit" id="submitBtn" class="w-full bg-red-600 text-white font-bold text-lg p-4 rounded-xl hover:bg-red-700 transition shadow-lg"><i class="fas fa-paper-plane"></i> আবেদন জমা দিন</button>
             </div>
         </form>
     </div>
 
-    <div id="secretCodeModal" class="fixed inset-0 modal-bg z-[100] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 transform scale-95 transition-transform duration-300 text-center" id="secretCodeModalContent">
-            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-md">
-                <i class="fas fa-key text-4xl text-red-600"></i>
+    <div id="successModal" class="fixed inset-0 modal-bg z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 text-center transform scale-95 transition-transform duration-300" id="successModalContent">
+            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">
+                <i class="fas fa-check-circle"></i>
             </div>
-            <h3 class="text-2xl font-extrabold text-gray-800 mb-2">গোপন কোডটি মনে রাখুন!</h3>
-            <p class="text-gray-600 font-medium mb-4">পরবর্তীতে আপনার তথ্য (যেমন: রক্তদানের তারিখ) আপডেট করতে এই কোডটি প্রয়োজন হবে।</p>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">আলহামদুলিল্লাহ!</h2>
+            <p class="text-gray-600 font-medium mb-4">আপনার আবেদন সফলভাবে আমাদের কাছে পৌঁছেছে।</p>
             
-            <div class="bg-gray-100 p-4 rounded-xl border border-gray-300 mb-6">
-                <span class="text-gray-500 text-sm font-bold block mb-1">আপনার গোপন কোড:</span>
-                <span id="displaySecretCode" class="text-4xl font-black text-red-600 tracking-[0.2em]"></span>
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-5">
+                <p class="text-sm text-red-600 font-bold mb-1">আপনার গোপন কোড (Secret PIN)</p>
+                <h1 id="secretCodeDisplay" class="text-4xl font-extrabold text-red-700 tracking-widest"></h1>
+                <p class="text-xs text-gray-500 mt-2">পরবর্তীতে আপনার তথ্য আপডেট করতে এই কোডটি অবশ্যই মনে রাখবেন!</p>
             </div>
 
-            <div class="flex gap-3">
-                <button onclick="closeSecretCodeModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition shadow-sm border border-gray-200">বাতিল</button>
-                <button onclick="submitFinalForm()" class="flex-1 bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 transition shadow-lg"><i class="fas fa-check"></i> নিশ্চিত করুন</button>
-            </div>
+            <button onclick="closeSuccessModal()" class="w-full bg-red-600 text-white font-bold p-3 rounded-xl hover:bg-red-700 transition">ঠিক আছে</button>
         </div>
     </div>
 
@@ -152,83 +118,14 @@
         document.addEventListener("DOMContentLoaded", () => {
             fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("header-placeholder").innerHTML = d; });
             fetch("footer.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("footer-placeholder").innerHTML = d; });
-            loadDivisions();
         });
 
-        // Generate 4-digit code based on phone number (last 4 digits) or random
-        function generateSecretCode() {
-            const phoneStr = document.getElementById('u_phone').value;
-            const secretInput = document.getElementById('u_secret');
-            
-            // Only auto-generate if user hasn't typed their own code
-            if(secretInput.value.length === 0 || secretInput.dataset.auto === "true") {
-                if(phoneStr.length >= 4) {
-                    secretInput.value = phoneStr.substring(phoneStr.length - 4);
-                    secretInput.dataset.auto = "true";
-                } else {
-                    secretInput.value = "";
-                }
-            }
-        }
-
-        // ================= API লজিক =================
-        let bdDistrictsData = [];
-
-        async function loadDivisions() {
-            try {
-                const res = await fetch('https://bdapis.com/api/v1.1/divisions');
-                const data = await res.json();
-                const divSelect = document.getElementById('u_division');
-                divSelect.innerHTML = '<option value="">বিভাগ নির্বাচন করুন</option>';
-                data.data.forEach(div => {
-                    const divName = div.divisionbn ? div.divisionbn : div.division;
-                    divSelect.innerHTML += `<option value="${div.division}">${divName}</option>`;
-                });
-            } catch (error) { document.getElementById('u_division').innerHTML = '<option value="">দুঃখিত, লোড করা যায়নি!</option>'; }
-        }
-
-        async function loadDistricts() {
-            const div = document.getElementById('u_division').value;
-            const distSelect = document.getElementById('u_district');
-            const upaSelect = document.getElementById('u_upazila');
-
-            distSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>'; upaSelect.innerHTML = '<option value="">আগে জেলা নির্বাচন করুন</option>';
-            if(!div) { distSelect.disabled = true; distSelect.classList.add('bg-gray-100'); upaSelect.disabled = true; upaSelect.classList.add('bg-gray-100'); return; }
-
-            distSelect.innerHTML = '<option value="">লোড হচ্ছে...</option>';
-            try {
-                const res = await fetch(`https://bdapis.com/api/v1.1/division/${div}`);
-                const data = await res.json();
-                bdDistrictsData = data.data; 
-
-                distSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
-                bdDistrictsData.forEach(dist => {
-                    const distName = dist.districtbn ? dist.districtbn : dist.district; 
-                    distSelect.innerHTML += `<option value="${dist.district}">${distName}</option>`;
-                });
-                distSelect.disabled = false; distSelect.classList.remove('bg-gray-100');
-            } catch(e) { distSelect.innerHTML = '<option value="">সমস্যা হয়েছে!</option>'; }
-        }
-
-        function loadUpazilas() {
-            const distName = document.getElementById('u_district').value;
-            const upaSelect = document.getElementById('u_upazila');
-            upaSelect.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>';
-            
-            if(!distName) { upaSelect.disabled = true; upaSelect.classList.add('bg-gray-100'); return; }
-
-            const selectedDistData = bdDistrictsData.find(d => d.district === distName);
-            if(selectedDistData && selectedDistData.upazilla) {
-                selectedDistData.upazilla.forEach(upa => { upaSelect.innerHTML += `<option value="${upa}">${upa}</option>`; });
-                upaSelect.disabled = false; upaSelect.classList.remove('bg-gray-100');
-            }
-        }
-
-        // ================= ডাইনামিক ফিল্ড ও নিয়মাবলি =================
+        // ডাইনামিক ফিল্ড কন্ট্রোল লজিক (আগের মতোই)
         function toggleDynamicFields() {
             const isVol = document.getElementById('role_volunteer').checked;
             const isDon = document.getElementById('role_donor').checked;
             const isMem = document.getElementById('role_member').checked;
+
             const formFields = document.getElementById('form-fields');
             const rulesContainer = document.getElementById('rules-container');
             const rulesList = document.getElementById('rules-list');
@@ -248,15 +145,17 @@
             document.getElementById('field_last_donate').style.display = isDon ? 'block' : 'none';
 
             let rulesHTML = '';
-            if(isMem) rulesHTML += `<p class="font-bold text-blue-900 mt-2 mb-2 border-b border-blue-200 pb-1">সদস্যদের জন্য নিয়মাবলি:</p><li>১. সংগঠনের মহৎ আদর্শ, উদ্দেশ্য ও গঠনতন্ত্রের প্রতি আন্তরিক সম্মান ও ভালোবাসা থাকতে হবে।</li><li>২. মানবসেবা, স্বেচ্ছায় রক্তদান এবং সমাজকল্যাণমূলক কর্মকাণ্ডে হাসিমুখে অংশগ্রহণের মানসিকতা থাকতে হবে।</li>`;
-            if(isVol) rulesHTML += `<p class="font-bold text-blue-900 mt-4 mb-2 border-b border-blue-200 pb-1">স্বেচ্ছাসেবকদের জন্য নিয়মাবলি:</p><li>স্বেচ্ছায় ও আনন্দের সাথে সামাজিক কাজ করার মানসিকতা রাখা।</li>`;
-            if(isDon) rulesHTML += `<p class="font-bold text-blue-900 mt-4 mb-2 border-b border-blue-200 pb-1">রক্তদাতাদের জন্য নিয়মাবলি:</p><li>আপনার বয়স ১৮ থেকে ৬০ বছরের মধ্যে এবং ওজন কমপক্ষে ৫০ কেজি হতে হবে।</li>`;
-            rulesHTML += `<div class="mt-5 bg-red-100 p-3 rounded-lg border border-red-200 text-red-700 font-bold text-center"><i class="fas fa-shield-alt"></i> নিরাপত্তার স্বার্থে আপনার সঠিক তথ্য, ছবি এবং এনআইডি/জন্ম নিবন্ধন প্রদান করা বাধ্যতামূলক।</div>`;
+            if(isMem) rulesHTML += `<p class="font-bold text-blue-900 mt-2 mb-1">সদস্যদের জন্য:</p><li>সংগঠনের আদর্শ ও লক্ষ্যের প্রতি ভালোবাসা ও সম্মান রাখা।</li><li>মানবসেবা ও সমাজকল্যাণমূলক কাজে অংশ নেওয়ার সুন্দর মানসিকতা রাখা।</li>`;
+            if(isVol) rulesHTML += `<p class="font-bold text-blue-900 mt-2 mb-1">স্বেচ্ছাসেবকদের জন্য:</p><li>স্বেচ্ছায় ও আনন্দের সাথে সামাজিক কাজ করার মানসিকতা রাখা।</li><li>নিজের সুবিধামতো সময়ে সংগঠনের কার্যক্রমে উপস্থিত থাকার চেষ্টা করা।</li>`;
+            if(isDon) rulesHTML += `<p class="font-bold text-blue-900 mt-2 mb-1">রক্তদাতাদের জন্য:</p><li>আপনার বয়স ১৮-৬০ বছরের মধ্যে এবং ওজন কমপক্ষে ৫০ কেজি হতে হবে।</li>`;
+            rulesHTML += `<p class="font-bold text-red-600 mt-3"><i class="fas fa-shield-alt"></i> নিরাপত্তার স্বার্থে আপনার সঠিক তথ্য ও ছবি প্রদান করা বাধ্যতামূলক।</p>`;
             rulesList.innerHTML = rulesHTML;
         }
 
         async function autoUploadFile(input, hiddenFieldId, statusId) {
-            const file = input.files[0]; const statusEl = document.getElementById(statusId); const hiddenInput = document.getElementById(hiddenFieldId);
+            const file = input.files[0];
+            const statusEl = document.getElementById(statusId);
+            const hiddenInput = document.getElementById(hiddenFieldId);
             if(!file) return;
 
             statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-500"></i> ছবিটি আমাদের সার্ভারে যাচ্ছে... একটু অপেক্ষা করুন।';
@@ -266,6 +165,7 @@
                 const fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "rjsomp"); 
                 const res = await fetch(`https://api.cloudinary.com/v1_1/h0dlj3no/image/upload`, { method: "POST", body: fd });
                 const data = await res.json();
+                
                 hiddenInput.value = data.secure_url;
                 statusEl.innerHTML = '<i class="fas fa-check-circle text-green-600"></i> বাহ! ছবি সফলভাবে যুক্ত হয়েছে।';
             } catch(e) {
@@ -286,63 +186,58 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        window.showSecretCodeModal = () => {
-            const form = document.getElementById('unifiedForm');
-            if(!form.checkValidity()) { form.reportValidity(); return; }
+        // বাংলা নাম্বার থেকে শেষের ৪ ডিজিট ইংরেজিতে কনভার্ট করে পিন বানানোর ফাংশন
+        function generateSecretPin(bnPhone) {
+            if(!bnPhone) return "0000";
+            const bnNumbers = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+            const enNumbers = ['0','1','2','3','4','5','6','7','8','9'];
+            let engStr = '';
+            for(let char of bnPhone) {
+                let index = bnNumbers.indexOf(char);
+                engStr += index !== -1 ? enNumbers[index] : char;
+            }
+            const cleanNum = engStr.replace(/[^0-9]/g, ''); 
+            if(cleanNum.length >= 4) {
+                return cleanNum.substring(cleanNum.length - 4);
+            }
+            return "1234"; // Fallback PIN
+        }
 
-            const profileUrl = document.getElementById('profile_url').value;
-            const nidUrl = document.getElementById('nid_url').value;
-            if(!profileUrl || !nidUrl) return alert("দয়া করে ছবিগুলো আপলোড হওয়া পর্যন্ত একটু অপেক্ষা করুন!");
+        window.closeSuccessModal = () => {
+            document.getElementById('successModal').classList.add('hidden');
+            window.location.reload(); // পেজ রিলোড করে দেবে
+        }
 
-            const secretCode = document.getElementById('u_secret').value;
-            if(secretCode.length < 4) return alert("গোপন কোড অবশ্যই অন্তত ৪ ডিজিটের হতে হবে!");
-
-            document.getElementById('displaySecretCode').innerText = secretCode;
-            
-            const modal = document.getElementById('secretCodeModal');
-            const content = document.getElementById('secretCodeModalContent');
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
-        };
-
-        window.closeSecretCodeModal = () => {
-            const modal = document.getElementById('secretCodeModal');
-            const content = document.getElementById('secretCodeModalContent');
-            modal.classList.add('opacity-0'); content.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
-        };
-
-        window.submitFinalForm = async () => {
-            window.closeSecretCodeModal();
+        document.getElementById('unifiedForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
             const isVol = document.getElementById('role_volunteer').checked;
             const isDon = document.getElementById('role_donor').checked;
             const isMem = document.getElementById('role_member').checked;
 
+            const profileUrl = document.getElementById('profile_url').value;
+            const nidUrl = document.getElementById('nid_url').value;
+
+            if(!profileUrl || !nidUrl) return alert("দয়া করে ছবিগুলো আপলোড হওয়া পর্যন্ত একটু অপেক্ষা করুন!");
+
             const btn = document.getElementById('submitBtn');
-            const finalStatus = document.getElementById('final-status');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> আপনার আবেদনটি পাঠানো হচ্ছে...';
 
-            const divSel = document.getElementById('u_division');
-            const distSel = document.getElementById('u_district');
-            
-            const divisionName = divSel.options[divSel.selectedIndex].text;
-            const districtName = distSel.options[distSel.selectedIndex].text;
-            const upazilaName = document.getElementById('u_upazila').value;
+            const userPhone = document.getElementById('u_phone').value.trim();
+            const secretPin = generateSecretPin(userPhone); // পিন জেনারেট করা হলো
 
             const commonData = {
                 name: document.getElementById('u_name').value.trim(),
                 fname: document.getElementById('u_fname').value.trim(),
-                phone: document.getElementById('u_phone').value.trim(),
+                phone: userPhone,
+                secretPin: secretPin, // ডাটাবেজে পিন সেভ হবে
                 bloodGroup: document.getElementById('u_blood').value,
                 profession: document.getElementById('u_prof').value.trim(),
                 village: document.getElementById('u_vill').value.trim(),
-                upazila: upazilaName,
-                district: districtName,
-                division: divisionName,
-                secretCode: document.getElementById('u_secret').value, // Secret Code Added!
-                profileImageUrl: document.getElementById('profile_url').value,
-                nidImageUrl: document.getElementById('nid_url').value,
+                upazila: document.getElementById('u_thana').value.trim(),
+                district: document.getElementById('u_dist').value.trim(),
+                profileImageUrl: profileUrl,
+                nidImageUrl: nidUrl,
                 timestamp: serverTimestamp()
             };
 
@@ -354,25 +249,18 @@
 
                 await Promise.all(promises);
 
-                finalStatus.style.display = 'block';
-                finalStatus.innerHTML = '<i class="fas fa-check-circle text-2xl mb-2"></i><br>আলহামদুলিল্লাহ! আপনার আবেদন সফলভাবে আমাদের কাছে পৌঁছেছে।';
-                
-                document.getElementById('unifiedForm').reset();
-                document.getElementById('profile_url').value = ""; document.getElementById('nid_url').value = "";
-                document.getElementById('profile_status').innerText = ""; document.getElementById('nid_status').innerText = "";
-                
-                document.getElementById('card_volunteer').classList.replace('border-red-600', 'border-gray-200'); document.getElementById('card_volunteer').classList.remove('bg-red-50');
-                document.getElementById('card_donor').classList.replace('border-red-600', 'border-gray-200'); document.getElementById('card_donor').classList.remove('bg-red-50');
-                document.getElementById('card_member').classList.replace('border-red-600', 'border-gray-200'); document.getElementById('card_member').classList.remove('bg-red-50');
-                
-                setTimeout(() => { toggleDynamicFields(); finalStatus.style.display = 'none'; window.scrollTo({top: 0, behavior: 'smooth'}); }, 6000);
+                // সফল হওয়ার পর পপ-আপ দেখানো
+                document.getElementById('secretCodeDisplay').innerText = secretPin;
+                const modal = document.getElementById('successModal');
+                const content = document.getElementById('successModalContent');
+                modal.classList.remove('hidden');
+                setTimeout(() => { content.classList.remove('scale-95'); }, 10);
 
             } catch(err) {
                 alert("দুঃখিত, একটু সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।"); console.error(err);
-            } finally {
                 btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> আবেদন জমা দিন';
             }
-        };
+        });
     </script>
 </body>
 </html>
