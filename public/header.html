@@ -37,25 +37,49 @@
     }
     .btn-blood-flow:hover::after { background: #fef2f2; }
 
-    /* ================= Live Notice Board Styles (Below Header) ================= */
+    /* ================= আল হুফফাজ স্টাইলের লাইভ নোটিশ বোর্ড ================= */
     .header-live-board {
-        display: flex; align-items: center; background: linear-gradient(to right, #0f172a, #1e293b);
-        width: 100%; height: 38px; box-sizing: border-box; border-bottom: 2px solid #ef4444; overflow: hidden;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(to right, #0f172a, #1e293b);
+        width: 100%;
+        height: 35px;
+        box-sizing: border-box;
+        border-bottom: 1px solid #e2e8f0;
     }
     .header-board-badge {
-        background: #dc2626; color: white; padding: 0 16px; font-weight: 800; font-size: 12px;
-        height: 100%; display: flex; align-items: center; gap: 6px; flex-shrink: 0; white-space: nowrap;
-        box-shadow: 4px 0 10px rgba(0,0,0,0.4); z-index: 2; text-transform: uppercase; letter-spacing: 0.5px;
+        background: #b91c1c;
+        color: white;
+        padding: 0 15px;
+        font-weight: 600;
+        font-size: 13px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        white-space: nowrap;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+        z-index: 2;
     }
-    .header-marquee-wrapper { flex-grow: 1; padding: 0 15px; overflow: hidden; display: flex; align-items: center; height: 100%; }
-    .header-marquee-text { color: #f8fafc; font-size: 13.5px; font-weight: 500; display: flex; align-items: center; }
-    .header-marquee-text span.date { color: #facc15; font-weight: 700; margin-right: 10px; }
-    .header-marquee-text span.divider { color: #475569; margin: 0 12px; }
-    @keyframes ringBell { 
-        0% { transform: rotate(0); } 10% { transform: rotate(20deg); } 20% { transform: rotate(-20deg); } 
-        30% { transform: rotate(15deg); } 40% { transform: rotate(-15deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } 
+    .header-marquee-wrapper {
+        flex-grow: 1;
+        padding: 0 10px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        height: 100%;
     }
-    .bell-icon { animation: ringBell 2s infinite; }
+    .header-marquee-text {
+        color: #f8fafc;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+    .header-marquee-text span.date { color: #facc15; font-weight: 600; margin-right: 8px; }
+    .header-marquee-text span.divider { color: #64748b; margin: 0 10px; }
+    @keyframes ring { 0% { transform: rotate(0); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-15deg); } 30% { transform: rotate(10deg); } 40% { transform: rotate(-10deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } }
 </style>
 
 <!-- Main Header / Navbar -->
@@ -148,9 +172,7 @@
     
     <!-- ================= Live Notification Board ================= -->
     <div class="header-live-board" id="headerLiveBoard" style="display: none;">
-        <div class="header-board-badge">
-            <i class="fas fa-bell bell-icon text-yellow-300"></i> আপডেট নোটিশ
-        </div>
+        <div class="header-board-badge"><i class="fas fa-bell" style="animation: ring 2s infinite;"></i> সর্বশেষ</div>
         <div class="header-marquee-wrapper">
             <marquee width="100%" behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop();" onmouseout="this.start();">
                 <span class="header-marquee-text" id="header-marquee-content"></span>
@@ -158,6 +180,9 @@
         </div>
     </div>
 </header>
+
+<!-- আল হুফফাজের স্ক্রিপ্ট -->
+<script language="JavaScript" src="http://chanpiseththon.mobie.in/js/effect/blinking.js"></script>
 
 <!-- Firebase Live Notice Fetch Script -->
 <script type="module">
@@ -195,7 +220,8 @@
                 // শুধু লাইভ নোটিশগুলো ফিল্টার করে দেখানো হচ্ছে
                 if(notice.isLive === true) {
                     hasLiveNotice = true;
-                    html += `<span class="date">[${notice.date || 'নতুন আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
+                    // আল হুফফাজের হুবহু স্টাইলে ডাটা বসানো হলো
+                    html += `<span class="date">[${notice.date || 'আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
                 }
             });
             
