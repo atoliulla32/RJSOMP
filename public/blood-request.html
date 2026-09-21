@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>জরুরি রক্তের আবেদন | রক্তযোদ্ধা</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans Bengali', sans-serif; background: #f8fafc; }
+        .modal-bg { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); transition: all 0.3s ease; }
+        @keyframes scaleUp { 
+            0% { transform: scale(0.8); opacity: 0; } 
+            100% { transform: scale(1); opacity: 1; } 
+        }
+        .modal-content { animation: scaleUp 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+    
+    <div id="header-placeholder"></div>
+
+    <main class="flex-grow py-12 px-4">
+        <div class="max-w-2xl mx-auto">
+            
+            <!-- পেজ হেডার -->
+            <div class="text-center mb-8">
+                <span class="bg-red-100 text-red-600 font-bold px-4 py-1.5 rounded-full text-xs uppercase tracking-widest border border-red-200 inline-block mb-3">জরুরি সেবা</span>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">রক্তের জরুরি আবেদন ফর্ম</h1>
+                <p class="text-gray-600 text-sm">আপনার রোগীর জন্য জরুরি রক্তের প্রয়োজন হলে নিচের ফর্মটি পূরণ করুন অথবা সরাসরি কল করুন।</p>
+            </div>
+
+            <!-- হটলাইন কল কার্ড -->
+            <div class="bg-red-600 text-white p-6 rounded-2xl shadow-lg mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4 text-center sm:text-left">
+                    <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-2xl mx-auto"><i class="fas fa-phone-volume"></i></div>
+                    <div>
+                        <p class="text-xs font-bold text-red-200 uppercase">জরুরি প্রয়োজনে হটলাইন</p>
+                        <h3 class="text-xl font-extrabold tracking-wide">০১৯১৭০৭৯১৫৬</h3>
+                    </div>
+                </div>
+                <a href="tel:01917079156" class="w-full sm:w-auto bg-white text-red-600 hover:bg-gray-100 font-bold px-6 py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
+                    <i class="fas fa-phone-alt"></i> এখনই কল করুন
+                </a>
+            </div>
+
+            <!-- মূল আবেদন ফর্ম -->
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 md:p-8 space-y-5">
+                <h2 class="text-xl font-extrabold text-gray-800 border-b pb-4"><i class="fas fa-file-medical text-red-500 mr-2"></i> রোগীর বিবরণ প্রদান করুন</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">রোগীর নাম / আবেদনকারী <span class="text-red-500">*</span></label>
+                        <input type="text" id="req_name" placeholder="পূর্ণ নাম লিখুন" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">সচল মোবাইল নাম্বার <span class="text-red-500">*</span></label>
+                        <input type="tel" id="req_phone" placeholder="যেমন: 017XXXXXXXX" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">প্রয়োজনীয় রক্তের গ্রুপ <span class="text-red-500">*</span></label>
+                        <select id="req_blood" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm font-bold text-red-600">
+                            <option value="">গ্রুপ নির্বাচন করুন</option>
+                            <option value="A+">A+</option><option value="A-">A-</option>
+                            <option value="B+">B+</option><option value="B-">B-</option>
+                            <option value="O+">O+</option><option value="O-">O-</option>
+                            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">হাসপাতালের নাম ও ঠিকানা <span class="text-red-500">*</span></label>
+                        <input type="text" id="req_hospital" placeholder="হাসপাতাল ও এলাকার নাম" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">রোগীর সমস্যা বা বিস্তারিত বিবরণ <span class="text-red-500">*</span></label>
+                    <textarea id="req_details" rows="3" placeholder="যেমন: থ্যালাসেমিয়া রোগী, প্রতি মাসে ১ ব্যাগ লাগে / অপারেশন ইত্যাদি..." class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm"></textarea>
+                </div>
+
+                <!-- দুটি পৃথক বাটন (হোয়াটসঅ্যাপ এবং ওয়েবসাইট) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                    <!-- WhatsApp Button -->
+                    <button onclick="sendViaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 text-sm">
+                        <i class="fab fa-whatsapp text-lg"></i> সরাসরি WhatsApp-এ পাঠান
+                    </button>
+                    
+                    <!-- Web Database Button -->
+                    <button onclick="submitToWebDatabase()" id="web_submit_btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-paper-plane"></i> ওয়েবসাইটে আবেদন পাঠান
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ================= প্রিমিয়াম সাকসেস পপআপ মোডাল ================= -->
+    <div id="successModal" class="fixed inset-0 modal-bg z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center modal-content relative">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-4xl mb-4 shadow-inner">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-extrabold text-gray-800 mb-2">আবেদন সফল হয়েছে!</h3>
+            <p class="text-sm text-gray-600 mb-6 leading-relaxed">আপনার রক্তের জরুরি আবেদনটি সফলভাবে ওয়েবসাইটের ডাটাবেজে জমা হয়েছে এবং আমাদের অ্যাডমিন টেলিগ্রাম গ্রুপে নোটিফিকেশন চলে গেছে। খুব শীঘ্রই আপনার সাথে যোগাযোগ করা হবে।</p>
+            <button onclick="closeSuccessModal()" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3.5 rounded-2xl transition shadow-md text-sm">
+                ধন্যবাদ
+            </button>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("header-placeholder").innerHTML = d; });
+            fetch("footer.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("footer-placeholder").innerHTML = d; });
+        });
+
+        const ADMIN_WHATSAPP = "8801917079156"; 
+        const TELEGRAM_BOT_TOKEN = "8871037828:AAF6g8Hj2zI1nEbb8nrHb52gpVLe0rS8AF8";
+        const TELEGRAM_CHAT_ID = "-1004451170012"; 
+
+        function sendViaWhatsApp() {
+            const name = document.getElementById('req_name').value.trim();
+            const phone = document.getElementById('req_phone').value.trim();
+            const blood = document.getElementById('req_blood').value;
+            const hospital = document.getElementById('req_hospital').value.trim();
+            const details = document.getElementById('req_details').value.trim();
+
+            if(!name || !phone || !blood || !hospital || !details) {
+                alert("দয়া করে ফরমের সবগুলো ঘর সঠিকভাবে পূরণ করুন!");
+                return;
+            }
+
+            const msg = encodeURIComponent(
+                `🩸 *জরুরি রক্তের আবেদন* 🩸\n\n` +
+                `👤 *নাম:* ${name}\n` +
+                `📞 *মোবাইল:* ${phone}\n` +
+                `🩸 *রক্তের গ্রুপ:* ${blood}\n` +
+                `🏥 *হাসপাতাল:* ${hospital}\n` +
+                `📝 *সমস্যা:* ${details}`
+            );
+
+            window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`, "_blank");
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+    </script>
+
+    <!-- Firebase Logic for Web Submission & Telegram Alert -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
+            projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const TELEGRAM_BOT_TOKEN = "8871037828:AAF6g8Hj2zI1nEbb8nrHb52gpVLe0rS8AF8";
+        const TELEGRAM_CHAT_ID = "-1004451170012";
+
+        window.submitToWebDatabase = async () => {
+            const name = document.getElementById('req_name').value.trim();
+            const phone = document.getElementById('req_phone').value.trim();
+            const blood = document.getElementById('req_blood').value;
+            const hospital = document.getElementById('req_hospital').value.trim();
+            const details = document.getElementById('req_details').value.trim();
+            const btn = document.getElementById('web_submit_btn');
+
+            if(!name || !phone || !blood || !hospital || !details) {
+                alert("দয়া করে ফরমের সবগুলো ঘর সঠিকভাবে পূরণ করুন!");
+                return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> পাঠানো হচ্ছে...'; 
+            btn.disabled = true;
+
+            try {
+                // ১. ফায়ারবেসে blood_requests টেবিলে সেভ
+                await addDoc(collection(db, "blood_requests"), {
+                    patientName: name, 
+                    contactPhone: phone, 
+                    bloodGroup: blood,
+                    hospital: hospital, 
+                    problemDetails: details,
+                    requestedDonor: "জরুরি সাধারণ আবেদন", 
+                    status: "Pending", 
+                    timestamp: serverTimestamp()
+                });
+
+                // ২. টেলিগ্রাম বটে অ্যালার্ট পাঠানো
+                const teleMsg = `🔴 *ওয়েবসাইট থেকে নতুন রক্তের আবেদন!*\n\n` +
+                                `👤 *নাম:* ${name}\n` +
+                                `📞 *মোবাইল:* ${phone}\n` +
+                                `🩸 *গ্রুপ:* ${blood}\n` +
+                                `🏥 *হাসপাতাল:* ${hospital}\n` +
+                                `📝 *সমস্যা:* ${details}`;
+
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: teleMsg, parse_mode: "Markdown" })
+                });
+
+                // ৩. সুন্দর সাকসেস পপআপ দেখানো
+                document.getElementById('successModal').classList.remove('hidden');
+                
+                // ফরম খালি করা
+                document.getElementById('req_name').value = "";
+                document.getElementById('req_phone').value = "";
+                document.getElementById('req_blood').value = "";
+                document.getElementById('req_hospital').value = "";
+                document.getElementById('req_details').value = "";
+
+            } catch(e) {
+                alert("দুঃখিত, আবেদন পাঠাতে সমস্যা হয়েছে! আবার চেষ্টা করুন।"); 
+                console.error(e);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> ওয়েবসাইটে আবেদন পাঠান'; 
+                btn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
