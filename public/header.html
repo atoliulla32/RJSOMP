@@ -17,141 +17,196 @@
         95% { opacity: 1; transform: scale(1) translateY(0); }
         100% { opacity: 0; transform: scale(0.8) translateY(-10px); }
     }
-    .auto-dancing-tooltip {
-        animation: autoTooltipDance 7s infinite ease-in-out;
-    }
+    .auto-dancing-tooltip { animation: autoTooltipDance 7s infinite ease-in-out; }
 
     /* Blood Flow Border Animation */
-    @keyframes bloodFlow {
-        100% { transform: rotate(360deg); }
-    }
+    @keyframes bloodFlow { 100% { transform: rotate(360deg); } }
     .btn-blood-flow {
-        position: relative;
-        overflow: hidden;
-        border-radius: 0.75rem; 
-        z-index: 1;
-        color: #dc2626; /* Red text */
-        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        position: relative; overflow: hidden; border-radius: 0.75rem; 
+        z-index: 1; color: #dc2626; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
     }
     .btn-blood-flow::before {
-        content: '';
-        position: absolute;
+        content: ''; position: absolute;
         top: -150%; left: -150%; right: -150%; bottom: -150%;
-        /* রক্তের কালার গ্রেডিয়েন্ট: হালকা থেকে গাঢ় লাল */
         background: conic-gradient(from 0deg, transparent 60%, rgba(239, 68, 68, 0.4) 75%, #dc2626 90%, #7f1d1d 100%);
-        animation: bloodFlow 1.5s linear infinite;
-        z-index: -2;
+        animation: bloodFlow 1.5s linear infinite; z-index: -2;
     }
     .btn-blood-flow::after {
-        content: '';
-        position: absolute;
-        inset: 2.5px; /* রক্তের প্রবাহের পুরুত্ব */
-        background: #ffffff;
-        border-radius: 0.65rem;
-        z-index: -1;
-        transition: background 0.3s;
+        content: ''; position: absolute; inset: 2.5px; 
+        background: #ffffff; border-radius: 0.65rem; z-index: -1; transition: background 0.3s;
     }
-    .btn-blood-flow:hover::after {
-        background: #fef2f2; /* Hover-এ হালকা লালচে সাদা */
+    .btn-blood-flow:hover::after { background: #fef2f2; }
+
+    /* ================= Live Notice Board Styles ================= */
+    .header-live-board {
+        display: flex; align-items: center; background: linear-gradient(to right, #0f172a, #1e293b);
+        width: 100%; height: 38px; box-sizing: border-box; border-bottom: 2px solid #ef4444; overflow: hidden;
     }
+    .header-board-badge {
+        background: #dc2626; color: white; padding: 0 16px; font-weight: 800; font-size: 12px;
+        height: 100%; display: flex; align-items: center; gap: 6px; flex-shrink: 0; white-space: nowrap;
+        box-shadow: 4px 0 10px rgba(0,0,0,0.4); z-index: 2; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .header-marquee-wrapper { flex-grow: 1; padding: 0 15px; overflow: hidden; display: flex; align-items: center; height: 100%; }
+    .header-marquee-text { color: #f8fafc; font-size: 13.5px; font-weight: 500; display: flex; align-items: center; }
+    .header-marquee-text span.date { color: #facc15; font-weight: 700; margin-right: 10px; }
+    .header-marquee-text span.divider { color: #475569; margin: 0 12px; }
+    @keyframes ringBell { 
+        0% { transform: rotate(0); } 10% { transform: rotate(20deg); } 20% { transform: rotate(-20deg); } 
+        30% { transform: rotate(15deg); } 40% { transform: rotate(-15deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } 
+    }
+    .bell-icon { animation: ringBell 2s infinite; }
 </style>
 
 <!-- Main Header / Navbar -->
-<nav class="bg-white/95 backdrop-blur-md shadow-md sticky top-0 z-50 border-b-[3px] border-red-600 transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        
-        <!-- Logo & Brand Name -->
-        <a href="/" class="flex items-center gap-3 group">
-            <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" 
-                 alt="RJSOMP Logo" 
-                 class="h-11 w-11 md:h-12 md:w-12 rounded-full object-cover shadow-sm border border-red-100 group-hover:scale-105 transition-transform duration-300">
-            <div class="flex flex-col justify-center">
-                <h1 class="text-xl md:text-2xl font-extrabold text-red-600 tracking-tight leading-none mb-1">রক্তযোদ্ধা</h1>
-                <p class="text-[9px] md:text-[10px] text-gray-600 font-bold uppercase tracking-widest leading-none">সমাজ ও মানব কল্যাণ পরিষদ</p>
-            </div>
-        </a>
-
-        <!-- Desktop Menu -->
-        <div class="hidden xl:flex items-center gap-6 font-bold text-gray-700 text-[13.5px] tracking-wide">
-            <a href="/" class="text-red-600 hover:text-red-800 transition">হোম</a>
-            <a href="about" class="hover:text-red-600 transition">আমাদের সম্পর্কে</a>
-            <a href="activities" class="hover:text-red-600 transition">কার্যক্রম</a>
-            <a href="gallery" class="hover:text-red-600 transition">নিউজ ও গ্যালারি</a>
+<header class="sticky top-0 z-50">
+    
+    <!-- ================= Live Notification Board ================= -->
+    <div class="header-live-board" id="headerLiveBoard">
+        <div class="header-board-badge">
+            <i class="fas fa-bell bell-icon text-yellow-300"></i> আপডেট নোটিশ
         </div>
-
-        <!-- Desktop CTA Buttons -->
-        <div class="hidden xl:flex items-center gap-3">
-            <a href="https://api.betadrop.app/api/guest/download/ReiHQk" class="bg-green-50 text-green-600 border border-green-200 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-green-100 transition shadow-sm hover:shadow-md flex items-center gap-2">
-                <i class="fa-brands fa-android text-lg"></i> অ্যাপ ডাউনলোড
-            </a>
-            
-            <!-- আমাদের সাথে যুক্ত হোন (রক্তের আইকন সহ) -->
-            <a href="join-us" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-700 transition shadow-sm hover:shadow-md flex items-center gap-2">
-                <i class="fa-solid fa-droplet text-lg"></i> আমাদের সাথে যুক্ত হোন
-            </a>
-            
-            <!-- রক্তের প্রবাহ অ্যানিমেশন বাটন -->
-            <a href="donation" class="btn-blood-flow px-5 py-2.5 font-bold text-sm flex items-center gap-2">
-                <i class="fa-solid fa-hand-holding-dollar text-lg text-red-600"></i> সহযোগিতা করুন
-            </a>
-        </div>
-
-        <!-- Mobile Actions (Download App & Menu Toggle) -->
-        <div class="flex items-center gap-2.5 xl:hidden">
-            
-            <!-- App Download Button & Dancing Popup Tooltip -->
-            <div class="relative flex items-center justify-center mt-1">
-                <div class="auto-dancing-tooltip absolute top-[46px] right-0 bg-red-600 text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl shadow-2xl w-max pointer-events-none z-50 opacity-0">
-                    রক্তযোদ্ধা অ্যাপ ডাউনলোড করুন
-                    <div class="absolute -top-1.5 right-[13px] border-b-[6px] border-b-red-600 border-x-[6px] border-x-transparent"></div>
-                </div>
-                
-                <a href="https://api.betadrop.app/api/guest/download/ReiHQk" 
-                   class="bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 h-[38px] w-[38px] flex justify-center items-center rounded-xl shadow-sm transition active:scale-95">
-                    <i class="fa-brands fa-android text-xl"></i>
-                </a>
-            </div>
-
-            <!-- Mobile Menu Toggle Button -->
-            <button onclick="var m=document.getElementById('mobile-menu'),i=document.getElementById('mobile-menu-icon'); m.classList.toggle('hidden'); if(m.classList.contains('hidden')){i.classList.remove('fa-xmark','text-red-600');i.classList.add('fa-bars','text-gray-800');i.style.transform='rotate(0deg)';}else{i.classList.remove('fa-bars','text-gray-800');i.classList.add('fa-xmark','text-red-600');i.style.transform='rotate(90deg)';}" class="text-gray-800 text-2xl focus:outline-none p-2 h-[38px] w-[38px] flex items-center justify-center rounded-xl hover:bg-gray-100 transition active:scale-95">
-                <i id="mobile-menu-icon" class="fa-solid fa-bars transition-transform duration-300"></i>
-            </button>
-            
+        <div class="header-marquee-wrapper">
+            <marquee width="100%" behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop();" onmouseout="this.start();">
+                <span class="header-marquee-text" id="header-marquee-content">
+                    <span class="date"><i class="fas fa-spinner fa-spin"></i></span> লোড হচ্ছে...
+                </span>
+            </marquee>
         </div>
     </div>
 
-    <!-- Mobile Menu (Glassmorphism Frosted Glass Style) -->
-    <!-- bg-white/70 এবং backdrop-blur-xl দিয়ে সুন্দর ঝাপসা পর্দার ইফেক্ট তৈরি করা হয়েছে -->
-    <div id="mobile-menu" class="hidden xl:hidden bg-white/70 backdrop-blur-xl border-t border-gray-200 shadow-2xl absolute w-full left-0 origin-top pb-6 min-h-[50vh]">
-        <div class="flex flex-col px-5 py-6 font-bold text-gray-800 text-[15px] space-y-3.5">
+    <!-- Navigation Bar -->
+    <nav class="bg-white/95 backdrop-blur-md shadow-md border-b-[3px] border-red-600 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             
-            <!-- Separated 3D Menu Items (White Cards) -->
-            <a href="/" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 text-red-600 hover:shadow-md transition active:scale-95">
-                <i class="fa-solid fa-house w-8 text-center text-lg"></i> হোম
+            <!-- Logo & Brand Name -->
+            <a href="/" class="flex items-center gap-3 group">
+                <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" 
+                     alt="RJSOMP Logo" 
+                     class="h-11 w-11 md:h-12 md:w-12 rounded-full object-cover shadow-sm border border-red-100 group-hover:scale-105 transition-transform duration-300">
+                <div class="flex flex-col justify-center">
+                    <h1 class="text-xl md:text-2xl font-extrabold text-red-600 tracking-tight leading-none mb-1">রক্তযোদ্ধা</h1>
+                    <p class="text-[9px] md:text-[10px] text-gray-600 font-bold uppercase tracking-widest leading-none">সমাজ ও মানব কল্যাণ পরিষদ</p>
+                </div>
             </a>
-            
-            <a href="about" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95">
-                <i class="fa-solid fa-circle-info w-8 text-center text-lg"></i> আমাদের সম্পর্কে
-            </a>
-            
-            <a href="activities" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95">
-                <i class="fa-solid fa-briefcase w-8 text-center text-lg"></i> কার্যক্রম
-            </a>
-            
-            <a href="gallery" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95">
-                <i class="fa-regular fa-images w-8 text-center text-lg"></i> নিউজ ও গ্যালারি
-            </a>
-            
-            <!-- Mobile CTA Buttons -->
-            <div class="flex flex-col gap-4 mt-5 pt-5 border-t border-gray-200">
-                <a href="join-us" class="bg-red-600 text-white text-center px-4 py-4 rounded-xl font-bold text-base hover:bg-red-700 shadow-lg flex justify-center items-center gap-2 transition active:scale-95">
+
+            <!-- Desktop Menu -->
+            <div class="hidden xl:flex items-center gap-6 font-bold text-gray-700 text-[13.5px] tracking-wide">
+                <a href="/" class="text-red-600 hover:text-red-800 transition">হোম</a>
+                <a href="about" class="hover:text-red-600 transition">আমাদের সম্পর্কে</a>
+                <a href="activities" class="hover:text-red-600 transition">কার্যক্রম</a>
+                <a href="gallery" class="hover:text-red-600 transition">নিউজ ও গ্যালারি</a>
+            </div>
+
+            <!-- Desktop CTA Buttons -->
+            <div class="hidden xl:flex items-center gap-3">
+                <a href="https://api.betadrop.app/api/guest/download/ReiHQk" class="bg-green-50 text-green-600 border border-green-200 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-green-100 transition shadow-sm hover:shadow-md flex items-center gap-2">
+                    <i class="fa-brands fa-android text-lg"></i> অ্যাপ ডাউনলোড
+                </a>
+                
+                <a href="join-us" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-700 transition shadow-sm hover:shadow-md flex items-center gap-2">
                     <i class="fa-solid fa-droplet text-lg"></i> আমাদের সাথে যুক্ত হোন
                 </a>
                 
-                <a href="donation" class="btn-blood-flow text-center px-4 py-4 font-bold text-base flex justify-center items-center gap-2 transition active:scale-95">
+                <a href="donation" class="btn-blood-flow px-5 py-2.5 font-bold text-sm flex items-center gap-2">
                     <i class="fa-solid fa-hand-holding-dollar text-lg text-red-600"></i> সহযোগিতা করুন
                 </a>
             </div>
+
+            <!-- Mobile Actions -->
+            <div class="flex items-center gap-2.5 xl:hidden">
+                <div class="relative flex items-center justify-center mt-1">
+                    <div class="auto-dancing-tooltip absolute top-[46px] right-0 bg-red-600 text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl shadow-2xl w-max pointer-events-none z-50 opacity-0">
+                        রক্তযোদ্ধা অ্যাপ ডাউনলোড করুন
+                        <div class="absolute -top-1.5 right-[13px] border-b-[6px] border-b-red-600 border-x-[6px] border-x-transparent"></div>
+                    </div>
+                    
+                    <a href="https://api.betadrop.app/api/guest/download/ReiHQk" 
+                       class="bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 h-[38px] w-[38px] flex justify-center items-center rounded-xl shadow-sm transition active:scale-95">
+                        <i class="fa-brands fa-android text-xl"></i>
+                    </a>
+                </div>
+
+                <button onclick="var m=document.getElementById('mobile-menu'),i=document.getElementById('mobile-menu-icon'); m.classList.toggle('hidden'); if(m.classList.contains('hidden')){i.classList.remove('fa-xmark','text-red-600');i.classList.add('fa-bars','text-gray-800');i.style.transform='rotate(0deg)';}else{i.classList.remove('fa-bars','text-gray-800');i.classList.add('fa-xmark','text-red-600');i.style.transform='rotate(90deg)';}" class="text-gray-800 text-2xl focus:outline-none p-2 h-[38px] w-[38px] flex items-center justify-center rounded-xl hover:bg-gray-100 transition active:scale-95">
+                    <i id="mobile-menu-icon" class="fa-solid fa-bars transition-transform duration-300"></i>
+                </button>
+            </div>
         </div>
-    </div>
-</nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden xl:hidden bg-white/70 backdrop-blur-xl border-t border-gray-200 shadow-2xl absolute w-full left-0 origin-top pb-6 min-h-[50vh]">
+            <div class="flex flex-col px-5 py-6 font-bold text-gray-800 text-[15px] space-y-3.5">
+                <a href="/" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 text-red-600 hover:shadow-md transition active:scale-95">
+                    <i class="fa-solid fa-house w-8 text-center text-lg"></i> হোম
+                </a>
+                <a href="about" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95">
+                    <i class="fa-solid fa-circle-info w-8 text-center text-lg"></i> আমাদের সম্পর্কে
+                </a>
+                <a href="activities" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95">
+                    <i class="fa-solid fa-briefcase w-8 text-center text-lg"></i> কার্যক্রম
+                </a>
+                <a href="gallery" class="flex items-center bg-white/95 p-4 rounded-xl shadow-sm border border-gray-100 hover:text-red-600 hover:shadow-md transition active:scale-95">
+                    <i class="fa-regular fa-images w-8 text-center text-lg"></i> নিউজ ও গ্যালারি
+                </a>
+                
+                <div class="flex flex-col gap-4 mt-5 pt-5 border-t border-gray-200">
+                    <a href="join-us" class="bg-red-600 text-white text-center px-4 py-4 rounded-xl font-bold text-base hover:bg-red-700 shadow-lg flex justify-center items-center gap-2 transition active:scale-95">
+                        <i class="fa-solid fa-droplet text-lg"></i> আমাদের সাথে যুক্ত হোন
+                    </a>
+                    <a href="donation" class="btn-blood-flow text-center px-4 py-4 font-bold text-base flex justify-center items-center gap-2 transition active:scale-95">
+                        <i class="fa-solid fa-hand-holding-dollar text-lg text-red-600"></i> সহযোগিতা করুন
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Firebase Live Notice Fetch Script -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Your blood donation website Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+      authDomain: "rjsomp.firebaseapp.com",
+      databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "rjsomp",
+      storageBucket: "rjsomp.firebasestorage.app",
+      messagingSenderId: "1033528754332",
+      appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fetch live notices from Firestore
+    function loadLiveNotices() {
+        const marqueeContent = document.getElementById('header-marquee-content');
+        
+        // এখানে আপনার ডাটাবেজের নোটিশ টেবিলের নাম দেবেন (যেমন: "notices" বা "news")
+        const q = query(collection(db, "notices"), where("isLive", "==", true), orderBy("timestamp", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            if (snapshot.empty) {
+                document.getElementById('headerLiveBoard').style.display = 'none'; // নোটিশ না থাকলে বোর্ড হাইড হবে
+                return;
+            }
+
+            document.getElementById('headerLiveBoard').style.display = 'flex'; // নোটিশ থাকলে বোর্ড শো হবে
+            let html = '';
+            
+            snapshot.forEach((doc) => {
+                const notice = doc.data();
+                html += `<span class="date">[${notice.date || 'নতুন আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
+            });
+            
+            marqueeContent.innerHTML = html;
+        }, (error) => {
+            console.error("Notice Load Error: ", error);
+        });
+    }
+
+    loadLiveNotices();
+</script>
