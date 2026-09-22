@@ -282,10 +282,57 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("header-placeholder").innerHTML = d; });
+            fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { 
+                if(d) {
+                    document.getElementById("header-placeholder").innerHTML = d;
+                    initLiveNoticeBoard(); 
+                } 
+            });
             fetch("footer.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("footer-placeholder").innerHTML = d; });
             loadFirebaseData();
         });
+
+        function initLiveNoticeBoard() {
+            const headerBoard = document.getElementById('headerLiveBoard');
+            const marqueeContent = document.getElementById('header-marquee-content');
+            if (!headerBoard || !marqueeContent) return;
+
+            headerBoard.style.display = 'flex';
+            marqueeContent.innerHTML = '<span class="date"><i class="fas fa-spinner fa-spin"></i></span> লোড হচ্ছে...';
+
+            fetch('https://firestore.googleapis.com/v1/projects/rjsomp/databases/(default)/documents:runQuery?key=AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    structuredQuery: {
+                        from: [{ collectionId: "notices" }],
+                        orderBy: [{ field: { fieldPath: "timestamp" }, direction: "DESCENDING" }]
+                    }
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                let html = '';
+                let hasLive = false;
+                if (data && data.length > 0 && data[0].document) {
+                    data.forEach(item => {
+                        if(item.document && item.document.fields) {
+                            const fields = item.document.fields;
+                            if (fields.isLive && fields.isLive.booleanValue === true) {
+                                hasLive = true;
+                                const title = fields.title ? fields.title.stringValue : '';
+                                const date = fields.date ? fields.date.stringValue : 'আপডেট';
+                                const desc = fields.description ? fields.description.stringValue : '';
+                                html += `<span class="date">[${date}]</span> ${title} ${desc ? ' - ' + desc.replace(/\n/g, ' ') : ''} <span class="divider">||</span> `;
+                            }
+                        }
+                    });
+                }
+                if (hasLive) { headerBoard.style.display = 'flex'; marqueeContent.innerHTML = html; } 
+                else { headerBoard.style.display = 'none'; }
+            })
+            .catch(err => { headerBoard.style.display = 'none'; });
+        }
     </script>
 
     <script type="module">
