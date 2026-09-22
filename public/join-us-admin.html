@@ -17,7 +17,9 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); }
     </style>
-    <script type="module" src="admin-auth.js"></script>
+
+    <!-- সিকিউরিটির জন্য পেজ লোড হওয়ার আগেই পুরো পেজ লুকিয়ে ফেলা হলো -->
+    <script> document.documentElement.style.display = 'none'; </script>
 </head>
 <body class="p-3 sm:p-8 relative">
 
@@ -35,6 +37,7 @@
             </div>
         </div>
 
+        <!-- Tabs -->
         <div class="bg-white p-1.5 rounded-xl shadow-sm border border-gray-100 mb-6 flex justify-between gap-1">
             <button onclick="changeTab('volunteers')" id="tab-volunteers" class="admin-tab active flex-1 py-2 px-1 rounded-lg font-bold text-gray-600 text-[11px] md:text-sm flex flex-col items-center justify-center gap-1">
                 <i class="fas fa-hand-holding-heart text-lg"></i> <span class="leading-none">স্বেচ্ছাসেবক</span>
@@ -63,9 +66,11 @@
             </div>
         </div>
 
+        <!-- Data Grid -->
         <div id="data-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
     </div>
 
+    <!-- Edit Modal -->
     <div id="editModal" class="fixed inset-0 modal-bg z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="editModalContent">
             <div class="bg-gray-50 border-b border-gray-200 p-4 flex justify-between items-center">
@@ -105,6 +110,7 @@
         </div>
     </div>
 
+    <!-- NID Modal -->
     <div id="nidModal" class="fixed inset-0 modal-bg z-[100] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-4 transform scale-95 transition-transform duration-300" id="nidModalContent">
             <div class="flex justify-between items-center mb-3 border-b border-gray-100 pb-2">
@@ -125,25 +131,42 @@
         </div>
     </div>
 
+    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white px-5 py-3 rounded-lg font-bold shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 z-[200] text-sm">
         <i class="fas fa-check-circle text-green-400 mr-2"></i> তথ্য কপি করা হয়েছে!
     </div>
 
+    <!-- Firebase Logic & Inline Authentication -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        // ডাবল ইনিশিয়ালাইজেশন এড়ানোর জন্য getApps এবং getApp যুক্ত করা হয়েছে
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, getDocs, deleteDoc, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
             projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
         };
-        const app = initializeApp(firebaseConfig); 
+        
+        // ফিক্স: যদি ফায়ারবেস আগে থেকেই চালু থাকে, তাহলে নতুন করে চালু করবে না
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+        const auth = getAuth(app);
         const db = getFirestore(app);
         
         let currentCollection = 'volunteers';
         let allDataSnapshot = []; 
 
-        document.addEventListener("DOMContentLoaded", () => { window.loadData(currentCollection); });
+        // ================= ইনলাইন সিকিউরিটি / লগইন চেক =================
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // লগইন করা থাকলে পেজটি দৃশ্যমান হবে এবং ডাটা লোড হবে
+                document.documentElement.style.display = '';
+                window.loadData(currentCollection);
+            } else {
+                // লগইন না থাকলে সরাসরি মেইন অ্যাডমিন প্যানেলে পাঠিয়ে দেবে
+                window.top.location.href = "admin.html";
+            }
+        });
 
         function convertToEngNumber(bnNum) {
             if(!bnNum) return "";
@@ -193,7 +216,6 @@
 
             const filteredData = allDataSnapshot.filter(d => {
                 const matchBlood = (bloodGroup === 'all' || d.bloodGroup === bloodGroup);
-                // গোপন কোড (secretCode) যুক্ত করা হলো ফিল্টারিং এ
                 const searchString = `${d.name} ${d.phone} ${d.village} ${d.upazila} ${d.district} ${d.secretCode || ''}`.toLowerCase();
                 const matchSearch = searchString.includes(searchText);
                 return matchBlood && matchSearch;
@@ -369,7 +391,7 @@
             const newData = {
                 name: document.getElementById('e_name').value,
                 phone: document.getElementById('e_phone').value,
-                secretCode: document.getElementById('e_secret').value, // Secret Code updated in database
+                secretCode: document.getElementById('e_secret').value, 
                 bloodGroup: document.getElementById('e_blood').value,
                 profession: document.getElementById('e_prof').value,
                 village: document.getElementById('e_vill').value,
