@@ -134,20 +134,20 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 bg-gray-50 rounded-xl border border-red-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 bg-gray-50 rounded-xl border border-gray-200">
                     <div>
-                        <!-- নিজের ছবিকে ঐচ্ছিক (Optional) করা হয়েছে -->
-                        <label class="block font-bold text-gray-700 mb-1"><i class="fas fa-camera text-blue-500"></i> আপনার ছবি <span class="text-gray-400 text-sm font-normal">(ঐচ্ছিক)</span>
-                            <span class="tooltip-icon"><i class="fas fa-info-circle"></i><span class="tooltip-text">আপনার একটি পরিষ্কার পাসপোর্ট সাইজ বা সুন্দর ছবি নির্বাচন করুন।</span></span>
+                        <!-- নিজের ছবিকে সম্পূর্ণ ঐচ্ছিক করা হয়েছে -->
+                        <label class="block font-bold text-gray-700 mb-1"><i class="fas fa-camera text-blue-500"></i> আপনার ছবি <span class="text-gray-500 text-sm font-normal">(ঐচ্ছিক)</span>
+                            <span class="tooltip-icon"><i class="fas fa-info-circle"></i><span class="tooltip-text">আপনার একটি পরিষ্কার পাসপোর্ট সাইজ বা সুন্দর ছবি নির্বাচন করতে পারেন। এটি বাধ্যতামূলক নয়।</span></span>
                         </label>
                         <input type="file" accept="image/*" onchange="autoUploadFile(this, 'profile_url', 'profile_status')" class="w-full p-2 border border-gray-300 bg-white rounded-lg text-sm">
                         <input type="hidden" id="profile_url">
                         <div id="profile_status" class="text-sm font-bold mt-1 text-gray-500"></div>
                     </div>
                     <div>
-                        <!-- এনআইডি ছবিকে ঐচ্ছিক (Optional) রাখা হয়েছে -->
-                        <label class="block font-bold text-gray-700 mb-1"><i class="fas fa-id-card text-blue-500"></i> এনআইডি/জন্ম নিবন্ধন ছবি <span class="text-gray-400 text-sm font-normal">(ঐচ্ছিক)</span>
-                            <span class="tooltip-icon"><i class="fas fa-info-circle"></i><span class="tooltip-text">পরিচয় যাচাইয়ের জন্য এটি দিতে পারেন। আপনার তথ্যের সর্বোচ্চ নিরাপত্তা আমরা নিশ্চিত করছি।</span></span>
+                        <!-- এনআইডি ছবিকেও সম্পূর্ণ ঐচ্ছিক রাখা হয়েছে -->
+                        <label class="block font-bold text-gray-700 mb-1"><i class="fas fa-id-card text-blue-500"></i> এনআইডি/জন্ম নিবন্ধন ছবি <span class="text-gray-500 text-sm font-normal">(ঐচ্ছিক)</span>
+                            <span class="tooltip-icon"><i class="fas fa-info-circle"></i><span class="tooltip-text">পরিচয় যাচাইয়ের জন্য এটি দিতে পারেন। এটিও বাধ্যতামূলক নয়।</span></span>
                         </label>
                         <input type="file" accept="image/*" onchange="autoUploadFile(this, 'nid_url', 'nid_status')" class="w-full p-2 border border-gray-300 bg-white rounded-lg text-sm">
                         <input type="hidden" id="nid_url">
@@ -182,6 +182,7 @@
 
     <div id="footer-placeholder"></div>
 
+    <script src="script.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { 
@@ -194,7 +195,6 @@
             loadDivisions();
         });
 
-        // 🔴 হান্টার টাইমার সহ নোটিশ বোর্ড
         function initLiveNoticeBoard() {
             const checkInterval = setInterval(() => {
                 const headerBoard = document.getElementById('headerLiveBoard');
@@ -462,7 +462,7 @@
                 upazila: upazilaName,
                 district: districtName,
                 division: divisionName,
-                profileImageUrl: profileUrl, // ঐচ্ছিক (ফাঁকা থাকলেও সমস্যা নেই)
+                profileImageUrl: profileUrl, // ঐচ্ছিক 
                 nidImageUrl: nidUrl, // ঐচ্ছিক
                 timestamp: serverTimestamp()
             };
