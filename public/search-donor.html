@@ -365,6 +365,7 @@
             renderDonors(filtered);
         };
 
+        // 🔴 কম্প্যাক্ট স্কয়ার কার্ড রেন্ডার (উপযোগী/অনুপযোগী ব্যাজ সহ)
         window.renderDonors = (dataArray) => {
             const grid = document.getElementById('donors_grid');
             if(dataArray.length === 0) { grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500 font-bold text-sm">কোনো রক্তদাতা পাওয়া যায়নি।</div>`; return; }
@@ -411,7 +412,7 @@
                         
                         <!-- বাঁ-পাশে উপযোগী/অনুপযোগী ট্যাগ -->
                         <div class="absolute top-0 left-0 ${eligibilityClass} font-bold text-[8px] sm:text-[9px] px-1.5 py-1 rounded-br-xl border-b border-r z-10 shadow-sm flex items-center gap-1">
-                            ${eligibilityIcon} <span>${eligibilityText}</span>
+                            ${eligibilityIcon} <span class="ml-0.5">${eligibilityText}</span>
                         </div>
 
                         <!-- ডান-পাশে রক্তের গ্রুপ -->
@@ -448,7 +449,6 @@
             document.getElementById('req_donor_id').value = id;
             document.getElementById('req_donor_name').value = `${name} (${bg})`;
             
-            // পিনের বদলে ডোনারের এলাকা সেট করা হচ্ছে
             const areaText = `${upa ? upa + ', ' : ''}${dist}`;
             document.getElementById('req_donor_area').value = areaText;
             
@@ -486,6 +486,7 @@
             const hospital = document.getElementById('req_hospital').value.trim();
             const targetDonor = document.getElementById('req_donor_name').value;
             const eligibility = document.getElementById('req_donor_eligibility').value;
+            const donorId = document.getElementById('req_donor_id').value; // 🔴 আসল ডোনার আইডি রিসিভ করা হলো
             const btn = document.getElementById('req_submit_btn');
 
             if(!problem || !hospital || !name || !phone) {
@@ -496,8 +497,16 @@
 
             try {
                 const finalHospitalInfo = `${hospital} (সমস্যা: ${problem}) [অবস্থা: ${eligibility}]`;
+                
+                // 🔴 donorId ডাটাবেজে সেভ করা হলো
                 await addDoc(collection(db, "blood_requests"), {
-                    patientName: name, contactPhone: phone, hospital: finalHospitalInfo, requestedDonor: targetDonor, status: "Pending", timestamp: serverTimestamp()
+                    patientName: name, 
+                    contactPhone: phone, 
+                    hospital: finalHospitalInfo, 
+                    requestedDonor: targetDonor, 
+                    donorId: donorId, 
+                    status: "Pending", 
+                    timestamp: serverTimestamp()
                 });
 
                 const teleMsg = `🔴 *নতুন রক্তের রিকোয়েস্ট!*\n\n*ডোনার:* ${targetDonor}\n*বর্তমান অবস্থা:* ${eligibility}\n*সমস্যা:* ${problem}\n*হাসপাতাল:* ${hospital}\n*রোগীর লোক:* ${name}\n*মোবাইল:* ${phone}`;
