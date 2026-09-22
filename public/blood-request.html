@@ -122,9 +122,7 @@
         });
 
         const ADMIN_WHATSAPP = "8801917079156"; 
-        const TELEGRAM_BOT_TOKEN = "8871037828:AAF6g8Hj2zI1nEbb8nrHb52gpVLe0rS8AF8";
-        const TELEGRAM_CHAT_ID = "-1004451170012"; 
-
+        
         function sendViaWhatsApp() {
             const name = document.getElementById('req_name').value.trim();
             const phone = document.getElementById('req_phone').value.trim();
@@ -166,6 +164,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // 🔴 আপনার দেওয়া নতুন টেলিগ্রাম চ্যাট আইডি আপডেট করা হলো
         const TELEGRAM_BOT_TOKEN = "8871037828:AAF6g8Hj2zI1nEbb8nrHb52gpVLe0rS8AF8";
         const TELEGRAM_CHAT_ID = "-1004451170012";
 
