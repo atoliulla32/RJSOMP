@@ -44,6 +44,8 @@
         .sig-box h4 { font-family: 'Tiro Bangla', serif; font-size: 16px; font-weight: bold; color: #0a1f3d; margin: 0; }
         .sig-box p { font-family: 'Cinzel', serif; font-size: 10px; color: #555; margin: 2px 0 0 0; }
     </style>
+    
+    <!-- ইনলাইন সিকিউরিটি: পেজ লোড হওয়ার আগেই পুরো পেজ লুকিয়ে ফেলা হলো -->
     <script> document.documentElement.style.display = 'none'; </script>
 </head>
 <body class="p-4 sm:p-8">
@@ -141,12 +143,10 @@
             </div>
         </div>
     </div>
-
-    <!-- Security Script -->
-    <script type="module" src="admin-auth.js"></script> 
     
+    <!-- Firebase Logic & Inline Auth -->
     <script type="module">
-        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -155,19 +155,27 @@
             projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
         };
         
-        const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+        const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // ================= ইনলাইন সিকিউরিটি / লগইন চেক =================
         onAuthStateChanged(auth, (user) => {
-            if (user) { document.documentElement.style.display = ''; loadCertificates(); } 
-            else { window.top.location.href = "admin.html"; }
+            if (user) { 
+                document.documentElement.style.display = ''; 
+                loadCertificates(); 
+            } 
+            else { 
+                window.top.location.href = "admin.html"; 
+            }
         });
 
+        // ================= অটোমেটিক ডেট এবং আইডি জেনারেট =================
         document.getElementById('cert_date').valueAsDate = new Date();
         const generateId = () => "CERT-" + Math.floor(1000 + Math.random() * 9000);
         document.getElementById('cert_id').value = generateId();
 
+        // ================= ডাটাবেজ থেকে লোড =================
         window.loadCertificates = async () => {
             const listDiv = document.getElementById('cert_list');
             try {
@@ -187,17 +195,17 @@
                                 <p class="text-xs font-bold text-gray-400 mt-0.5"><i class="fas fa-calendar-alt text-blue-400"></i> ${data.date} &nbsp; | &nbsp; <span class="text-red-600 font-mono">${data.certId}</span></p>
                             </div>
                             
-                            <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto">
-                                <button onclick="processDownload('pdf', '${data.certId}', '${data.name}', '${data.program}', '${data.date}')" class="flex-1 sm:flex-none bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
+                            <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto mt-2 xl:mt-0">
+                                <button onclick="processDownload('pdf', '${data.certId}', '${data.name}', '${data.program}', '${data.date}')" class="flex-1 sm:flex-none bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white px-3 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
                                     <i class="fas fa-file-pdf"></i> PDF
                                 </button>
-                                <button onclick="processDownload('img', '${data.certId}', '${data.name}', '${data.program}', '${data.date}')" class="flex-1 sm:flex-none bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
+                                <button onclick="processDownload('img', '${data.certId}', '${data.name}', '${data.program}', '${data.date}')" class="flex-1 sm:flex-none bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white px-3 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
                                     <i class="fas fa-image"></i> JPG
                                 </button>
-                                <button onclick="shareWhatsApp('${data.certId}')" class="flex-1 sm:flex-none bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-600 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
+                                <button onclick="shareWhatsApp('${data.certId}')" class="flex-1 sm:flex-none bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-600 hover:text-white px-3 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
                                     <i class="fab fa-whatsapp text-sm"></i> শেয়ার
                                 </button>
-                                <button onclick="deleteCert('${d.id}')" class="bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-800 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center">
+                                <button onclick="deleteCert('${d.id}')" class="bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-800 hover:text-white px-3 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -208,6 +216,7 @@
             } catch(e) { listDiv.innerHTML = '<p class="text-red-500 text-center font-bold">লোড করতে সমস্যা হয়েছে!</p>'; }
         };
 
+        // ================= নতুন সার্টিফিকেট সেভ =================
         window.generateCertificate = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('generateBtn');
@@ -236,6 +245,7 @@
             }
         };
 
+        // ================= সার্টিফিকেট ডিলিট =================
         window.deleteCert = async (id) => {
             if(confirm("সার্টিফিকেটটি ডিলিট করতে চান? ডিলিট করলে পাবলিকে আর ভেরিফাই হবে না।")) {
                 await deleteDoc(doc(db, "certificates", id));
@@ -275,6 +285,7 @@
             }
         };
 
+        // হোয়াটসঅ্যাপ অটো-মেসেজ
         window.shareWhatsApp = (id) => {
             const text = `আসসালামু আলাইকুম। আপনার অসাধারণ সেবামূলক কাজের স্বীকৃতিস্বরূপ 'রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ' থেকে আপনাকে একটি সম্মাননা স্মারক (সার্টিফিকেট) প্রদান করা হয়েছে।\n\nআপনার সার্টিফিকেট আইডি: *${id}*\n\nআমাদের ওয়েবসাইটে গিয়ে 'সার্টিফিকেট ডাউনলোড ও যাচাই' অপশন থেকে এই আইডিটি দিয়ে আপনার অরিজিনাল সার্টিফিকেটটি ডাউনলোড করে নিতে পারেন।\n\nওয়েবসাইট লিংক: https://rjsomp.web.app/certificate`;
             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
