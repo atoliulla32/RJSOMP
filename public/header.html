@@ -189,7 +189,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Your blood donation website Firebase config
+    // Your RJSOMP Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
       authDomain: "rjsomp.firebaseapp.com",
@@ -208,7 +208,7 @@
         const marqueeContent = document.getElementById('header-marquee-content');
         const headerBoard = document.getElementById('headerLiveBoard');
         
-        // শুধু orderBy ব্যবহার করা হলো যাতে Index Error না দেয়
+        // শুধু orderBy ব্যবহার করা হলো যাতে ফায়ারবেসের Index Error না দেয়
         const q = query(collection(db, "notices"), orderBy("timestamp", "desc"));
         
         onSnapshot(q, (snapshot) => {
@@ -217,7 +217,6 @@
             
             snapshot.forEach((doc) => {
                 const notice = doc.data();
-                // শুধু লাইভ নোটিশগুলো ফিল্টার করে দেখানো হচ্ছে
                 if(notice.isLive === true) {
                     hasLiveNotice = true;
                     // আল হুফফাজের হুবহু স্টাইলে ডাটা বসানো হলো
@@ -226,9 +225,9 @@
             });
             
             if (!hasLiveNotice) {
-                headerBoard.style.display = 'none'; // নোটিশ না থাকলে হাইড
+                headerBoard.style.display = 'none'; 
             } else {
-                headerBoard.style.display = 'flex'; // নোটিশ থাকলে শো
+                headerBoard.style.display = 'flex'; 
                 marqueeContent.innerHTML = html;
             }
         }, (error) => {
