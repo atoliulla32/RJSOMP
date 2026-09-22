@@ -48,7 +48,7 @@
         border-bottom: 1px solid #e2e8f0;
     }
     .header-board-badge {
-        background: #b91c1c;
+        background: #dc2626;
         color: white;
         padding: 0 15px;
         font-weight: 600;
@@ -180,60 +180,3 @@
         </div>
     </div>
 </header>
-
-<!-- আল হুফফাজের স্ক্রিপ্ট -->
-<script language="JavaScript" src="http://chanpiseththon.mobie.in/js/effect/blinking.js"></script>
-
-<!-- Firebase Live Notice Fetch Script -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    // Your RJSOMP Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
-      authDomain: "rjsomp.firebaseapp.com",
-      databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "rjsomp",
-      storageBucket: "rjsomp.firebasestorage.app",
-      messagingSenderId: "1033528754332",
-      appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Fetch live notices from Firestore
-    function loadLiveNotices() {
-        const marqueeContent = document.getElementById('header-marquee-content');
-        const headerBoard = document.getElementById('headerLiveBoard');
-        
-        // শুধু orderBy ব্যবহার করা হলো যাতে ফায়ারবেসের Index Error না দেয়
-        const q = query(collection(db, "notices"), orderBy("timestamp", "desc"));
-        
-        onSnapshot(q, (snapshot) => {
-            let html = '';
-            let hasLiveNotice = false;
-            
-            snapshot.forEach((doc) => {
-                const notice = doc.data();
-                if(notice.isLive === true) {
-                    hasLiveNotice = true;
-                    // আল হুফফাজের হুবহু স্টাইলে ডাটা বসানো হলো
-                    html += `<span class="date">[${notice.date || 'আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
-                }
-            });
-            
-            if (!hasLiveNotice) {
-                headerBoard.style.display = 'none'; 
-            } else {
-                headerBoard.style.display = 'flex'; 
-                marqueeContent.innerHTML = html;
-            }
-        }, (error) => {
-            console.error("Notice Load Error: ", error);
-        });
-    }
-
-    loadLiveNotices();
-</script>
