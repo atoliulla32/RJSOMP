@@ -1,9 +1,11 @@
-// হেডার এবং ফুটার অটোমেটিক লোড করার ফাংশন
-const noCache = "?v=" + new Date().getTime(); // ক্যাশ ক্লিয়ারিং
+// =====================================================================
+// ১. হেডার ও ফুটার অটোমেটিক লোড করার ফাংশন
+// =====================================================================
+const noCache = "?v=" + new Date().getTime(); 
 
 document.addEventListener("DOMContentLoaded", function() {
     
-    // ১. সব পেইজের হেডারে অটোমেটিক লোগো ও PWA ম্যানিফেস্ট যুক্ত করার কোড
+    // PWA ম্যানিফেস্ট ও আইকন সব পেজে যুক্ত করা
     const head = document.head;
     const metaTags = `
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -14,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
     `;
     head.insertAdjacentHTML("beforeend", metaTags);
 
-    // ২. হেডার লোড করা
+    // হেডার লোড করা
     fetch('header.html' + noCache, { cache: "no-store" })
         .then(response => response.text())
         .then(data => {
@@ -22,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (headerPlaceholder) {
                 headerPlaceholder.innerHTML = data;
                 
-                // 🔴 ম্যাজিক: হেডার লোড হয়ে বডিতে বসার সাথে সাথেই নোটিশ বোর্ড চালু হবে
+                // 🔴 ম্যাজিক: হেডার পেজে বসার সাথে সাথেই নোটিশ বোর্ড চালু হবে
                 startLiveNoticeBoard();
             }
         })
@@ -40,10 +42,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 // =====================================================================
-// ৩. লাইভ নিউজ বোর্ড সব পেজে দেখানোর আধুনিক মডিউল সিস্টেম
+// ২. লাইভ নিউজ বোর্ড সব পেজে দেখানোর ডায়নামিক সিস্টেম
 // =====================================================================
 function startLiveNoticeBoard() {
-    // Dynamic Import: এই পদ্ধতি ব্যবহার করলে কোনো ব্রাউজার স্ক্রিপ্ট ব্লক করবে না!
     Promise.all([
         import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"),
         import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js")
@@ -56,11 +57,9 @@ function startLiveNoticeBoard() {
             projectId: "rjsomp"
         };
         
-        // ফায়ারবেস ইনিশিয়ালাইজেশন
         const app = firebaseApp.getApps().length === 0 ? firebaseApp.initializeApp(firebaseConfig) : firebaseApp.getApp();
         const db = firebaseFirestore.getFirestore(app);
 
-        // ফায়ারবেসের ইনডেক্স এরর এড়াতে শুধু orderBy ব্যবহার করা হলো
         const q = firebaseFirestore.query(
             firebaseFirestore.collection(db, "notices"), 
             firebaseFirestore.orderBy("timestamp", "desc")
@@ -77,14 +76,12 @@ function startLiveNoticeBoard() {
             
             snapshot.forEach((doc) => {
                 const notice = doc.data();
-                // ম্যানুয়ালি চেক করা হচ্ছে নোটিশটি লাইভ আছে কিনা
                 if(notice.isLive === true) {
                     hasLiveNotice = true;
                     html += `<span class="date">[${notice.date || 'আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
                 }
             });
             
-            // নোটিশ থাকলে বোর্ড দেখাবে, না থাকলে লুকাবে
             if (hasLiveNotice) {
                 headerBoard.style.display = 'flex';
                 marqueeContent.innerHTML = html;
@@ -97,3 +94,57 @@ function startLiveNoticeBoard() {
         console.error("Notice Board Data Error: ", err);
     });
 }
+
+
+// =====================================================================
+// ৩. মোবাইল মেনু এবং ড্রপডাউনের কোড
+// =====================================================================
+function toggleMenu() {
+    var navLinks = document.getElementById("navLinks");
+    var menuIcon = document.getElementById("menu-icon") || document.querySelector(".menu-toggle i");
+    
+    if (!navLinks) return;
+    
+    navLinks.classList.toggle("active");
+    
+    if (menuIcon) {
+        if (navLinks.classList.contains("active")) {
+            menuIcon.classList.remove("fa-bars");
+            menuIcon.classList.add("fa-times");
+            menuIcon.style.color = "red";
+        } else {
+            menuIcon.classList.remove("fa-times");
+            menuIcon.classList.add("fa-bars");
+            menuIcon.style.color = "#15803d";
+        }
+    }
+}
+
+function toggleDropdown(param1, param2) {
+    if (window.innerWidth <= 1024) {
+        let targetElement = null;
+
+        if (param1 && typeof param1.preventDefault === 'function') {
+            param1.preventDefault(); 
+            targetElement = param2;
+        } 
+        else if (param1) {
+            targetElement = param1;
+        }
+
+        if (targetElement) {
+            targetElement.classList.toggle("active");
+        }
+    }
+}
+
+document.addEventListener("click", function(e) {
+    var navLinks = document.getElementById("navLinks");
+    var menuToggle = document.querySelector(".menu-toggle") || document.getElementById("menu-icon");
+    
+    if (navLinks && navLinks.classList.contains("active")) {
+        if (!navLinks.contains(e.target) && menuToggle && !menuToggle.contains(e.target)) {
+            toggleMenu();
+        }
+    }
+});
