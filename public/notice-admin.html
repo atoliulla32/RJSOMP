@@ -3,217 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>নোটিশ অ্যাডমিন প্যানেল | রক্তযোদ্ধা</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>বিজ্ঞপ্তি অ্যাডমিন প্যানেল | রক্তযোদ্ধা</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; }
+        body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; padding: 20px; margin: 0; }
+        .admin-container { max-width: 650px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h2 { color: #dc2626; text-align: center; border-bottom: 2px solid #dc2626; padding-bottom: 10px; margin-top: 0; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #334155; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; box-sizing: border-box; font-size: 14px;}
+        .form-group input:focus, .form-group textarea:focus { border-color: #dc2626; outline: none; }
+        
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fecaca; cursor: pointer;}
+        .checkbox-group input { width: 20px; height: 20px; cursor: pointer; }
+        .checkbox-group label { margin: 0; font-weight: bold; color: #dc2626; cursor: pointer; }
+
+        .btn-group { display: flex; gap: 10px; width: 100%; }
+        button.submit-btn { flex: 1; background: #dc2626; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s;}
+        button.submit-btn:hover { background: #b91c1c; }
+        
+        #cancelBtn { background: #64748b; }
+        #cancelBtn:hover { background: #475569; }
+
+        .notice-list { margin-top: 40px; }
+        .n-item { background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0; position: relative;}
+        .n-item.live-active { border-left: 5px solid #b91c1c; background: #fff5f5; }
+        
+        .n-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;}
+        .n-title { margin: 0; color: #1e293b; font-size: 16px; font-weight: bold;}
+        .n-date { font-size: 12px; color: #64748b; }
+        .live-badge { background: #b91c1c; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block; margin-top: 5px;}
+        
+        .n-actions { display: flex; gap: 10px; border-top: 1px dashed #cbd5e1; padding-top: 10px; margin-top: 10px; flex-wrap: wrap;}
+        .action-btn { padding: 6px 12px; border-radius: 6px; cursor: pointer; border: none; font-weight: bold; font-size: 13px; flex: 1; transition: 0.2s; min-width: 80px;}
+        .btn-live { background: #f59e0b; color: white; }
+        .btn-live.active { background: #475569; color: white; }
+        .btn-edit { background: #3b82f6; color: white; }
+        .btn-edit:hover { background: #2563eb; }
+        .btn-del { background: #ef4444; color: white; }
     </style>
 </head>
-<body class="text-gray-800 p-4 md:p-8">
+<body>
 
-    <!-- ================= Login Section ================= -->
-    <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-xl mt-10 md:mt-20 border-t-4 border-red-600 hidden">
-        <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto text-3xl mb-4 shadow-inner">
-            <i class="fas fa-lock"></i>
+    <div id="admin-login-box" class="admin-container" style="max-width: 400px; margin: 100px auto; text-align: center; display: none;">
+        <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 10px; margin-top: 0;">অ্যাডমিন লগইন</h2>
+        <div class="form-group" style="margin-top: 20px; text-align: left;">
+            <label>অ্যাডমিন ইমেইল</label>
+            <input type="email" id="admin-email" placeholder="ইমেইল লিখুন...">
         </div>
-        <h2 class="text-2xl font-extrabold text-center text-gray-800 mb-1">নোটিশ কন্ট্রোল প্যানেল</h2>
-        <p class="text-sm text-center text-gray-500 mb-6">লগইন করে নোটিশ ম্যানেজ করুন</p>
-        
-        <form onsubmit="event.preventDefault(); loginAdmin();" class="space-y-4">
-            <input type="email" id="admin_email" required placeholder="অ্যাডমিন ইমেইল" class="w-full p-3.5 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm font-medium">
-            <input type="password" id="admin_password" required placeholder="পাসওয়ার্ড" class="w-full p-3.5 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm font-medium">
-            <button type="submit" id="loginBtn" class="w-full bg-red-600 text-white font-bold py-3.5 rounded-xl hover:bg-red-700 transition flex justify-center items-center gap-2">
-                লগইন করুন
-            </button>
-            <p id="login_error" class="text-sm text-red-600 font-bold hidden text-center bg-red-50 p-2 rounded-lg"></p>
-        </form>
+        <div class="form-group" style="text-align: left;">
+            <label>পাসওয়ার্ড</label>
+            <input type="password" id="admin-pass" placeholder="পাসওয়ার্ড লিখুন...">
+        </div>
+        <button onclick="verifyAdmin()" class="submit-btn" style="width: 100%; margin-top: 10px;">লগইন করুন</button>
+        <p id="admin-err" style="color: #ef4444; font-weight: bold; margin-top: 15px; display: none; background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fee2e2; font-size: 14px;"></p>
     </div>
 
-    <!-- ================= Main Admin Dashboard ================= -->
-    <div id="admin-dashboard" class="max-w-6xl mx-auto hidden">
+    <div id="admin-dashboard" class="admin-container" style="display: none;">
+        <button onclick="logoutAdmin()" class="action-btn btn-del" style="float: right; max-width: 120px; padding: 8px 16px; margin-bottom: 20px; font-weight: bold; border-radius: 8px;">লগআউট</button>
+        <div style="clear: both;"></div>
         
-        <!-- Header -->
-        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm mb-6 flex flex-wrap justify-between items-center border-l-4 border-red-600 gap-4">
-            <div>
-                <h1 class="text-xl md:text-2xl font-bold text-gray-800"><i class="fas fa-bullhorn text-red-600 mr-2"></i> হেডারের লাইভ নোটিশ প্যানেল</h1>
-                <p class="text-xs md:text-sm text-gray-500 mt-1">ওয়েবসাইটের উপরের চলমান নোটিশ আপডেট করুন</p>
-            </div>
-            <button onclick="logoutAdmin()" class="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
-                <i class="fas fa-sign-out-alt"></i> লগআউট
-            </button>
+        <h2 id="formTitle">নতুন বিজ্ঞপ্তি যুক্ত করুন</h2>
+        
+        <div class="form-group">
+            <label>বিজ্ঞপ্তির শিরোনাম</label>
+            <input type="text" id="nTitle" placeholder="শিরোনাম লিখুন...">
+        </div>
+        <div class="form-group">
+            <label>তারিখ বা সাব-টাইটেল</label>
+            <input type="text" id="nDate" placeholder="যেমন: ০৭ মে ২০২৬">
+        </div>
+        <div class="form-group">
+            <label>স্মারক নং (অটোমেটিক তৈরি হয়েছে, চাইলে পরিবর্তন করতে পারেন)</label>
+            <input type="text" id="nSmk" style="background: #f1f5f9; font-weight: bold; color: #dc2626;">
+        </div>
+        <div class="form-group">
+            <label>বিস্তারিত বিবরণ</label>
+            <textarea id="nDesc" rows="4" placeholder="বিজ্ঞপ্তির বিস্তারিত লিখুন..."></textarea>
+        </div>
+        
+        <label class="checkbox-group">
+            <input type="checkbox" id="nIsLive" checked>
+            <span>পাবলিশ করার সাথেই উপরের বোর্ডে 'লাইভ' হিসেবে দেখান</span>
+        </label>
+
+        <div class="btn-group">
+            <button onclick="saveNotice()" class="submit-btn" id="submitBtn">পাবলিশ করুন</button>
+            <button onclick="cancelEdit()" class="submit-btn" id="cancelBtn" style="display:none;">এডিট বাতিল</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Form Section -->
-            <div class="lg:col-span-1">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 sticky top-6">
-                    <h2 id="formTitle" class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">নতুন নোটিশ যুক্ত করুন</h2>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">নোটিশের শিরোনাম / মূল কথা</label>
-                            <input type="text" id="nTitle" placeholder="যেমন: আগামী শুক্রবার ফ্রি ব্লাড ক্যাম্পেইন..." class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">তারিখ</label>
-                            <input type="text" id="nDate" placeholder="যেমন: ২২ সেপ্টেম্বর ২০২৬" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">বিস্তারিত বিবরণ</label>
-                            <textarea id="nDesc" rows="4" placeholder="বিজ্ঞপ্তির বিস্তারিত লিখুন..." class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm"></textarea>
-                        </div>
-                        
-                        <label class="flex items-center gap-3 bg-red-50 p-3 rounded-xl border border-red-100 cursor-pointer">
-                            <input type="checkbox" id="nIsLive" checked class="w-5 h-5 accent-red-600 cursor-pointer">
-                            <span class="text-sm font-bold text-red-800">পাবলিশ করার সাথেই ওয়েবসাইটে লাইভ দেখান</span>
-                        </label>
-
-                        <div class="flex gap-2 pt-2">
-                            <button onclick="saveNotice()" id="submitBtn" class="flex-1 bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition shadow-sm">
-                                পাবলিশ করুন
-                            </button>
-                            <button onclick="cancelEdit()" id="cancelBtn" class="hidden flex-1 bg-gray-500 text-white font-bold py-3 rounded-xl hover:bg-gray-600 transition shadow-sm">
-                                বাতিল
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Notice List Section -->
-            <div class="lg:col-span-2">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-list text-blue-500 mr-2"></i> সকল নোটিশের তালিকা</h2>
-                    
-                    <div id="noticeList" class="space-y-4">
-                        <div class="text-center py-10"><i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i><p class="text-sm font-bold text-gray-500 mt-2">লোড হচ্ছে...</p></div>
-                    </div>
-                </div>
+        <div class="notice-list">
+            <h3 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 5px;">নিয়ন্ত্রণ প্যানেল (Control Panel)</h3>
+            <div id="adminNoticeList">
+                <p>লোড হচ্ছে...</p>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, orderBy, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, orderBy, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // RJSOMP Firebase Config
         const firebaseConfig = {
-            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
-            projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+            authDomain: "rjsomp.firebaseapp.com",
+            projectId: "rjsomp",
+            storageBucket: "rjsomp.firebasestorage.app",
+            messagingSenderId: "1033528754332",
+            appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
         };
-        
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        
+        const db = initializeFirestore(app, {
+            localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
+        });
         const auth = getAuth(app);
 
         let editingId = null; 
-        let allNotices = [];
+        let allAdminNotices = []; 
 
-        // Auth State Observer
         onAuthStateChanged(auth, user => {
             if (user) {
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('admin-dashboard').classList.remove('hidden');
+                document.getElementById('admin-login-box').style.display = 'none'; 
+                document.getElementById('admin-dashboard').style.display = 'block'; 
                 initRealtimeListener();
             } else {
-                document.getElementById('login-section').classList.remove('hidden');
-                document.getElementById('admin-dashboard').classList.add('hidden');
+                document.getElementById('admin-login-box').style.display = 'block'; 
+                document.getElementById('admin-dashboard').style.display = 'none';
             }
         });
 
-        window.loginAdmin = async function() { 
-            const email = document.getElementById('admin_email').value;
-            const pass = document.getElementById('admin_password').value;
-            const btn = document.getElementById('loginBtn');
-            const errBox = document.getElementById('login_error');
+        window.verifyAdmin = async function() { 
+            const email = document.getElementById('admin-email').value;
+            const pass = document.getElementById('admin-pass').value;
+            const errBox = document.getElementById('admin-err');
             
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> যাচাই হচ্ছে...';
-            btn.disabled = true;
+            if(!email || !pass) { errBox.innerText = "ইমেইল ও পাসওয়ার্ড দিন!"; errBox.style.display = 'block'; return; }
             
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
-                errBox.classList.add('hidden');
+                errBox.style.display = 'none';
             } catch (error) {
-                errBox.innerText = "ভুল ইমেইল বা পাসওয়ার্ড!"; 
-                errBox.classList.remove('hidden');
-            } finally {
-                btn.innerHTML = 'লগইন করুন';
-                btn.disabled = false;
+                errBox.innerText = "ভুল ইমেইল বা পাসওয়ার্ড!"; errBox.style.display = 'block'; 
             }
         }
 
         window.logoutAdmin = async function() {
-            if(confirm("আপনি কি কন্ট্রোল প্যানেল থেকে বের হতে চান?")) {
+            if(confirm("আপনি কি লগআউট করতে চান?")) {
                 await signOut(auth);
+                window.location.reload();
             }
         }
 
+        function generateAutoSmk() {
+            return "RJSOMP/26/" + (Math.floor(Math.random() * 9000) + 1000);
+        }
+        document.getElementById('nSmk').value = generateAutoSmk();
+
         window.saveNotice = async function() {
-            const title = document.getElementById('nTitle').value.trim();
-            const date = document.getElementById('nDate').value.trim();
-            const desc = document.getElementById('nDesc').value.trim();
+            const title = document.getElementById('nTitle').value;
+            const date = document.getElementById('nDate').value;
+            const smk = document.getElementById('nSmk').value; 
+            const desc = document.getElementById('nDesc').value;
             const isLive = document.getElementById('nIsLive').checked;
             const btn = document.getElementById('submitBtn');
 
-            if(!title || !date || !desc) { alert("শিরোনাম, তারিখ এবং বিস্তারিত বিবরণ অবশ্যই দিতে হবে!"); return; }
+            if(!title || !date || !desc || !smk) { alert("সব তথ্য পূরণ করুন!"); return; }
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...';
-            btn.disabled = true;
+            btn.innerText = editingId ? "আপডেট হচ্ছে..." : "পাবলিশ হচ্ছে...";
             
-            const noticeData = { title: title, date: date, description: desc, isLive: isLive };
+            const noticeData = { title: title, date: date, smk: smk, description: desc, isLive: isLive };
 
             try {
                 if(editingId) {
                     await updateDoc(doc(db, "notices", editingId), noticeData);
-                    alert("নোটিশ আপডেট হয়েছে!");
+                    alert("বিজ্ঞপ্তি সফলভাবে আপডেট হয়েছে!");
+                    cancelEdit();
                 } else {
                     noticeData.timestamp = Date.now();
                     await addDoc(collection(db, "notices"), noticeData);
-                    alert("নতুন নোটিশ সফলভাবে পাবলিশ হয়েছে!");
+                    alert("সফলভাবে পাবলিশ হয়েছে!");
+                    cancelEdit();
                 }
-                cancelEdit();
             } catch(e) {
-                alert("সমস্যা হয়েছে! ইন্টারনেট চেক করুন।");
-                console.error(e);
-            } finally {
-                btn.innerHTML = editingId ? 'আপডেট করুন' : 'পাবলিশ করুন';
-                btn.disabled = false;
+                alert("সমস্যা: " + e.message);
+                cancelEdit();
             }
         }
 
         window.cancelEdit = function() {
             editingId = null;
-            document.getElementById('formTitle').innerText = "নতুন নোটিশ যুক্ত করুন";
+            document.getElementById('formTitle').innerText = "নতুন বিজ্ঞপ্তি যুক্ত করুন";
             document.getElementById('nTitle').value = '';
+            document.getElementById('nDate').value = '';
             document.getElementById('nDesc').value = '';
-            
-            // আজকের তারিখ অটোমেটিক বসানো
-            const today = new Date();
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
-            document.getElementById('nDate').value = today.toLocaleDateString('bn-BD', options);
-            
+            document.getElementById('nSmk').value = generateAutoSmk();
             document.getElementById('nIsLive').checked = true;
+            
             document.getElementById('submitBtn').innerText = "পাবলিশ করুন";
-            document.getElementById('cancelBtn').classList.add('hidden');
+            document.getElementById('cancelBtn').style.display = "none";
         }
 
         window.editNotice = function(id) {
-            const notice = allNotices.find(n => n.id === id);
+            const notice = allAdminNotices.find(n => n.id === id);
             if(notice) {
                 editingId = id;
-                document.getElementById('formTitle').innerText = "নোটিশ এডিট করুন";
+                document.getElementById('formTitle').innerText = "বিজ্ঞপ্তি এডিট করুন";
                 document.getElementById('nTitle').value = notice.title;
                 document.getElementById('nDate').value = notice.date;
+                document.getElementById('nSmk').value = notice.smk || "RJSOMP/00/000";
                 document.getElementById('nDesc').value = notice.description;
                 document.getElementById('nIsLive').checked = notice.isLive;
 
                 document.getElementById('submitBtn').innerText = "আপডেট করুন";
-                document.getElementById('cancelBtn').classList.remove('hidden');
+                document.getElementById('cancelBtn').style.display = "block";
                 window.scrollTo({ top: 0, behavior: 'smooth' }); 
             }
         }
@@ -223,72 +230,55 @@
             if(unsubscribe) unsubscribe();
             const q = query(collection(db, "notices"), orderBy("timestamp", "desc"));
             unsubscribe = onSnapshot(q, (snapshot) => {
-                const list = document.getElementById('noticeList');
+                const list = document.getElementById('adminNoticeList');
                 list.innerHTML = '';
-                allNotices = []; 
+                allAdminNotices = []; 
                 
                 if(!snapshot.empty){
                     snapshot.forEach((docSnap) => {
                         const notice = docSnap.data();
                         notice.id = docSnap.id;
-                        allNotices.push(notice); 
+                        allAdminNotices.push(notice); 
 
-                        const bgClass = notice.isLive ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200';
-                        const badge = notice.isLive ? '<span class="bg-red-600 text-white text-[10px] px-2 py-1 rounded-md font-bold uppercase"><i class="fas fa-circle text-[8px] animate-pulse"></i> লাইভ আছে</span>' : '<span class="bg-gray-400 text-white text-[10px] px-2 py-1 rounded-md font-bold uppercase">অফলাইন</span>';
-                        const liveBtnClass = notice.isLive ? 'bg-gray-700 hover:bg-gray-800' : 'bg-emerald-600 hover:bg-emerald-700';
-                        const liveBtnText = notice.isLive ? '<i class="fas fa-eye-slash"></i> হাইড করুন' : '<i class="fas fa-eye"></i> লাইভ করুন';
+                        const smkText = notice.smk ? notice.smk : "RJSOMP/00/000";
+                        const liveClass = notice.isLive ? 'live-active' : '';
+                        const liveBadge = notice.isLive ? '<div class="live-badge">🔴 বর্তমানে লাইভ আছে</div>' : '';
+                        const btnText = notice.isLive ? 'লাইভ থেকে সরান' : 'উপরে লাইভ করুন';
+                        const btnClass = notice.isLive ? 'btn-live active' : 'btn-live';
 
                         list.innerHTML += `
-                            <div class="p-4 rounded-xl border ${bgClass} transition relative">
-                                <div class="flex justify-between items-start mb-3">
-                                    <div class="pr-4">
-                                        <h3 class="font-bold text-gray-800 text-sm md:text-base mb-1">${notice.title}</h3>
-                                        <p class="text-xs text-gray-500 font-medium"><i class="fas fa-calendar-alt"></i> ${notice.date}</p>
+                            <div class="n-item ${liveClass}">
+                                <div class="n-header">
+                                    <div>
+                                        <h4 class="n-title">${notice.title}</h4>
+                                        <span class="n-date">${notice.date} | স্মারক: ${smkText}</span><br>
+                                        ${liveBadge}
                                     </div>
-                                    <div class="shrink-0">${badge}</div>
                                 </div>
-                                
-                                <div class="flex gap-2 border-t border-gray-200 pt-3 mt-1">
-                                    <button onclick="toggleLive('${docSnap.id}', ${notice.isLive})" class="flex-1 ${liveBtnClass} text-white text-xs font-bold py-2 rounded-lg transition">
-                                        ${liveBtnText}
-                                    </button>
-                                    <button onclick="editNotice('${docSnap.id}')" class="flex-1 bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-bold py-2 rounded-lg transition">
-                                        <i class="fas fa-edit"></i> এডিট
-                                    </button>
-                                    <button onclick="deleteNotice('${docSnap.id}')" class="flex-1 bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold py-2 rounded-lg transition">
-                                        <i class="fas fa-trash-alt"></i> ডিলিট
-                                    </button>
+                                <div class="n-actions">
+                                    <button class="action-btn ${btnClass}" onclick="toggleLive('${docSnap.id}', ${notice.isLive})">${btnText}</button>
+                                    <button class="action-btn btn-edit" onclick="editNotice('${docSnap.id}')">এডিট</button>
+                                    <button class="action-btn btn-del" onclick="deleteNotice('${docSnap.id}')">ডিলিট</button>
                                 </div>
                             </div>
                         `;
                     });
                 } else {
-                    list.innerHTML = '<div class="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-300"><p class="text-gray-500 font-bold">কোনো নোটিশ পাওয়া যায়নি।</p></div>';
+                    list.innerHTML = '<p style="color:red;">কোনো বিজ্ঞপ্তি নেই</p>';
                 }
             });
         }
 
         window.toggleLive = async function(id, currentStatus) {
-            try {
-                await updateDoc(doc(db, "notices", id), { isLive: !currentStatus });
-            } catch (error) {
-                alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে!");
-            }
+            await updateDoc(doc(db, "notices", id), { isLive: !currentStatus });
         }
 
         window.deleteNotice = async function(id) {
-            if(confirm("আপনি কি নিশ্চিতভাবে এই নোটিশটি মুছে ফেলতে চান?")) {
-                try {
-                    await deleteDoc(doc(db, "notices", id));
-                    if(editingId === id) cancelEdit(); 
-                } catch (error) {
-                    alert("ডিলিট করতে সমস্যা হয়েছে! ফায়ারবেস রুলস ঠিক আছে কিনা চেক করুন।");
-                }
+            if(confirm("আপনি কি নিশ্চিত এটি ডিলিট করতে চান?")) {
+                await deleteDoc(doc(db, "notices", id));
+                if(editingId === id) cancelEdit(); 
             }
         }
-
-        // Initialize with default date
-        cancelEdit();
     </script>
 </body>
 </html>
