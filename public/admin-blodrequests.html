@@ -23,13 +23,13 @@
             </a>
         </div>
 
-        <!-- ================= কুইক ডোনার লুকআপ (সিস্টেম আইডি দিয়ে) ================= -->
+        <!-- ================= কুইক ডোনার লুকআপ ================= -->
         <div class="bg-gradient-to-r from-red-50 to-white p-6 rounded-2xl shadow-sm mb-8 border border-red-100 relative overflow-hidden">
             <h2 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-search-plus text-red-500 mr-1.5"></i> কুইক ডোনার লুকআপ</h2>
-            <p class="text-xs text-gray-500 mb-4 font-medium">রিকোয়েস্ট থেকে পাওয়া <b class="text-gray-700">সিস্টেম আইডি</b> এখানে পেস্ট করে ডোনারের নাম্বার ও বিস্তারিত তথ্য বের করুন।</p>
+            <p class="text-xs text-gray-500 mb-4 font-medium">রিকোয়েস্ট থেকে পাওয়া <b class="text-gray-700">রক্তদাতার আইডি</b> এখানে পেস্ট করে ডোনারের নাম্বার ও বিস্তারিত তথ্য বের করুন।</p>
             
             <div class="flex gap-2">
-                <input type="text" id="quickDonorId" placeholder="এখানে ডোনারের সিস্টেম আইডি পেস্ট করুন..." class="flex-1 p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 text-sm font-mono bg-white">
+                <input type="text" id="quickDonorId" placeholder="এখানে ডোনারের আইডি পেস্ট করুন..." class="flex-1 p-3 border border-gray-300 rounded-xl outline-none focus:border-red-500 text-sm font-mono bg-white">
                 <button onclick="lookupDonor()" id="lookupBtn" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-sm text-sm shrink-0">
                     <i class="fas fa-search"></i> খুঁজুন
                 </button>
@@ -42,15 +42,11 @@
         <!-- ================= সার্চ ও ফিল্টার সেকশন ================= -->
         <div class="bg-white p-5 rounded-2xl shadow-sm mb-8 border border-gray-100">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                
-                <!-- টেক্সট সার্চ (নাম, আইডি, ঠিকানা) -->
                 <div class="md:col-span-2 relative">
                     <label class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">সার্চ করুন (আইডি / নাম / হাসপাতাল)</label>
                     <i class="fas fa-search absolute left-3 bottom-3.5 text-gray-400"></i>
                     <input type="text" id="searchBox" onkeyup="filterRequests()" placeholder="ইউনিক আইডি, নাম বা ঠিকানা লিখুন..." class="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm font-medium">
                 </div>
-
-                <!-- রক্তের গ্রুপ ফিল্টার -->
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">রক্তের গ্রুপ দিয়ে খুঁজুন</label>
                     <select id="bgFilter" onchange="filterRequests()" class="w-full p-2.5 border border-gray-300 rounded-xl outline-none focus:border-red-500 bg-gray-50 text-sm font-bold text-red-600 cursor-pointer">
@@ -61,8 +57,6 @@
                         <option value="AB+">AB+</option><option value="AB-">AB-</option>
                     </select>
                 </div>
-
-                <!-- তারিখ ফিল্টার -->
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">তারিখ দিয়ে খুঁজুন</label>
                     <div class="flex gap-2">
@@ -70,7 +64,6 @@
                         <button onclick="resetFilter()" class="bg-gray-200 text-gray-600 px-3 rounded-xl hover:bg-gray-300 transition" title="ফিল্টার মুছুন"><i class="fas fa-sync-alt"></i></button>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -97,24 +90,21 @@
 
         window.allRequests = [];
 
-        // ================= ১. রিকোয়েস্ট লোড করা =================
         window.loadRequests = async () => {
             const grid = document.getElementById('requests_grid');
             try {
                 const q = query(collection(db, "blood_requests"), orderBy("timestamp", "desc"));
                 const snap = await getDocs(q);
-                
                 window.allRequests = [];
                 snap.forEach(d => { window.allRequests.push({ id: d.id, data: d.data() }); });
                 renderRequests(window.allRequests);
             } catch(e) { 
-                grid.innerHTML = `<div class="col-span-full text-center py-10 text-red-500 font-bold bg-white rounded-2xl">ডাটা লোড করতে সমস্যা হয়েছে! ইন্টারনেট কানেকশন চেক করুন।</div>`; 
+                grid.innerHTML = `<div class="col-span-full text-center py-10 text-red-500 font-bold bg-white rounded-2xl">ডাটা লোড করতে সমস্যা হয়েছে!</div>`; 
             }
         };
 
         window.renderRequests = (requestsArray) => {
             const grid = document.getElementById('requests_grid');
-            
             if(requestsArray.length === 0) {
                 grid.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100"><i class="fas fa-folder-open text-4xl text-gray-300 mb-3"></i><p class="text-gray-500 font-bold text-lg">কোনো রক্তের রিকোয়েস্ট পাওয়া যায়নি!</p></div>`;
                 return;
@@ -130,6 +120,14 @@
                     const d = req.timestamp.toDate();
                     dateTimeStr = d.toLocaleString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true });
                 }
+
+                // আসল ডোনার আইডি থাকলে সবুজ, না থাকলে (পুরাতন রিকোয়েস্ট) লাল দেখাবে
+                const displayId = req.donorId ? req.donorId : id;
+                const badgeHtml = req.donorId 
+                    ? `<span class="text-[10px] font-bold text-emerald-700">রক্তদাতার আইডি: <span class="font-mono text-gray-800 cursor-pointer hover:text-emerald-600" onclick="copyId('${displayId}')">${displayId}</span></span>
+                       <button onclick="copyId('${displayId}')" class="text-emerald-600 hover:text-emerald-800"><i class="far fa-copy"></i></button>`
+                    : `<span class="text-[10px] font-bold text-red-600">পুরাতন রিকোয়েস্ট আইডি: <span class="font-mono text-gray-800 cursor-pointer hover:text-red-600" onclick="copyId('${displayId}')">${displayId}</span></span>
+                       <button onclick="copyId('${displayId}')" class="text-red-600 hover:text-red-800"><i class="far fa-copy"></i></button>`;
 
                 html += `
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-md transition">
@@ -147,9 +145,9 @@
                                 <p class="flex items-start gap-2"><i class="fas fa-phone-alt text-green-500 mt-1 shrink-0 w-4"></i> <span><b>মোবাইল:</b> ${req.contactPhone}</span></p>
                             </div>
                             
+                            <!-- আইডি কপি সেকশন -->
                             <div class="bg-yellow-50 px-3 py-2 rounded-lg border border-yellow-200 mb-4 flex justify-between items-center">
-                                <span class="text-[10px] font-bold text-yellow-800">সিস্টেম আইডি: <span id="copy_${id}" class="font-mono text-gray-800 cursor-pointer hover:text-blue-600" onclick="copyId('${id}')" title="আইডি কপি করতে ক্লিক করুন">${id}</span></span>
-                                <button onclick="copyId('${id}')" class="text-yellow-600 hover:text-yellow-800"><i class="far fa-copy"></i></button>
+                                ${badgeHtml}
                             </div>
                         </div>
 
@@ -167,9 +165,10 @@
             grid.innerHTML = html;
         };
 
-        // ================= ২. কুইক ডোনার লুকআপ (সিস্টেম আইডি দিয়ে) =================
+        // ================= ২. কুইক ডোনার লুকআপ (Auto-Clear System) =================
         window.lookupDonor = async () => {
-            const id = document.getElementById('quickDonorId').value.trim();
+            const inputField = document.getElementById('quickDonorId');
+            const id = inputField.value.trim();
             const resDiv = document.getElementById('lookupResult');
             const btn = document.getElementById('lookupBtn');
 
@@ -195,24 +194,27 @@
                                 <a href="tel:${d.phone}" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold transition text-sm flex items-center justify-center gap-2 shadow-sm">
                                     <i class="fas fa-phone-alt"></i> ${d.phone}
                                 </a>
-                                <p class="text-[10px] text-gray-400 text-center">ডোনারকে সরাসরি কল করুন</p>
                             </div>
                         </div>
                     `;
                     resDiv.classList.remove('hidden');
                 } else {
+                    // 🔴 যদি ডোনার না পাওয়া যায়: এরর মেসেজ দেখাবে এবং বক্স রিসেট হয়ে যাবে
                     resDiv.innerHTML = `<div class="bg-red-50 p-4 rounded-xl border border-red-200 text-center"><p class="text-red-600 font-bold"><i class="fas fa-times-circle text-lg mr-1"></i> এই আইডিতে কোনো ডোনার পাওয়া যায়নি!</p></div>`;
                     resDiv.classList.remove('hidden');
+                    
+                    inputField.value = ''; // বক্স খালি করে দেওয়া
+                    
+                    setTimeout(() => { resDiv.classList.add('hidden'); }, 3000); // ৩ সেকেন্ড পর লাল মেসেজ মুছে যাবে
                 }
             } catch(e) {
-                resDiv.innerHTML = `<p class="text-red-500 font-bold mt-3">সমস্যা হয়েছে! আবার চেষ্টা করুন।</p>`;
+                resDiv.innerHTML = `<p class="text-red-500 font-bold mt-3">সমস্যা হয়েছে! আবার চেষ্টা করুন。</p>`;
                 resDiv.classList.remove('hidden');
             } finally {
                 btn.innerHTML = '<i class="fas fa-search"></i> খুঁজুন'; btn.disabled = false;
             }
         };
 
-        // ================= ৩. ফিল্টার লজিক =================
         window.filterRequests = () => {
             const searchTxt = document.getElementById('searchBox').value.toLowerCase();
             const bgVal = document.getElementById('bgFilter').value;
@@ -220,9 +222,7 @@
 
             const filteredData = window.allRequests.filter(item => {
                 const req = item.data;
-                const id = item.id.toLowerCase();
-                
-                const searchString = `${req.hospital} ${req.patientName} ${req.requestedDonor} ${req.contactPhone} ${id}`.toLowerCase();
+                const searchString = `${req.hospital} ${req.patientName} ${req.requestedDonor} ${req.contactPhone}`.toLowerCase();
                 const matchesSearch = searchString.includes(searchTxt);
 
                 let matchesBg = true;
@@ -249,15 +249,10 @@
             renderRequests(window.allRequests);
         };
 
-        // ================= ৪. ইউটিলিটি =================
-        window.copyId = (id) => {
-            navigator.clipboard.writeText(id).then(() => {
-                alert("আইডি কপি করা হয়েছে: " + id);
-            });
-        };
+        window.copyId = (id) => { navigator.clipboard.writeText(id).then(() => { alert("আইডি কপি করা হয়েছে!"); }); };
 
         window.deleteRequest = async (id) => {
-            if(confirm("আপনি কি নিশ্চিত যে এই রিকোয়েস্টটি মুছে ফেলতে চান? ডিলিট করলে এটি আর ফিরে পাওয়া যাবে না।")) {
+            if(confirm("আপনি কি নিশ্চিত? ডিলিট করলে এটি আর ফিরে পাওয়া যাবে না।")) {
                 try {
                     await deleteDoc(doc(db, "blood_requests", id));
                     window.allRequests = window.allRequests.filter(item => item.id !== id);
