@@ -6,25 +6,57 @@
     <title>সার্টিফিকেট জেনারেটর | অ্যাডমিন</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Sans+Bengali:wght@400;600;700;800&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
     
-    <!-- সিকিউরিটির জন্য পেজ লোড হওয়ার আগেই পুরো পেজ লুকিয়ে ফেলা হলো -->
-    <script>
-        document.documentElement.style.display = 'none';
-    </script>
+    <!-- PDF & Canvas Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; overflow-x: hidden; }
+        
+        /* Hidden Rendering Box for Download */
+        #hidden-cert-box { position: absolute; left: -9999px; top: -9999px; display: block; }
+        .certificate-wrapper {
+            width: 297mm; height: 210mm; background: #fffdf8; position: relative; box-sizing: border-box;
+        }
+        .cert-border-outer { padding: 8px; height: 100%; box-sizing: border-box; background: linear-gradient(135deg, #d4af37, #f9f0c2, #aa771c, #f9f0c2, #d4af37); }
+        .cert-border-inner { background-color: #fffdf8; border: 2px solid #8a5a19; height: 100%; box-sizing: border-box; padding: 15mm; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        .cert-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50%; opacity: 0.05; z-index: 1; }
+        .cert-content { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; }
+        .cert-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #d4af37; padding-bottom: 15px; }
+        .cert-logo { width: 100px; height: 100px; border: 2px solid #d4af37; border-radius: 50%; padding: 3px; background: white; object-fit: cover; }
+        .cert-title-area { text-align: center; flex-grow: 1; }
+        .cert-org-en { font-family: 'Cinzel', serif; font-size: 26px; color: #0a1f3d; font-weight: 700; margin: 0; letter-spacing: 1px; }
+        .cert-org-bn { font-family: 'Tiro Bangla', serif; font-size: 22px; color: #dc2626; font-weight: bold; margin: 5px 0; }
+        .cert-slogan { font-family: 'Tiro Bangla', serif; font-size: 13px; color: #8a5a19; font-weight: bold; }
+        .cert-badge-area { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .cert-id { font-family: 'Cinzel', serif; font-size: 14px; font-weight: bold; color: #c0392b; background: #fdf6d4; padding: 5px 15px; border: 1px dashed #d4af37; border-radius: 4px; }
+        .cert-date { font-family: 'Cinzel', serif; font-size: 14px; font-weight: bold; color: #0a1f3d; }
+        .cert-main-title { text-align: center; margin: 25px 0; }
+        .cert-main-title h1 { font-family: 'Cinzel', serif; font-size: 38px; color: #d4af37; font-weight: 700; letter-spacing: 3px; margin: 0;}
+        .cert-main-title h2 { font-family: 'Tiro Bangla', serif; font-size: 20px; color: #0a1f3d; font-weight: bold; letter-spacing: 5px; margin: 5px 0 0 0; }
+        .cert-body { text-align: center; font-family: 'Tiro Bangla', serif; font-size: 20px; color: #333; line-height: 1.8; margin-top: 10px; flex-grow: 1; }
+        .cert-name { font-family: 'Noto Sans Bengali', sans-serif; font-size: 32px; font-weight: 800; color: #dc2626; border-bottom: 2px dotted #8a5a19; display: inline-block; padding: 0 20px; margin: 0 10px; }
+        .cert-program { font-family: 'Noto Sans Bengali', sans-serif; font-size: 24px; font-weight: 700; color: #0a1f3d; border-bottom: 2px dotted #8a5a19; display: inline-block; padding: 0 20px; margin: 0 10px; }
+        .cert-footer { display: flex; justify-content: space-between; margin-top: auto; padding: 0 20mm; }
+        .sig-box { text-align: center; border-top: 1px solid #0a1f3d; padding-top: 8px; width: 220px; }
+        .sig-box h4 { font-family: 'Tiro Bangla', serif; font-size: 16px; font-weight: bold; color: #0a1f3d; margin: 0; }
+        .sig-box p { font-family: 'Cinzel', serif; font-size: 10px; color: #555; margin: 2px 0 0 0; }
+    </style>
+    <script> document.documentElement.style.display = 'none'; </script>
 </head>
 <body class="p-4 sm:p-8">
 
-    <div class="max-w-4xl mx-auto pb-10">
+    <div class="max-w-5xl mx-auto pb-10">
         
         <!-- Header -->
         <div class="bg-white p-6 rounded-2xl shadow-sm mb-6 flex justify-between items-center border-l-4 border-yellow-500">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-certificate text-yellow-500 mr-2"></i> অটো সার্টিফিকেট জেনারেটর</h1>
-                <p class="text-sm text-gray-500 mt-1">স্বেচ্ছাসেবকদের জন্য এক ক্লিকে প্রিমিয়াম সার্টিফিকেট তৈরি করুন</p>
+                <h1 class="text-xl md:text-2xl font-bold text-gray-800"><i class="fas fa-certificate text-yellow-500 mr-2"></i> অটো সার্টিফিকেট জেনারেটর</h1>
+                <p class="text-xs sm:text-sm text-gray-500 mt-1">স্বেচ্ছাসেবকদের জন্য এক ক্লিকে প্রিমিয়াম সার্টিফিকেট তৈরি ও শেয়ার করুন</p>
             </div>
-            <a href="admin.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm transition hidden sm:block">
+            <a href="admin.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm transition hidden sm:flex items-center gap-1">
                 <i class="fas fa-arrow-left"></i> ড্যাশবোর্ড
             </a>
         </div>
@@ -53,76 +85,121 @@
                     </div>
                 </div>
                 
-                <button type="submit" id="generateBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg flex items-center justify-center gap-2">
+                <button type="submit" id="generateBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-lg flex items-center justify-center gap-2">
                     <i class="fas fa-magic"></i> জেনারেট ও সেভ করুন
                 </button>
             </form>
         </div>
 
         <!-- History List -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">ইস্যুকৃত সার্টিফিকেটসমূহ</h2>
-            <div id="cert_list" class="space-y-3">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">ইস্যুকৃত সার্টিফিকেট ও শেয়ার অপশন</h2>
+            <div id="cert_list" class="space-y-4">
                 <p class="text-center text-gray-500 py-4"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</p>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Logic & Inline Authentication -->
+    <!-- Hidden Area for Rendering PDF/Image -->
+    <div id="hidden-cert-box">
+        <div class="certificate-wrapper" id="admin-certificate-dom">
+            <div class="cert-border-outer">
+                <div class="cert-border-inner">
+                    <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" class="cert-watermark" crossorigin="anonymous">
+                    <div class="cert-content">
+                        <div class="cert-header">
+                            <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" class="cert-logo" crossorigin="anonymous">
+                            <div class="cert-title-area">
+                                <h1 class="cert-org-en">ROKTOJODDHA</h1>
+                                <h2 class="cert-org-bn">রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</h2>
+                                <div class="cert-slogan">"জীবনের জন্য রক্ত, সমাজের জন্য দায়িত্ব"</div>
+                            </div>
+                            <div style="width: 100px;"></div> 
+                        </div>
+                        <div class="cert-badge-area">
+                            <div class="cert-id">ID: <span id="h-id"></span></div>
+                            <div class="cert-date">Date: <span id="h-date"></span></div>
+                        </div>
+                        <div class="cert-main-title">
+                            <h1>CERTIFICATE</h1>
+                            <h2>OF APPRECIATION</h2>
+                        </div>
+                        <div class="cert-body">
+                            এই মর্মে অত্যন্ত আনন্দের সাথে প্রত্যয়ন করা যাচ্ছে যে,<br>
+                            <span class="cert-name" id="h-name"></span><br>
+                            অত্যন্ত নিষ্ঠা ও আন্তরিকতার সাথে আমাদের<br>
+                            <span class="cert-program" id="h-program"></span><br>
+                            কার্যক্রমে একজন নিবেদিতপ্রাণ স্বেচ্ছাসেবক হিসেবে অসামান্য অবদান রেখেছেন।<br>
+                            <span style="font-size: 16px; color: #555; display: block; margin-top: 15px; font-family: 'Noto Sans Bengali', sans-serif;">আমরা তার এই মানবিক সেবার গভীর প্রশংসা করছি এবং তার উজ্জ্বল ভবিষ্যৎ কামনা করছি।</span>
+                        </div>
+                        <div class="cert-footer">
+                            <div class="sig-box"><h4>সভাপতি</h4><p>PRESIDENT</p></div>
+                            <div class="sig-box"><h4>সাধারণ সম্পাদক</h4><p>GENERAL SECRETARY</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Script -->
+    <script type="module" src="admin-auth.js"></script> 
+    
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
             projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
         };
         
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        // ================= ইনলাইন সিকিউরিটি / লগইন চেক =================
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // লগইন করা থাকলে পেজটি দৃশ্যমান হবে
-                document.documentElement.style.display = '';
-                loadCertificates(); // ডাটাবেজ থেকে ডাটা লোড শুরু হবে
-            } else {
-                // লগইন না থাকলে সরাসরি মেইন অ্যাডমিন প্যানেলে পাঠিয়ে দেবে
-                window.top.location.href = "admin.html";
-            }
+            if (user) { document.documentElement.style.display = ''; loadCertificates(); } 
+            else { window.top.location.href = "admin.html"; }
         });
 
-        // ================= অটোমেটিক ডেট এবং আইডি জেনারেট =================
         document.getElementById('cert_date').valueAsDate = new Date();
         const generateId = () => "CERT-" + Math.floor(1000 + Math.random() * 9000);
         document.getElementById('cert_id').value = generateId();
 
-        // ================= সার্টিফিকেট লোড করার ফাংশন =================
         window.loadCertificates = async () => {
             const listDiv = document.getElementById('cert_list');
             try {
                 const q = query(collection(db, "certificates"), orderBy("timestamp", "desc"));
                 const snap = await getDocs(q);
                 
-                if(snap.empty) {
-                    listDiv.innerHTML = '<p class="text-center text-gray-500">কোনো সার্টিফিকেট ইস্যু করা হয়নি।</p>'; return;
-                }
+                if(snap.empty) { listDiv.innerHTML = '<p class="text-center text-gray-500">কোনো সার্টিফিকেট ইস্যু করা হয়নি।</p>'; return; }
 
                 let html = '';
                 snap.forEach(d => {
                     const data = d.data();
                     html += `
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 p-4 rounded-xl border border-gray-100 gap-3">
-                            <div>
-                                <h3 class="font-bold text-gray-800">${data.name}</h3>
-                                <p class="text-xs font-bold text-gray-500 mt-1"><i class="fas fa-tasks text-yellow-500"></i> ${data.program} • <i class="fas fa-calendar-alt text-blue-400"></i> ${data.date}</p>
+                        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-100 gap-4 transition hover:shadow-md">
+                            <div class="w-full xl:w-auto">
+                                <h3 class="font-extrabold text-lg text-gray-800">${data.name}</h3>
+                                <p class="text-sm font-bold text-gray-500 mt-1"><i class="fas fa-tasks text-yellow-500"></i> ${data.program}</p>
+                                <p class="text-xs font-bold text-gray-400 mt-0.5"><i class="fas fa-calendar-alt text-blue-400"></i> ${data.date} &nbsp; | &nbsp; <span class="text-red-600 font-mono">${data.certId}</span></p>
                             </div>
-                            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md font-mono text-xs font-bold border border-yellow-200">${data.certId}</span>
-                                <button onclick="deleteCert('${d.id}')" class="text-red-500 hover:bg-red-100 p-2 rounded-lg transition" title="সার্টিফিকেট ডিলিট করুন"><i class="fas fa-trash"></i></button>
+                            
+                            <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto">
+                                <button onclick="processDownload('pdf', '${data.certId}', '${data.name}', '${data.program}', '${data.date}')" class="flex-1 sm:flex-none bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button onclick="processDownload('img', '${data.certId}', '${data.name}', '${data.program}', '${data.date}')" class="flex-1 sm:flex-none bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
+                                    <i class="fas fa-image"></i> JPG
+                                </button>
+                                <button onclick="shareWhatsApp('${data.certId}')" class="flex-1 sm:flex-none bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-600 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
+                                    <i class="fab fa-whatsapp text-sm"></i> শেয়ার
+                                </button>
+                                <button onclick="deleteCert('${d.id}')" class="bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-800 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -131,7 +208,6 @@
             } catch(e) { listDiv.innerHTML = '<p class="text-red-500 text-center font-bold">লোড করতে সমস্যা হয়েছে!</p>'; }
         };
 
-        // ================= নতুন সার্টিফিকেট সেভ করার ফাংশন =================
         window.generateCertificate = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('generateBtn');
@@ -147,9 +223,8 @@
 
             try {
                 await addDoc(collection(db, "certificates"), newCert);
-                alert("সার্টিফিকেট সফলভাবে জেনারেট ও সেভ হয়েছে!\nপাবলিক ভেরিফাই কোড: " + newCert.certId);
+                alert("সার্টিফিকেট সফলভাবে জেনারেট ও সেভ হয়েছে!\nকোড: " + newCert.certId);
                 
-                // ফর্ম রিসেট করা
                 document.getElementById('cert_name').value = '';
                 document.getElementById('cert_program').value = '';
                 document.getElementById('cert_id').value = generateId();
@@ -161,13 +236,50 @@
             }
         };
 
-        // ================= সার্টিফিকেট ডিলিট ফাংশন =================
         window.deleteCert = async (id) => {
-            if(confirm("সার্টিফিকেটটি কি ডিলিট করতে চান? ডিলিট করলে পাবলিকে আর ভেরিফাই হবে না।")) {
+            if(confirm("সার্টিফিকেটটি ডিলিট করতে চান? ডিলিট করলে পাবলিকে আর ভেরিফাই হবে না।")) {
                 await deleteDoc(doc(db, "certificates", id));
                 loadCertificates();
             }
         };
+
+        // ================= ডাউনলোড ও শেয়ার লজিক =================
+        window.processDownload = async (type, id, name, program, date) => {
+            alert(`অনুগ্রহ করে অপেক্ষা করুন, ${type.toUpperCase()} ফাইলটি তৈরি হচ্ছে...`);
+            
+            // Populating hidden DOM
+            document.getElementById('h-id').innerText = id;
+            document.getElementById('h-date').innerText = date;
+            document.getElementById('h-name').innerText = name;
+            document.getElementById('h-program').innerText = program;
+
+            const certElement = document.getElementById('admin-certificate-dom');
+            
+            try {
+                const canvas = await html2canvas(certElement, { scale: 3, useCORS: true, allowTaint: true });
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+                if(type === 'img') {
+                    const link = document.createElement('a');
+                    link.download = `Certificate_${id}.jpg`;
+                    link.href = imgData;
+                    link.click();
+                } else if(type === 'pdf') {
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('l', 'mm', 'a4');
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+                    pdf.save(`Certificate_${id}.pdf`);
+                }
+            } catch (error) {
+                alert("ডাউনলোডে সমস্যা হয়েছে!");
+            }
+        };
+
+        window.shareWhatsApp = (id) => {
+            const text = `আসসালামু আলাইকুম। আপনার অসাধারণ সেবামূলক কাজের স্বীকৃতিস্বরূপ 'রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ' থেকে আপনাকে একটি সম্মাননা স্মারক (সার্টিফিকেট) প্রদান করা হয়েছে।\n\nআপনার সার্টিফিকেট আইডি: *${id}*\n\nআমাদের ওয়েবসাইটে গিয়ে 'সার্টিফিকেট ডাউনলোড ও যাচাই' অপশন থেকে এই আইডিটি দিয়ে আপনার অরিজিনাল সার্টিফিকেটটি ডাউনলোড করে নিতে পারেন।\n\nওয়েবসাইট লিংক: https://rjsomp.web.app/certificate`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        };
+
     </script>
 </body>
 </html>
