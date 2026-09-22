@@ -4,6 +4,8 @@
 const noCache = "?v=" + new Date().getTime(); 
 
 document.addEventListener("DOMContentLoaded", function() {
+    
+    // PWA ম্যানিফেস্ট ও আইকন সব পেজে যুক্ত করা
     const head = document.head;
     const metaTags = `
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -14,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
     `;
     head.insertAdjacentHTML("beforeend", metaTags);
 
+    // হেডার লোড করা
     fetch('header.html' + noCache, { cache: "no-store" })
         .then(response => response.text())
         .then(data => {
@@ -24,6 +27,7 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(err => console.log("Header load failed:", err));
 
+    // ফুটার লোড করা
     fetch('footer.html' + noCache, { cache: "no-store" })
         .then(response => response.text())
         .then(data => {
@@ -37,77 +41,82 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // =====================================================================
-// ২. লাইভ নিউজ বোর্ড (আল হুফফাজ গ্যারান্টিড মেথড - Firebase v8)
+// ২. লাইভ নিউজ বোর্ড (REST API Method - 100% Conflict Free)
 // =====================================================================
 function initGlobalLiveBoard() {
-    const marqueeContent = document.getElementById('header-marquee-content');
-    
-    // হেডার এখনো লোড না হলে আধা সেকেন্ড পর আবার চেক করবে (Loop)
-    if (!marqueeContent) {
-        setTimeout(initGlobalLiveBoard, 500);
-        return;
-    }
-
-    // ফায়ারবেস স্ক্রিপ্ট লোড করা না থাকলে ডাইনামিকালি লোড করবে
-    if (typeof firebase === 'undefined') {
-        const fbApp = document.createElement('script');
-        fbApp.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js";
-        document.head.appendChild(fbApp);
-
-        fbApp.onload = () => {
-            const fbDb = document.createElement('script');
-            fbDb.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js";
-            document.head.appendChild(fbDb);
-
-            fbDb.onload = fetchGlobalNotices;
-        };
-    } else {
-        fetchGlobalNotices();
-    }
-}
-
-function fetchGlobalNotices() {
-    const firebaseConfig = {
-        apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
-        authDomain: "rjsomp.firebaseapp.com",
-        projectId: "rjsomp"
-    };
-    
-    if (!firebase.apps.length) { 
-        firebase.initializeApp(firebaseConfig); 
-    }
-    
-    const db = firebase.firestore();
-    const marqueeContent = document.getElementById('header-marquee-content');
-    const headerBoard = document.getElementById('headerLiveBoard');
-    
-    if(!marqueeContent) return;
-
-    // চেক করার জন্য প্রথমে একটি লোডিং টেক্সট দেখাবে
-    headerBoard.style.display = 'flex';
-    marqueeContent.innerHTML = '<span class="date"><i class="fas fa-spinner fa-spin"></i></span> ডাটা চেক করা হচ্ছে...';
-
-    // ইনডেক্স এরর এড়াতে শুধু orderBy ব্যবহার করা হয়েছে
-    db.collection("notices").orderBy("timestamp", "desc").onSnapshot((querySnapshot) => {
-        let html = '';
-        let hasLiveNotice = false;
-        querySnapshot.forEach((doc) => {
-            const notice = doc.data();
-            if(notice.isLive) {
-                hasLiveNotice = true;
-                html += `<span class="date">[${notice.date || 'আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
-            }
-        });
+    const checkInterval = setInterval(() => {
+        const marqueeContent = document.getElementById('header-marquee-content');
+        const headerBoard = document.getElementById('headerLiveBoard');
         
-        if (!hasLiveNotice) {
-            headerBoard.style.display = 'none';
-        } else {
+        if (marqueeContent && headerBoard) {
+            clearInterval(checkInterval); // হেডার পাওয়া গেছে, লুপ বন্ধ
+            
             headerBoard.style.display = 'flex';
-            marqueeContent.innerHTML = html;
+            marqueeContent.innerHTML = '<span class="date"><i class="fas fa-spinner fa-spin"></i></span> ডাটা আপডেট হচ্ছে...';
+
+            // ফায়ারবেস SDK ছাড়াই সরাসরি ডাটাবেজ থেকে ডাটা আনার ম্যাজিক লিংক
+            const url = 'https://firestore.googleapis.com/v1/projects/rjsomp/databases/(default)/documents:runQuery?key=AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw';
+            
+            // কুয়েরি লজিক: সময় অনুযায়ী সাজানো
+            const queryBody = {
+                structuredQuery: {
+                    from: [{ collectionId: "notices" }],
+                    orderBy: [{
+                        field: { fieldPath: "timestamp" },
+                        direction: "DESCENDING"
+                    }]
+                }
+            };
+
+            // সরাসরি Fetch রিকোয়েস্ট (যেকোনো পেজে কাজ করবে)
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(queryBody)
+            })
+            .then(response => response.json())
+            .then(data => {
+                let html = '';
+                let hasLiveNotice = false;
+                
+                // ডাটা পার্স করা
+                if (data && data.length > 0 && data[0].document) {
+                    data.forEach(item => {
+                        if(item.document && item.document.fields) {
+                            const fields = item.document.fields;
+                            const isLive = fields.isLive && fields.isLive.booleanValue === true;
+                            
+                            if (isLive) {
+                                hasLiveNotice = true;
+                                const title = fields.title ? fields.title.stringValue : '';
+                                const date = fields.date ? fields.date.stringValue : 'আপডেট';
+                                const desc = fields.description ? fields.description.stringValue : '';
+                                
+                                // 🔴 টাইটেলের সাথে বিস্তারিত বিবরণ যুক্ত করা
+                                let fullNoticeText = title;
+                                if(desc) {
+                                    fullNoticeText += ` - ${desc.replace(/\n/g, ' ')}`;
+                                }
+                                
+                                html += `<span class="date">[${date}]</span> ${fullNoticeText} <span class="divider">||</span> `;
+                            }
+                        }
+                    });
+                }
+                
+                if (hasLiveNotice) {
+                    headerBoard.style.display = 'flex';
+                    marqueeContent.innerHTML = html;
+                } else {
+                    headerBoard.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error("Notice Load Error:", error);
+                headerBoard.style.display = 'none';
+            });
         }
-    }, (error) => {
-        console.error("Notice Load Error:", error);
-    });
+    }, 300); // প্রতি ৩০০ মিলি-সেকেন্ড পরপর হেডার খুঁজবে
 }
 
 // =====================================================================
