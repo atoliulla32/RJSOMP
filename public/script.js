@@ -1,3 +1,6 @@
+// হেডার এবং ফুটার অটোমেটিক লোড করার ফাংশন
+const noCache = "?v=" + new Date().getTime(); // ক্যাশ ক্লিয়ারিং
+
 document.addEventListener("DOMContentLoaded", function() {
     
     // ১. সব পেইজের হেডারে অটোমেটিক লোগো ও PWA ম্যানিফেস্ট যুক্ত করার কোড
@@ -11,10 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
     `;
     head.insertAdjacentHTML("beforeend", metaTags);
 
-    // ২. হেডার এবং ফুটার ডাইনামিক্যালি লোড করার কোড
-    const noCache = "?v=" + new Date().getTime(); // ক্যাশ ক্লিয়ারিং
-
-    // হেডার লোড করা
+    // ২. হেডার লোড করা
     fetch('header.html' + noCache, { cache: "no-store" })
         .then(response => response.text())
         .then(data => {
@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", function() {
             if (headerPlaceholder) {
                 headerPlaceholder.innerHTML = data;
                 
-                // 🔴 ম্যাজিক: হেডার লোড হওয়ার সাথে সাথেই নোটিশ বোর্ড চালু করার কমান্ড
-                initGlobalLiveBoard();
+                // 🔴 ম্যাজিক: হেডার লোড হয়ে বডিতে বসার সাথে সাথেই নোটিশ বোর্ড চালু হবে
+                startLiveNoticeBoard();
             }
         })
         .catch(err => console.log("Header load failed:", err));
@@ -40,72 +40,60 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 // =====================================================================
-// ৩. লাইভ নিউজ বোর্ড সব পেজে দেখানোর গ্লোবাল কোড (রক্তযোদ্ধা - RJSOMP)
+// ৩. লাইভ নিউজ বোর্ড সব পেজে দেখানোর আধুনিক মডিউল সিস্টেম
 // =====================================================================
-function initGlobalLiveBoard() {
-    const marqueeContent = document.getElementById('header-marquee-content');
-    if (!marqueeContent) return; // হেডার না পেলে কোড থামিয়ে দেবে
-
-    // ফায়ারবেস স্ক্রিপ্ট ডাইনামিক্যালি লোড করা হচ্ছে (মেইন পেজ ভারী না করে)
-    if (typeof firebase === 'undefined') {
-        const fbApp = document.createElement('script');
-        fbApp.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js";
-        document.head.appendChild(fbApp);
-
-        fbApp.onload = () => {
-            const fbDb = document.createElement('script');
-            fbDb.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js";
-            document.head.appendChild(fbDb);
-
-            // ডাটাবেজ স্ক্রিপ্ট লোড হলেই নোটিশ আনবে
-            fbDb.onload = fetchGlobalNotices;
+function startLiveNoticeBoard() {
+    // Dynamic Import: এই পদ্ধতি ব্যবহার করলে কোনো ব্রাউজার স্ক্রিপ্ট ব্লক করবে না!
+    Promise.all([
+        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js")
+    ]).then(([firebaseApp, firebaseFirestore]) => {
+        
+        // আপনার রক্তযোদ্ধা ওয়েবসাইটের ফায়ারবেস কনফিগারেশন
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+            authDomain: "rjsomp.firebaseapp.com",
+            projectId: "rjsomp"
         };
-    } else {
-        fetchGlobalNotices();
-    }
-}
+        
+        // ফায়ারবেস ইনিশিয়ালাইজেশন
+        const app = firebaseApp.getApps().length === 0 ? firebaseApp.initializeApp(firebaseConfig) : firebaseApp.getApp();
+        const db = firebaseFirestore.getFirestore(app);
 
-function fetchGlobalNotices() {
-    // আপনার রক্তযোদ্ধা (RJSOMP) ওয়েবসাইটের ফায়ারবেস কনফিগারেশন
-    const firebaseConfig = {
-        apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
-        authDomain: "rjsomp.firebaseapp.com",
-        projectId: "rjsomp"
-    };
-    
-    // ফায়ারবেস ইনিশিয়ালাইজ করা
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    
-    const db = firebase.firestore();
-    const marqueeContent = document.getElementById('header-marquee-content');
-    const headerBoard = document.getElementById('headerLiveBoard');
-    
-    if(!marqueeContent) return;
+        // ফায়ারবেসের ইনডেক্স এরর এড়াতে শুধু orderBy ব্যবহার করা হলো
+        const q = firebaseFirestore.query(
+            firebaseFirestore.collection(db, "notices"), 
+            firebaseFirestore.orderBy("timestamp", "desc")
+        );
 
-    // ডাটাবেজ থেকে রিয়েলটাইমে নোটিশ টেনে আনা
-    db.collection("notices")
-      .orderBy("timestamp", "desc")
-      .onSnapshot((querySnapshot) => {
-          let html = '';
-          let hasLiveNotice = false;
-          
-          querySnapshot.forEach((doc) => {
-              const notice = doc.data();
-              // শুধু যেগুলোতে লাইভ টিক দেওয়া আছে, সেগুলোই আনবে
-              if(notice.isLive === true) {
-                  hasLiveNotice = true;
-                  html += `<span class="date">[${notice.date || 'আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
-              }
-          });
-          
-          // নোটিশ না থাকলে বোর্ড লুকিয়ে ফেলবে, থাকলে দেখাবে
-          if (!hasLiveNotice) {
-              if(headerBoard) headerBoard.style.display = 'none';
-          } else {
-              if(headerBoard) headerBoard.style.display = 'flex';
-              marqueeContent.innerHTML = html;
-          }
-      }, (error) => {
-          console.error("Notice Load Error:", error);
-      });
+        firebaseFirestore.onSnapshot(q, (snapshot) => {
+            const marqueeContent = document.getElementById('header-marquee-content');
+            const headerBoard = document.getElementById('headerLiveBoard');
+            
+            if (!marqueeContent || !headerBoard) return;
+
+            let html = '';
+            let hasLiveNotice = false;
+            
+            snapshot.forEach((doc) => {
+                const notice = doc.data();
+                // ম্যানুয়ালি চেক করা হচ্ছে নোটিশটি লাইভ আছে কিনা
+                if(notice.isLive === true) {
+                    hasLiveNotice = true;
+                    html += `<span class="date">[${notice.date || 'আপডেট'}]</span> ${notice.title} <span class="divider">||</span> `;
+                }
+            });
+            
+            // নোটিশ থাকলে বোর্ড দেখাবে, না থাকলে লুকাবে
+            if (hasLiveNotice) {
+                headerBoard.style.display = 'flex';
+                marqueeContent.innerHTML = html;
+            } else {
+                headerBoard.style.display = 'none';
+            }
+        });
+
+    }).catch(err => {
+        console.error("Notice Board Data Error: ", err);
+    });
 }
