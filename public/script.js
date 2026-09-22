@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // =====================================================================
-// ২. লাইভ নিউজ বোর্ড (REST API Method - 100% Conflict Free)
+// ২. লাইভ নিউজ বোর্ড (REST API Method - সব পেজে গ্যারান্টিড চলবে)
 // =====================================================================
 function initGlobalLiveBoard() {
     const checkInterval = setInterval(() => {
@@ -52,9 +52,9 @@ function initGlobalLiveBoard() {
             clearInterval(checkInterval); // হেডার পাওয়া গেছে, লুপ বন্ধ
             
             headerBoard.style.display = 'flex';
-            marqueeContent.innerHTML = '<span class="date"><i class="fas fa-spinner fa-spin"></i></span> ডাটা আপডেট হচ্ছে...';
+            marqueeContent.innerHTML = '<span class="date"><i class="fas fa-spinner fa-spin"></i></span> নোটিশ আপডেট হচ্ছে...';
 
-            // ফায়ারবেস SDK ছাড়াই সরাসরি ডাটাবেজ থেকে ডাটা আনার ম্যাজিক লিংক
+            // ফায়ারবেস SDK ছাড়াই সরাসরি ফায়ারস্টোর থেকে ডাটা আনার ম্যাজিক লিংক
             const url = 'https://firestore.googleapis.com/v1/projects/rjsomp/databases/(default)/documents:runQuery?key=AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw';
             
             // কুয়েরি লজিক: সময় অনুযায়ী সাজানো
@@ -68,7 +68,7 @@ function initGlobalLiveBoard() {
                 }
             };
 
-            // সরাসরি Fetch রিকোয়েস্ট (যেকোনো পেজে কাজ করবে)
+            // সরাসরি Fetch রিকোয়েস্ট (যেকোনো পেজে কাজ করবে, ফায়ারবেস লিংক না থাকলেও)
             fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -92,9 +92,10 @@ function initGlobalLiveBoard() {
                                 const date = fields.date ? fields.date.stringValue : 'আপডেট';
                                 const desc = fields.description ? fields.description.stringValue : '';
                                 
-                                // 🔴 টাইটেলের সাথে বিস্তারিত বিবরণ যুক্ত করা
+                                // 🔴 টাইটেলের সাথে বিস্তারিত বিবরণ যুক্ত করা হয়েছে
                                 let fullNoticeText = title;
                                 if(desc) {
+                                    // বিস্তারিত লেখা যদি থাকে, তাহলে সেটি টাইটেলের সাথে হাইফেন দিয়ে দেখাবে
                                     fullNoticeText += ` - ${desc.replace(/\n/g, ' ')}`;
                                 }
                                 
