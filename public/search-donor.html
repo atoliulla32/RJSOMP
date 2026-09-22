@@ -112,7 +112,7 @@
             
             <input type="hidden" id="req_donor_id">
             <input type="hidden" id="req_donor_name">
-            <input type="hidden" id="req_donor_pin">
+            <input type="hidden" id="req_donor_area">
             <input type="hidden" id="req_donor_eligibility">
 
             <div class="space-y-3">
@@ -365,7 +365,6 @@
             renderDonors(filtered);
         };
 
-        // 🔴 কম্প্যাক্ট স্কয়ার কার্ড রেন্ডার (উপযোগী/অনুপযোগী ব্যাজ সহ)
         window.renderDonors = (dataArray) => {
             const grid = document.getElementById('donors_grid');
             if(dataArray.length === 0) { grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500 font-bold text-sm">কোনো রক্তদাতা পাওয়া যায়নি।</div>`; return; }
@@ -393,10 +392,9 @@
                     const today = new Date();
                     let monthsDiff = (today.getFullYear() - lastDate.getFullYear()) * 12 + (today.getMonth() - lastDate.getMonth());
                     if (today.getDate() < lastDate.getDate()) {
-                        monthsDiff--; // মাস পূর্ণ না হলে এক মাস কমানো হলো
+                        monthsDiff--; 
                     }
                     
-                    // ফর্মে লিঙ্গ না থাকায় বাই ডিফল্ট ৩ মাস ধরা হলো (মহিলাদের জন্য আলাদা ফিল্ড থাকলে ৪ দেওয়া যেত)
                     const requiredMonths = (d.gender === 'নারী' || d.gender === 'Female') ? 4 : 3;
 
                     if (monthsDiff < requiredMonths) {
@@ -436,7 +434,8 @@
                         </div>
                         
                         <div class="flex gap-1.5 w-full mt-auto">
-                            <button onclick="openRequestModal('${d.id}', '${d.name}', '${d.bloodGroup}', '${d.secretPin || ''}', '${eligibilityMsg}')" class="flex-1 bg-red-600 text-white font-bold py-1.5 rounded-lg hover:bg-red-700 transition text-[9px] sm:text-[11px] shadow-sm flex items-center justify-center gap-1"><i class="fas fa-paper-plane"></i> রিকোয়েস্ট</button>
+                            <!-- রিকোয়েস্ট বাটনে এখন সিস্টেম আইডি এবং এরিয়া পাঠানো হচ্ছে -->
+                            <button onclick="openRequestModal('${d.id}', '${d.name}', '${d.bloodGroup}', '${d.upazila || ''}', '${d.district || ''}', '${eligibilityMsg}')" class="flex-1 bg-red-600 text-white font-bold py-1.5 rounded-lg hover:bg-red-700 transition text-[9px] sm:text-[11px] shadow-sm flex items-center justify-center gap-1"><i class="fas fa-paper-plane"></i> রিকোয়েস্ট</button>
                             <button onclick="openEditModal('${safeDataStr}')" class="w-auto px-2.5 sm:px-3 bg-gray-100 text-gray-700 font-bold py-1.5 rounded-lg hover:bg-gray-200 transition text-[9px] sm:text-[11px] border border-gray-200" title="আপডেট করুন"><i class="fas fa-edit"></i></button>
                         </div>
                     </div>
@@ -445,11 +444,15 @@
             grid.innerHTML = html;
         };
 
-        window.openRequestModal = (id, name, bg, pin, eligibility) => {
+        window.openRequestModal = (id, name, bg, upa, dist, eligibility) => {
             document.getElementById('req_donor_id').value = id;
             document.getElementById('req_donor_name').value = `${name} (${bg})`;
-            document.getElementById('req_donor_pin').value = pin;
-            document.getElementById('req_donor_eligibility').value = eligibility; // স্ট্যাটাস সেভ রাখা হলো
+            
+            // পিনের বদলে ডোনারের এলাকা সেট করা হচ্ছে
+            const areaText = `${upa ? upa + ', ' : ''}${dist}`;
+            document.getElementById('req_donor_area').value = areaText;
+            
+            document.getElementById('req_donor_eligibility').value = eligibility; 
             document.getElementById('req_problem').value = '';
             document.getElementById('req_hospital').value = '';
             document.getElementById('requestModal').classList.remove('hidden');
@@ -457,7 +460,9 @@
 
         window.sendWhatsAppMessage = () => {
             const donorName = document.getElementById('req_donor_name').value;
-            const donorPin = document.getElementById('req_donor_pin').value;
+            const donorArea = document.getElementById('req_donor_area').value;
+            const donorId = document.getElementById('req_donor_id').value;
+            
             const problem = document.getElementById('req_problem').value.trim();
             const hospital = document.getElementById('req_hospital').value.trim();
             const eligibility = document.getElementById('req_donor_eligibility').value;
@@ -467,8 +472,8 @@
                 return;
             }
 
-            const pinText = donorPin ? `গোপন কোড ${donorPin} ` : '';
-            const rawMsg = `আসসালামু আলাইকুম। জরুরি ভিত্তিতে রক্তের প্রয়োজন। আমি আপনাদের ওয়েবসাইট থেকে "${donorName}" ${pinText}উক্ত রক্তদাতার সাথে যোগাযোগ করিয়ে দেওয়ার জন্য রিকোয়েস্ট করছি।\n\nহাসপাতাল / রোগীর ঠিকানা: ${hospital}\nরোগীর সমস্যা: ${problem}\nরক্তদাতার অবস্থা: ${eligibility}`;
+            // নতুন ফরম্যাট: পিন হাইড করা হয়েছে, এলাকা ও আইডি যুক্ত করা হয়েছে
+            const rawMsg = `আসসালামু আলাইকুম। জরুরি ভিত্তিতে রক্তের প্রয়োজন। আমি আপনাদের ওয়েবসাইট থেকে "${donorName}" (এলাকা: ${donorArea || 'অজ্ঞাত'} | সিস্টেম আইডি: ${donorId}) উক্ত রক্তদাতার সাথে যোগাযোগ করিয়ে দেওয়ার জন্য রিকোয়েস্ট করছি।\n\nহাসপাতাল / রোগীর ঠিকানা: ${hospital}\nরোগীর সমস্যা: ${problem}\nরক্তদাতার অবস্থা: ${eligibility}`;
             
             const msg = encodeURIComponent(rawMsg);
             window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`, "_blank");
