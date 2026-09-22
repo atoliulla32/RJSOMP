@@ -183,10 +183,57 @@
     <script src="script.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("header-placeholder").innerHTML = d; });
+            fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { 
+                if(d) {
+                    document.getElementById("header-placeholder").innerHTML = d;
+                    initLiveNoticeBoard();
+                } 
+            });
             fetch("footer.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("footer-placeholder").innerHTML = d; });
             loadDivisions();
         });
+
+        function initLiveNoticeBoard() {
+            const headerBoard = document.getElementById('headerLiveBoard');
+            const marqueeContent = document.getElementById('header-marquee-content');
+            if (!headerBoard || !marqueeContent) return;
+
+            headerBoard.style.display = 'flex';
+            marqueeContent.innerHTML = '<span class="date"><i class="fas fa-spinner fa-spin"></i></span> লোড হচ্ছে...';
+
+            fetch('https://firestore.googleapis.com/v1/projects/rjsomp/databases/(default)/documents:runQuery?key=AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    structuredQuery: {
+                        from: [{ collectionId: "notices" }],
+                        orderBy: [{ field: { fieldPath: "timestamp" }, direction: "DESCENDING" }]
+                    }
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                let html = '';
+                let hasLive = false;
+                if (data && data.length > 0 && data[0].document) {
+                    data.forEach(item => {
+                        if(item.document && item.document.fields) {
+                            const fields = item.document.fields;
+                            if (fields.isLive && fields.isLive.booleanValue === true) {
+                                hasLive = true;
+                                const title = fields.title ? fields.title.stringValue : '';
+                                const date = fields.date ? fields.date.stringValue : 'আপডেট';
+                                const desc = fields.description ? fields.description.stringValue : '';
+                                html += `<span class="date">[${date}]</span> ${title} ${desc ? ' - ' + desc.replace(/\n/g, ' ') : ''} <span class="divider">||</span> `;
+                            }
+                        }
+                    });
+                }
+                if (hasLive) { headerBoard.style.display = 'flex'; marqueeContent.innerHTML = html; } 
+                else { headerBoard.style.display = 'none'; }
+            })
+            .catch(err => { headerBoard.style.display = 'none'; });
+        }
 
         // অটোমেটিক গোপন কোড জেনারেটর (রিয়েল টাইম)
         function convertToEngNumber(bnNum) {
@@ -301,7 +348,7 @@
                         <li>৫. সংগঠনের দায়িত্বশীল কর্তৃপক্ষ আবেদন যাচাই-বাছাই করে সদস্যপদ অনুমোদন করবে।</li>
                         <li>৬. নির্ধারিত সদস্য ফি/চাঁদা নিয়ম অনুযায়ী পরিশোধ করতে হবে।</li>
                         <li>৭. সংগঠনের সকল নিয়ম-কানুন, সিদ্ধান্ত ও শৃঙ্খলা মেনে চলতে হবে।</li>
-                        <li>৮. সংগঠনের নাম, পরিচয় বা পদমর্যাদা ব্যক্তিগত স্বার্থে ব্যবহার করা যাবে না।</li>
+                        <li>৮. সংগঠনের নাম, পরিচয় বা পদমর্যাদা ব্যক্তিগত স্বার্থে ব্যবহার করা যাবে পরিচয়পত্র।</li>
                         <li>৯. সংগঠনের অনুমতি ছাড়া সংগঠনের নামে কোনো আর্থিক লেনদেন, প্রচার বা কার্যক্রম পরিচালনা করা যাবে না।</li>
                         <li>১০. কোনো সদস্য সংগঠনের ভাবমূর্তি ক্ষুণ্ন করে এমন কর্মকাণ্ডে জড়িত হলে কর্তৃপক্ষ তার সদস্যপদ স্থগিত বা বাতিল করতে পারবে।</li>
                         <li>১১. সদস্যদের সংগঠনের সভা, রক্তদান কর্মসূচি ও মানবিক কার্যক্রমে সামর্থ্য অনুযায়ী অংশগ্রহণ করতে উৎসাহিত করা হবে।</li>
