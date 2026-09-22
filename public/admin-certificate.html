@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সার্টিফিকেট জেনারেটর | অ্যাডমিন</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; }</style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- Header -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm mb-6 flex justify-between items-center border-l-4 border-yellow-500">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-certificate text-yellow-500 mr-2"></i> অটো সার্টিফিকেট জেনারেটর</h1>
+                <p class="text-sm text-gray-500 mt-1">স্বেচ্ছাসেবকদের জন্য এক ক্লিকে প্রিমিয়াম সার্টিফিকেট তৈরি করুন</p>
+            </div>
+            <a href="admin.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm transition">
+                <i class="fas fa-arrow-left"></i> ড্যাশবোর্ড
+            </a>
+        </div>
+
+        <!-- Generator Form -->
+        <div class="bg-white p-8 rounded-2xl shadow-md border border-gray-200 mb-8">
+            <form onsubmit="generateCertificate(event)" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">স্বেচ্ছাসেবকের নাম <span class="text-red-500">*</span></label>
+                        <input type="text" id="cert_name" required placeholder="যেমন: মোহাম্মদ ওলিউল্লাহ" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-yellow-500 bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">প্রোগ্রাম / ইভেন্টের নাম <span class="text-red-500">*</span></label>
+                        <input type="text" id="cert_program" required placeholder="যেমন: ডেঙ্গু নিধন কর্মসূচি ২০২৬" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-yellow-500 bg-gray-50">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">ইস্যুর তারিখ <span class="text-red-500">*</span></label>
+                        <input type="date" id="cert_date" required class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-yellow-500 bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">অটোমেটিক ইউনিক কোড</label>
+                        <input type="text" id="cert_id" readonly class="w-full p-3 border border-yellow-200 rounded-xl bg-yellow-50 font-mono font-bold text-yellow-700">
+                    </div>
+                </div>
+                
+                <button type="submit" id="generateBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-magic"></i> জেনারেট ও সেভ করুন
+                </button>
+            </form>
+        </div>
+
+        <!-- History List -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">ইস্যুকৃত সার্টিফিকেটসমূহ</h2>
+            <div id="cert_list" class="space-y-3">
+                <p class="text-center text-gray-500 py-4"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="admin-auth.js"></script> <!-- Security Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
+            projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Auto Date & ID Generate
+        document.getElementById('cert_date').valueAsDate = new Date();
+        const generateId = () => "CERT-" + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('cert_id').value = generateId();
+
+        window.loadCertificates = async () => {
+            const listDiv = document.getElementById('cert_list');
+            try {
+                const q = query(collection(db, "certificates"), orderBy("timestamp", "desc"));
+                const snap = await getDocs(q);
+                
+                if(snap.empty) {
+                    listDiv.innerHTML = '<p class="text-center text-gray-500">কোনো সার্টিফিকেট ইস্যু করা হয়নি।</p>'; return;
+                }
+
+                let html = '';
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `
+                        <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                            <div>
+                                <h3 class="font-bold text-gray-800">${data.name}</h3>
+                                <p class="text-xs font-bold text-gray-500">${data.program} • ${data.date}</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-md font-mono text-xs font-bold border border-yellow-200">${data.certId}</span>
+                                <button onclick="deleteCert('${d.id}')" class="text-red-500 hover:text-red-700 p-2"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+                listDiv.innerHTML = html;
+            } catch(e) { listDiv.innerHTML = '<p class="text-red-500 text-center">লোড করতে সমস্যা হয়েছে!</p>'; }
+        };
+
+        window.generateCertificate = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('generateBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...'; btn.disabled = true;
+
+            const newCert = {
+                name: document.getElementById('cert_name').value.trim(),
+                program: document.getElementById('cert_program').value.trim(),
+                date: document.getElementById('cert_date').value,
+                certId: document.getElementById('cert_id').value,
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, "certificates"), newCert);
+                alert("সার্টিফিকেট সফলভাবে জেনারেট ও সেভ হয়েছে!\nসার্টিফিকেট কোড: " + newCert.certId);
+                
+                // Reset Form
+                document.getElementById('cert_name').value = '';
+                document.getElementById('cert_program').value = '';
+                document.getElementById('cert_id').value = generateId();
+                loadCertificates();
+            } catch(error) {
+                alert("সমস্যা হয়েছে!");
+            } finally {
+                btn.innerHTML = '<i class="fas fa-magic"></i> জেনারেট ও সেভ করুন'; btn.disabled = false;
+            }
+        };
+
+        window.deleteCert = async (id) => {
+            if(confirm("সার্টিফিকেটটি কি ডিলিট করতে চান? ডিলিট করলে পাবলিকে আর ভেরিফাই হবে না।")) {
+                await deleteDoc(doc(db, "certificates", id));
+                loadCertificates();
+            }
+        };
+
+        loadCertificates();
+    </script>
+</body>
+</html>
