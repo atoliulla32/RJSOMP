@@ -321,8 +321,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // 🔴 এখানে টেলিগ্রামের সঠিক গ্রুপ আইডি দেওয়া হলো
         const TELEGRAM_BOT_TOKEN = "8871037828:AAF6g8Hj2zI1nEbb8nrHb52gpVLe0rS8AF8";
-        const TELEGRAM_CHAT_ID = "5506168033";
+        const TELEGRAM_CHAT_ID = "-1004451170012";
         const ADMIN_WHATSAPP = "8801917079156";           
 
         window.allDonors = [];
@@ -365,7 +366,6 @@
             renderDonors(filtered);
         };
 
-        // 🔴 কম্প্যাক্ট স্কয়ার কার্ড রেন্ডার (উপযোগী/অনুপযোগী ব্যাজ সহ)
         window.renderDonors = (dataArray) => {
             const grid = document.getElementById('donors_grid');
             if(dataArray.length === 0) { grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500 font-bold text-sm">কোনো রক্তদাতা পাওয়া যায়নি।</div>`; return; }
@@ -381,7 +381,6 @@
                 if(d.district) fullAddress.push(d.district);
                 const addressStr = fullAddress.length > 0 ? fullAddress.join(", ") : "ঠিকানা নেই";
                 
-                // ================= উপযোগী/অনুপযোগী লজিক =================
                 let isEligible = true;
                 let eligibilityText = "উপযোগী";
                 let eligibilityIcon = '<i class="fas fa-check-circle"></i>';
@@ -410,12 +409,10 @@
                 html += `
                     <div class="donor-card bg-white border border-gray-100 rounded-[16px] p-3 shadow-sm transition-all duration-300 relative flex flex-col h-full text-center overflow-hidden">
                         
-                        <!-- বাঁ-পাশে উপযোগী/অনুপযোগী ট্যাগ -->
                         <div class="absolute top-0 left-0 ${eligibilityClass} font-bold text-[8px] sm:text-[9px] px-1.5 py-1 rounded-br-xl border-b border-r z-10 shadow-sm flex items-center gap-1">
                             ${eligibilityIcon} <span class="ml-0.5">${eligibilityText}</span>
                         </div>
 
-                        <!-- ডান-পাশে রক্তের গ্রুপ -->
                         <div class="absolute top-0 right-0 bg-red-50 text-red-600 font-black text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-bl-xl border-b border-l border-red-100 z-10 shadow-sm">
                             ${d.bloodGroup || "N/A"}
                         </div>
@@ -435,7 +432,6 @@
                         </div>
                         
                         <div class="flex gap-1.5 w-full mt-auto">
-                            <!-- রিকোয়েস্ট বাটনে এখন সিস্টেম আইডি এবং এরিয়া পাঠানো হচ্ছে -->
                             <button onclick="openRequestModal('${d.id}', '${d.name}', '${d.bloodGroup}', '${d.upazila || ''}', '${d.district || ''}', '${eligibilityMsg}')" class="flex-1 bg-red-600 text-white font-bold py-1.5 rounded-lg hover:bg-red-700 transition text-[9px] sm:text-[11px] shadow-sm flex items-center justify-center gap-1"><i class="fas fa-paper-plane"></i> রিকোয়েস্ট</button>
                             <button onclick="openEditModal('${safeDataStr}')" class="w-auto px-2.5 sm:px-3 bg-gray-100 text-gray-700 font-bold py-1.5 rounded-lg hover:bg-gray-200 transition text-[9px] sm:text-[11px] border border-gray-200" title="আপডেট করুন"><i class="fas fa-edit"></i></button>
                         </div>
@@ -472,7 +468,6 @@
                 return;
             }
 
-            // নতুন ফরম্যাট: পিন হাইড করা হয়েছে, এলাকা ও আইডি যুক্ত করা হয়েছে
             const rawMsg = `আসসালামু আলাইকুম। জরুরি ভিত্তিতে রক্তের প্রয়োজন। আমি আপনাদের ওয়েবসাইট থেকে "${donorName}" (এলাকা: ${donorArea || 'অজ্ঞাত'} | সিস্টেম আইডি: ${donorId}) উক্ত রক্তদাতার সাথে যোগাযোগ করিয়ে দেওয়ার জন্য রিকোয়েস্ট করছি।\n\nহাসপাতাল / রোগীর ঠিকানা: ${hospital}\nরোগীর সমস্যা: ${problem}\nরক্তদাতার অবস্থা: ${eligibility}`;
             
             const msg = encodeURIComponent(rawMsg);
@@ -486,7 +481,7 @@
             const hospital = document.getElementById('req_hospital').value.trim();
             const targetDonor = document.getElementById('req_donor_name').value;
             const eligibility = document.getElementById('req_donor_eligibility').value;
-            const donorId = document.getElementById('req_donor_id').value; // 🔴 আসল ডোনার আইডি রিসিভ করা হলো
+            const donorId = document.getElementById('req_donor_id').value; 
             const btn = document.getElementById('req_submit_btn');
 
             if(!problem || !hospital || !name || !phone) {
@@ -498,7 +493,6 @@
             try {
                 const finalHospitalInfo = `${hospital} (সমস্যা: ${problem}) [অবস্থা: ${eligibility}]`;
                 
-                // 🔴 donorId ডাটাবেজে সেভ করা হলো
                 await addDoc(collection(db, "blood_requests"), {
                     patientName: name, 
                     contactPhone: phone, 
@@ -509,6 +503,7 @@
                     timestamp: serverTimestamp()
                 });
 
+                // 🔴 এখানে টেলিগ্রামের নতুন গ্রুপ আইডি কাজ করবে
                 const teleMsg = `🔴 *নতুন রক্তের রিকোয়েস্ট!*\n\n*ডোনার:* ${targetDonor}\n*বর্তমান অবস্থা:* ${eligibility}\n*সমস্যা:* ${problem}\n*হাসপাতাল:* ${hospital}\n*রোগীর লোক:* ${name}\n*মোবাইল:* ${phone}`;
                 await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: "POST", headers: {"Content-Type": "application/json"},
