@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অটো আইডি কার্ড জেনারেটর | রক্তযোদ্ধা</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; overflow-x: hidden; }
+        .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); }
+        
+        /* ================= ID Card Design ================= */
+        .id-card-box {
+            width: 330px;
+            height: 520px;
+            background: #ffffff;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+            margin: 0 auto;
+            flex-shrink: 0;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23dc2626" fill-opacity="0.03"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+        }
+
+        .id-header {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: white;
+            text-align: center;
+            padding: 15px 10px 45px 10px;
+            border-bottom-left-radius: 50% 20px;
+            border-bottom-right-radius: 50% 20px;
+            position: relative;
+        }
+
+        .id-logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            padding: 2px;
+            margin: 0 auto 5px;
+            border: 2px solid #facc15;
+            object-fit: cover;
+        }
+
+        .id-org-name { font-size: 18px; font-weight: 800; line-height: 1.2; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .id-org-sub { font-size: 9px; font-weight: 600; letter-spacing: 1px; color: #fef08a; }
+
+        .id-badge {
+            background: #facc15;
+            color: #713f12;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 4px 20px;
+            border-radius: 20px;
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            letter-spacing: 1px;
+        }
+
+        .id-photo-container {
+            width: 110px;
+            height: 130px;
+            margin: 35px auto 10px;
+            border-radius: 10px;
+            border: 3px solid #dc2626;
+            padding: 3px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .id-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+
+        .id-details { text-align: center; padding: 0 20px; }
+        .id-name { font-size: 22px; font-weight: 800; color: #1e293b; line-height: 1.2; margin-bottom: 2px; }
+        .id-role { font-size: 12px; font-weight: 700; color: #dc2626; margin-bottom: 15px; }
+
+        .id-info-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            text-align: left;
+            font-size: 11px;
+            color: #334155;
+            gap: 6px;
+            margin-bottom: 15px;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .id-info-grid b { color: #0f172a; font-weight: 700; }
+
+        .id-footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: #1e293b;
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 9px;
+        }
+        .id-signature { text-align: center; border-top: 1px dashed rgba(255,255,255,0.4); padding-top: 4px; width: 80px; }
+        .blood-drop { position: absolute; right: 15px; top: 180px; font-size: 45px; color: rgba(220,38,38,0.05); }
+
+    </style>
+    
+    <!-- ইনলাইন সিকিউরিটি: পেজ লোড হওয়ার আগেই পুরো পেজ লুকিয়ে ফেলা হলো -->
+    <script> document.documentElement.style.display = 'none'; </script>
+</head>
+<body class="p-3 sm:p-8 relative">
+
+    <div class="max-w-7xl mx-auto pb-10">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm mb-6 border-l-4 border-red-600 gap-3">
+            <div class="flex items-center gap-4">
+                <div class="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center border border-red-200 text-xl text-red-600"><i class="fas fa-id-card"></i></div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-800">অটো আইডি কার্ড জেনারেটর</h1>
+                    <p class="text-xs md:text-sm font-bold text-gray-500 mt-1">সব সদস্য, রক্তদাতা ও স্বেচ্ছাসেবকদের আইডি কার্ড তৈরি করুন</p>
+                </div>
+            </div>
+            <a href="admin.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ড</a>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-3 items-center">
+            <div class="relative w-full md:flex-1">
+                <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="নাম বা মোবাইল নাম্বার দিয়ে খুঁজুন..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 bg-gray-50 text-sm font-medium">
+            </div>
+            <div class="text-sm font-bold text-gray-600 bg-gray-100 px-4 py-2.5 rounded-lg border border-gray-200">
+                মোট সদস্য: <span id="totalUsers" class="text-red-600">0</span>
+            </div>
+        </div>
+
+        <!-- Data Grid -->
+        <div id="users-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div class="col-span-full text-center py-16"><i class="fas fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i><p class="font-bold text-gray-500">ডাটাবেজ থেকে তথ্য মার্জ করে লোড করা হচ্ছে...</p></div>
+        </div>
+    </div>
+
+    <!-- ID Card Modal -->
+    <div id="idCardModal" class="fixed inset-0 modal-bg z-[100] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-100 w-full max-w-sm rounded-2xl shadow-2xl p-4 transform scale-95 transition-transform duration-300 relative flex flex-col items-center" id="idCardModalContent">
+            
+            <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-500 hover:text-red-600 hover:bg-red-50 transition shadow"><i class="fas fa-times"></i></button>
+            <h3 class="text-lg font-bold text-gray-800 mb-4 w-full text-center border-b border-gray-300 pb-2">আইডি কার্ড প্রিভিউ</h3>
+
+            <!-- The Actual ID Card DOM -->
+            <div class="id-card-box" id="id-card-dom">
+                <i class="fas fa-tint blood-drop"></i>
+                
+                <div class="id-header">
+                    <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" class="id-logo" crossorigin="anonymous">
+                    <h2 class="id-org-name">রক্তযোদ্ধা</h2>
+                    <p class="id-org-sub">সমাজ ও মানব কল্যাণ পরিষদ</p>
+                    <div class="id-badge">IDENTITY CARD</div>
+                </div>
+
+                <div class="id-photo-container">
+                    <img id="c_photo" src="https://via.placeholder.com/150" class="id-photo" crossorigin="anonymous">
+                </div>
+
+                <div class="id-details">
+                    <h1 class="id-name" id="c_name">নাম লোড হচ্ছে...</h1>
+                    <p class="id-role" id="c_role">পদবী লোড হচ্ছে...</p>
+
+                    <div class="id-info-grid">
+                        <span><b>রক্তের গ্রুপ</b></span> <span>: <span id="c_blood" class="text-red-600 font-extrabold text-sm"></span></span>
+                        <span><b>মোবাইল</b></span> <span>: <span id="c_phone"></span></span>
+                        <span><b>গোপন কোড</b></span> <span>: <span id="c_pin" class="font-mono text-blue-600 font-bold"></span></span>
+                        <span><b>ঠিকানা</b></span> <span>: <span id="c_address" class="line-clamp-2 leading-tight"></span></span>
+                    </div>
+                </div>
+
+                <div class="id-footer">
+                    <div class="id-signature">স্বাক্ষর (গ্রাহক)</div>
+                    <div class="id-signature" style="border-top-color: #facc15; color: #facc15;">কর্তৃপক্ষ</div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="w-full mt-5 space-y-3">
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                    <span class="text-xs font-bold text-gray-600"><i class="fas fa-camera text-blue-500"></i> ছবি পরিবর্তন করুন:</span>
+                    <input type="file" accept="image/*" onchange="changeIdPhoto(this)" class="text-xs w-48 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+
+                <button onclick="downloadIdCard()" id="downloadBtn" class="w-full bg-red-600 text-white font-bold py-3.5 rounded-xl hover:bg-red-700 transition shadow-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i> ইমেজ (JPG) ডাউনলোড করুন
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Firebase & Logic -->
+    <script type="module">
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
+            projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+        };
+        
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let mergedUsers = []; // All fetched and merged users
+
+        // Security Check
+        onAuthStateChanged(auth, (user) => {
+            if (user) { document.documentElement.style.display = ''; fetchAndMergeData(); } 
+            else { window.top.location.href = "admin.html"; }
+        });
+
+        // ================= ১. ৩টি কালেকশন থেকে ডাটা এনে মার্জ করা =================
+        async function fetchAndMergeData() {
+            try {
+                const volSnap = await getDocs(collection(db, "volunteers"));
+                const donSnap = await getDocs(collection(db, "blood_donors"));
+                const memSnap = await getDocs(collection(db, "members"));
+
+                let usersMap = new Map(); // ফোন নাম্বার দিয়ে ট্র্যাক করব
+
+                const processDoc = (docSnap, roleName) => {
+                    docSnap.forEach(d => {
+                        let data = d.data();
+                        let phone = data.phone || "NoPhone_" + d.id;
+                        
+                        if(usersMap.has(phone)) {
+                            // যদি আগে থেকেই এই নাম্বারের ইউজার থাকে, শুধু পদবী (Role) যুক্ত করে দেব
+                            let existing = usersMap.get(phone);
+                            if(!existing.roles.includes(roleName)) {
+                                existing.roles.push(roleName);
+                            }
+                            // যদি আগেরটায় ছবি না থাকে, কিন্তু এই ফর্মটায় ছবি থাকে, তবে ছবি আপডেট করে দেব
+                            if(!existing.photo && data.profileImageUrl) {
+                                existing.photo = data.profileImageUrl;
+                            }
+                        } else {
+                            // নতুন ইউজার এন্ট্রি
+                            let address = [data.village, data.upazila, data.district].filter(Boolean).join(", ");
+                            usersMap.set(phone, {
+                                id: d.id,
+                                name: data.name,
+                                phone: phone,
+                                blood: data.bloodGroup || "N/A",
+                                address: address,
+                                pin: data.secretCode || data.secretPin || "N/A",
+                                photo: data.profileImageUrl || "https://via.placeholder.com/150",
+                                roles: [roleName],
+                                rawData: data
+                            });
+                        }
+                    });
+                };
+
+                processDoc(volSnap, "স্বেচ্ছাসেবক");
+                processDoc(donSnap, "রক্তদাতা");
+                processDoc(memSnap, "সদস্য");
+
+                mergedUsers = Array.from(usersMap.values());
+                document.getElementById('totalUsers').innerText = mergedUsers.length;
+                renderUsers(mergedUsers);
+
+            } catch(e) {
+                document.getElementById('users-grid').innerHTML = '<div class="col-span-full text-center py-10 text-red-600 font-bold">ডাটাবেজ থেকে তথ্য আনতে সমস্যা হয়েছে!</div>';
+            }
+        }
+
+        // ================= ২. ইউজার লিস্ট রেন্ডার করা =================
+        window.renderUsers = (usersArray) => {
+            const grid = document.getElementById('users-grid');
+            if(usersArray.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-16"><p class="text-gray-500 font-bold">কোনো সদস্য পাওয়া যায়নি!</p></div>';
+                return;
+            }
+
+            let html = '';
+            usersArray.forEach((u, index) => {
+                let roleString = u.roles.join(", ");
+                let safeDataStr = encodeURIComponent(JSON.stringify(u)).replace(/'/g, "%27");
+
+                html += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 transition hover:shadow-md">
+                        <img src="${u.photo}" class="w-16 h-16 rounded-full object-cover border-[3px] border-red-100 shadow-sm shrink-0" onerror="this.src='https://via.placeholder.com/150'">
+                        <div class="flex-grow min-w-0">
+                            <h3 class="font-bold text-gray-800 truncate leading-tight">${u.name}</h3>
+                            <p class="text-[11px] font-bold text-red-600 mt-1 truncate"><i class="fas fa-tag"></i> ${roleString}</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5"><i class="fas fa-phone-alt"></i> ${u.phone}</p>
+                        </div>
+                        <button onclick="openIdModal('${safeDataStr}')" class="shrink-0 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm" title="আইডি কার্ড তৈরি করুন">
+                            <i class="fas fa-address-card text-lg"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        };
+
+        // ================= ৩. সার্চ ফিল্টার =================
+        window.filterUsers = () => {
+            const txt = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = mergedUsers.filter(u => u.name.toLowerCase().includes(txt) || u.phone.includes(txt));
+            renderUsers(filtered);
+        };
+
+        // ================= ৪. আইডি কার্ড মডাল ওপেন এবং ডাটা সেট =================
+        window.openIdModal = (dataStr) => {
+            const u = JSON.parse(decodeURIComponent(dataStr));
+            
+            document.getElementById('c_name').innerText = u.name;
+            document.getElementById('c_role').innerText = u.roles.join(", ");
+            document.getElementById('c_blood').innerText = u.blood;
+            document.getElementById('c_phone').innerText = u.phone;
+            document.getElementById('c_pin').innerText = u.pin;
+            document.getElementById('c_address').innerText = u.address;
+            
+            // Set Photo with cache bypass to fix CORS issues sometimes
+            const imgEl = document.getElementById('c_photo');
+            imgEl.src = u.photo !== "https://via.placeholder.com/150" ? u.photo : "https://via.placeholder.com/150";
+
+            const modal = document.getElementById('idCardModal');
+            const content = document.getElementById('idCardModalContent');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+        };
+
+        window.closeModal = () => {
+            const modal = document.getElementById('idCardModal');
+            const content = document.getElementById('idCardModalContent');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        };
+
+        // ================= ৫. নতুন ছবি আপলোড (Live Preview in Card) =================
+        window.changeIdPhoto = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('c_photo').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        // ================= ৬. HTML2Canvas দিয়ে আইডি কার্ড ডাউনলোড =================
+        window.downloadIdCard = async () => {
+            const btn = document.getElementById('downloadBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...'; btn.disabled = true;
+
+            const cardDom = document.getElementById('id-card-dom');
+            
+            try {
+                // scale: 3 for high resolution
+                const canvas = await html2canvas(cardDom, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: "#ffffff" });
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                
+                const link = document.createElement('a');
+                link.download = `ID_Card_${document.getElementById('c_phone').innerText}.jpg`;
+                link.href = imgData;
+                link.click();
+            } catch (error) {
+                alert("ডাউনলোড করতে সমস্যা হয়েছে! ইন্টারনেট সংযোগ বা ছবির ফরম্যাট চেক করুন।");
+            } finally {
+                btn.innerHTML = originalText; btn.disabled = false;
+            }
+        };
+
+    </script>
+</body>
+</html>
