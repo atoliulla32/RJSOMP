@@ -3,292 +3,440 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>সার্টিফিকেট জেনারেটর | অ্যাডমিন</title>
+    <title>অটো আইডি কার্ড জেনারেটর | রক্তযোদ্ধা</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Sans+Bengali:wght@400;600;700;800&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
     
-    <!-- PDF & Canvas Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; overflow-x: hidden; }
+        .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); }
         
-        /* Hidden Rendering Box for Download */
-        #hidden-cert-box { position: absolute; left: -9999px; top: -9999px; display: block; }
-        .certificate-wrapper {
-            width: 297mm; height: 210mm; background: #fffdf8; position: relative; box-sizing: border-box;
+        /* ================= Premium ID Card Front ================= */
+        .id-card-front {
+            width: 340px;
+            height: 530px;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+            margin: 0 auto;
         }
-        .cert-border-outer { padding: 8px; height: 100%; box-sizing: border-box; background: linear-gradient(135deg, #d4af37, #f9f0c2, #aa771c, #f9f0c2, #d4af37); }
-        .cert-border-inner { background-color: #fffdf8; border: 2px solid #8a5a19; height: 100%; box-sizing: border-box; padding: 15mm; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-        .cert-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50%; opacity: 0.05; z-index: 1; }
-        .cert-content { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; }
-        .cert-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #d4af37; padding-bottom: 15px; }
-        .cert-logo { width: 100px; height: 100px; border: 2px solid #d4af37; border-radius: 50%; padding: 3px; background: white; object-fit: cover; }
-        .cert-title-area { text-align: center; flex-grow: 1; }
-        .cert-org-en { font-family: 'Cinzel', serif; font-size: 26px; color: #0a1f3d; font-weight: 700; margin: 0; letter-spacing: 1px; }
-        .cert-org-bn { font-family: 'Tiro Bangla', serif; font-size: 22px; color: #dc2626; font-weight: bold; margin: 5px 0; }
-        .cert-slogan { font-family: 'Tiro Bangla', serif; font-size: 13px; color: #8a5a19; font-weight: bold; }
-        .cert-badge-area { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
-        .cert-id { font-family: 'Cinzel', serif; font-size: 14px; font-weight: bold; color: #c0392b; background: #fdf6d4; padding: 5px 15px; border: 1px dashed #d4af37; border-radius: 4px; }
-        .cert-date { font-family: 'Cinzel', serif; font-size: 14px; font-weight: bold; color: #0a1f3d; }
-        .cert-main-title { text-align: center; margin: 25px 0; }
-        .cert-main-title h1 { font-family: 'Cinzel', serif; font-size: 38px; color: #d4af37; font-weight: 700; letter-spacing: 3px; margin: 0;}
-        .cert-main-title h2 { font-family: 'Tiro Bangla', serif; font-size: 20px; color: #0a1f3d; font-weight: bold; letter-spacing: 5px; margin: 5px 0 0 0; }
-        .cert-body { text-align: center; font-family: 'Tiro Bangla', serif; font-size: 20px; color: #333; line-height: 1.8; margin-top: 10px; flex-grow: 1; }
-        .cert-name { font-family: 'Noto Sans Bengali', sans-serif; font-size: 32px; font-weight: 800; color: #dc2626; border-bottom: 2px dotted #8a5a19; display: inline-block; padding: 0 20px; margin: 0 10px; }
-        .cert-program { font-family: 'Noto Sans Bengali', sans-serif; font-size: 24px; font-weight: 700; color: #0a1f3d; border-bottom: 2px dotted #8a5a19; display: inline-block; padding: 0 20px; margin: 0 10px; }
-        .cert-footer { display: flex; justify-content: space-between; margin-top: auto; padding: 0 20mm; }
-        .sig-box { text-align: center; border-top: 1px solid #0a1f3d; padding-top: 8px; width: 220px; }
-        .sig-box h4 { font-family: 'Tiro Bangla', serif; font-size: 16px; font-weight: bold; color: #0a1f3d; margin: 0; }
-        .sig-box p { font-family: 'Cinzel', serif; font-size: 10px; color: #555; margin: 2px 0 0 0; }
+        
+        .pattern-sidebar-front {
+            position: absolute; left: 0; top: 0; bottom: 0; width: 110px;
+            background: #ef4444;
+            z-index: 1;
+        }
+        
+        .front-logo {
+            position: absolute; top: 20px; left: 20px; width: 70px; height: 70px;
+            border-radius: 50%; border: 2px solid white; z-index: 10;
+            background: white; padding: 2px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .front-logo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+        .front-header { position: absolute; top: 30px; left: 120px; right: 15px; text-align: right; z-index: 5; }
+        .org-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.3; text-transform: uppercase; }
+        
+        .id-photo-wrapper {
+            position: absolute; top: 120px; left: 20px; width: 130px; height: 130px;
+            background: #fff; border: 5px solid #ef4444; border-radius: 50%; z-index: 10;
+            box-shadow: 4px 4px 15px rgba(0,0,0,0.15); overflow: hidden; padding: 2px;
+        }
+        .id-photo-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        
+        .front-details { position: absolute; top: 280px; left: 120px; right: 15px; text-align: right; z-index: 5; }
+        .user-name { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; color: #0f172a; text-transform: uppercase; line-height: 1.1; margin-bottom: 2px; word-wrap: break-word; }
+        .user-role { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 15px; }
+        
+        .user-info { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .blood-badge { font-size: 16px; font-weight: 800; color: #dc2626; margin-bottom: 5px; display: inline-block; }
+        
+        .front-signature { position: absolute; bottom: 20px; left: 120px; right: 15px; text-align: right; z-index: 5; }
+        .sig-text { font-family: 'Dancing Script', cursive; font-size: 28px; color: #1e3a8a; line-height: 0.8; transform: rotate(-5deg); display: inline-block; margin-bottom: 5px; }
+        .sig-line { font-size: 9px; font-weight: 800; color: #64748b; border-top: 1px solid #94a3b8; padding-top: 2px; display: inline-block; width: 110px; text-align: center; }
+
+        /* ================= Premium ID Card Back ================= */
+        .id-card-back {
+            width: 340px;
+            height: 530px;
+            background: #0f172a; 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+            margin: 0 auto;
+        }
+        .pattern-sidebar-back {
+            position: absolute; right: 0; top: 0; bottom: 0; width: 60px;
+            background: #ef4444;
+            z-index: 1;
+        }
+        .back-content { position: absolute; top: 30px; left: 20px; right: 80px; text-align: left; z-index: 5; color: white; }
+        
+        .back-logo { width: 70px; height: 70px; background: white; padding: 2px; border-radius: 50%; margin-bottom: 20px; border: 2px solid #ef4444; }
+        .back-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        
+        .tc-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 4px; text-transform: uppercase; }
+        .tc-text { font-size: 10px; font-weight: 400; color: #cbd5e1; line-height: 1.5; margin-bottom: 15px; text-align: justify; }
+        .tc-text ul { padding-left: 0; list-style: none; margin: 0; }
+        .tc-text li { margin-bottom: 8px; }
+        .tc-note { font-weight: 600; color: #fef08a; font-size: 9px; margin-bottom: 25px; line-height: 1.4; }
+        
+        .contact-info { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 500; color: #cbd5e1; line-height: 1.8; }
+        .contact-info i { color: #ef4444; width: 15px; text-align: center; margin-right: 5px; }
+
     </style>
     
-    <!-- ইনলাইন সিকিউরিটি: পেজ লোড হওয়ার আগেই পুরো পেজ লুকিয়ে ফেলা হলো -->
     <script> document.documentElement.style.display = 'none'; </script>
 </head>
-<body class="p-4 sm:p-8">
+<body class="p-3 sm:p-8 relative">
 
-    <div class="max-w-5xl mx-auto pb-10">
-        
+    <div class="max-w-7xl mx-auto pb-10">
         <!-- Header -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm mb-6 flex justify-between items-center border-l-4 border-yellow-500">
-            <div>
-                <h1 class="text-xl md:text-2xl font-bold text-gray-800"><i class="fas fa-certificate text-yellow-500 mr-2"></i> অটো সার্টিফিকেট জেনারেটর</h1>
-                <p class="text-xs sm:text-sm text-gray-500 mt-1">স্বেচ্ছাসেবকদের জন্য এক ক্লিকে প্রিমিয়াম সার্টিফিকেট তৈরি ও শেয়ার করুন</p>
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm mb-6 border-l-4 border-red-600 gap-3">
+            <div class="flex items-center gap-4">
+                <div class="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center border border-red-200 text-xl text-red-600"><i class="fas fa-id-badge"></i></div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-800">অটো আইডি কার্ড জেনারেটর</h1>
+                    <p class="text-xs md:text-sm font-bold text-gray-500 mt-1">সব সদস্যের জন্য স্মার্ট আইডি কার্ড ইনফো জেনারেটর ও শেয়ারিং</p>
+                </div>
             </div>
-            <a href="admin.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm transition hidden sm:flex items-center gap-1">
-                <i class="fas fa-arrow-left"></i> ড্যাশবোর্ড
-            </a>
+            <a href="admin.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ড</a>
         </div>
 
-        <!-- Generator Form -->
-        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-gray-200 mb-8">
-            <form onsubmit="generateCertificate(event)" class="space-y-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">স্বেচ্ছাসেবকের নাম <span class="text-red-500">*</span></label>
-                        <input type="text" id="cert_name" required placeholder="যেমন: মোহাম্মদ ওলিউল্লাহ" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-yellow-500 bg-gray-50">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">প্রোগ্রাম / ইভেন্টের নাম <span class="text-red-500">*</span></label>
-                        <input type="text" id="cert_program" required placeholder="যেমন: ডেঙ্গু নিধন কর্মসূচি ২০২৬" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-yellow-500 bg-gray-50">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">ইস্যুর তারিখ <span class="text-red-500">*</span></label>
-                        <input type="date" id="cert_date" required class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:border-yellow-500 bg-gray-50">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">অটোমেটিক ইউনিক কোড</label>
-                        <input type="text" id="cert_id" readonly class="w-full p-3 border border-yellow-200 rounded-xl bg-yellow-50 font-mono font-bold text-yellow-700 text-center tracking-wider">
-                    </div>
-                </div>
+        <!-- Search -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-3 items-center">
+            <div class="relative w-full md:flex-1">
+                <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="নাম বা মোবাইল নাম্বার দিয়ে খুঁজুন..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 bg-gray-50 text-sm font-medium">
+            </div>
+            <div class="text-sm font-bold text-gray-600 bg-gray-100 px-4 py-2.5 rounded-lg border border-gray-200">
+                মোট সদস্য: <span id="totalUsers" class="text-red-600">0</span>
+            </div>
+        </div>
+
+        <!-- Data Grid -->
+        <div id="users-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div class="col-span-full text-center py-16"><i class="fas fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i><p class="font-bold text-gray-500">ডাটাবেজ থেকে তথ্য মার্জ করে লোড করা হচ্ছে...</p></div>
+        </div>
+    </div>
+
+    <!-- Live Edit & ID Card Modal -->
+    <div id="idCardModal" class="fixed inset-0 modal-bg z-[100] hidden flex items-center justify-center p-2 sm:p-4 opacity-0 transition-opacity duration-300">
+        
+        <div class="bg-gray-50 w-full max-w-6xl h-[95vh] rounded-2xl shadow-2xl p-4 sm:p-6 transform scale-95 transition-transform duration-300 relative flex flex-col md:flex-row gap-6" id="idCardModalContent">
+            
+            <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-500 hover:text-red-600 border border-gray-200 transition shadow z-50"><i class="fas fa-times"></i></button>
+            
+            <!-- Left Side: Live Edit Form -->
+            <div class="w-full md:w-1/3 flex flex-col space-y-4 h-full">
+                <h3 class="text-lg font-bold text-gray-800 border-b border-gray-300 pb-2"><i class="fas fa-edit text-blue-500"></i> আইডি কার্ড এডিটর</h3>
                 
-                <button type="submit" id="generateBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-lg flex items-center justify-center gap-2">
-                    <i class="fas fa-magic"></i> জেনারেট ও সেভ করুন
+                <div class="space-y-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex-grow overflow-y-auto custom-scroll">
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">নাম</label><input type="text" id="edit_name" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-bold"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block text-xs font-bold text-gray-700 mb-1">পদবী</label><input type="text" id="edit_role" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-semibold"></div>
+                        <div><label class="block text-xs font-bold text-gray-700 mb-1">রক্তের গ্রুপ</label><input type="text" id="edit_blood" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 text-sm font-bold text-red-600"></div>
+                    </div>
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">আইডি নং</label><input type="text" id="edit_idno" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-mono font-bold text-gray-700"></div>
+                    
+                    <div class="border-t border-gray-200 pt-3 mt-3">
+                        <label class="block text-xs font-bold text-gray-700 mb-1 text-blue-600">সভাপতির নাম</label>
+                        <input type="text" id="edit_president" oninput="syncCard()" placeholder="যেমন: Kazi Ibrahim" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-bold bg-blue-50">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 mt-2">সদস্যের নতুন ছবি দিন</label>
+                        <input type="file" accept="image/*" onchange="changeIdPhoto(this)" class="w-full p-1 border border-gray-300 rounded bg-gray-50 text-xs">
+                    </div>
+                </div>
+
+                <!-- স্মার্ট ডাউনলোড বাটন -->
+                <button onclick="downloadIdCard()" id="downloadBtn" class="shrink-0 bg-red-600 text-white font-bold py-3.5 rounded-xl hover:bg-red-700 transition shadow-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i> কার্ড ডাউনলোড করুন
                 </button>
-            </form>
-        </div>
-
-        <!-- History List -->
-        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">ইস্যুকৃত সার্টিফিকেট ও শেয়ার অপশন</h2>
-            <div id="cert_list" class="space-y-4">
-                <p class="text-center text-gray-500 py-4"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</p>
             </div>
-        </div>
-    </div>
 
-    <!-- Hidden Area for Rendering PDF/Image -->
-    <div id="hidden-cert-box">
-        <div class="certificate-wrapper" id="admin-certificate-dom">
-            <div class="cert-border-outer">
-                <div class="cert-border-inner">
-                    <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" class="cert-watermark" crossorigin="anonymous">
-                    <div class="cert-content">
-                        <div class="cert-header">
-                            <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" class="cert-logo" crossorigin="anonymous">
-                            <div class="cert-title-area">
-                                <h1 class="cert-org-en">ROKTOJODDHA</h1>
-                                <h2 class="cert-org-bn">রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ</h2>
-                                <div class="cert-slogan">"জীবনের জন্য রক্ত, সমাজের জন্য দায়িত্ব"</div>
-                            </div>
-                            <div style="width: 100px;"></div> 
+            <!-- Right Side: Live ID Card Preview (Front & Back) -->
+            <div class="w-full md:w-2/3 bg-gray-300 p-4 rounded-xl shadow-inner overflow-y-auto flex flex-col md:flex-row items-center justify-center gap-6 h-full">
+                
+                <!-- ================= FRONT SIDE ================= -->
+                <div class="id-card-front" id="id-card-front-dom">
+                    <div class="pattern-sidebar-front"></div>
+                    
+                    <div class="front-logo">
+                        <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" crossorigin="anonymous">
+                    </div>
+
+                    <div class="front-header">
+                        <div class="org-title">ROKTOJODDA SOMAJ<br>O MANOB KOLLAYAN PORISHAD</div>
+                    </div>
+                    
+                    <div class="id-photo-wrapper">
+                        <img id="c_photo" src="https://via.placeholder.com/150" crossorigin="anonymous">
+                    </div>
+                    
+                    <div class="front-details">
+                        <div class="user-name" id="c_name">NAME</div>
+                        <div class="user-role" id="c_role">ROLE</div>
+                        <div class="blood-badge" id="c_blood">A+</div>
+                        <div class="user-info">ID: <span id="c_idno" class="font-bold"></span></div>
+                    </div>
+                    
+                    <div class="front-signature">
+                        <div class="sig-text" id="c_president_sig">Kazi Ibrahim</div><br>
+                        <div class="sig-line">PRESIDENT</div>
+                    </div>
+                </div>
+
+                <!-- ================= BACK SIDE ================= -->
+                <div class="id-card-back" id="id-card-back-dom">
+                    <div class="pattern-sidebar-back"></div>
+                    <div class="back-content">
+                        
+                        <div class="back-logo">
+                            <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" crossorigin="anonymous">
                         </div>
-                        <div class="cert-badge-area">
-                            <div class="cert-id">ID: <span id="h-id"></span></div>
-                            <div class="cert-date">Date: <span id="h-date"></span></div>
+                        
+                        <div class="tc-title">TERMS & CONDITIONS</div>
+                        <div class="tc-text">
+                            <ul>
+                                <li>1. This ID Card is issued solely for authorized volunteer activities of Rokttojoddha Somaj o Manob Kollayan Parishad.</li>
+                                <li>2. This ID Card is the property of the organization. It must not be misused, transferred, or allowed to be used by any other person without authorization.</li>
+                                <li>3. This ID Card does not guarantee any employment, official position, salary, or financial benefit.</li>
+                            </ul>
                         </div>
-                        <div class="cert-main-title">
-                            <h1>CERTIFICATE</h1>
-                            <h2>OF APPRECIATION</h2>
-                        </div>
-                        <div class="cert-body">
-                            এই মর্মে অত্যন্ত আনন্দের সাথে প্রত্যয়ন করা যাচ্ছে যে,<br>
-                            <span class="cert-name" id="h-name"></span><br>
-                            অত্যন্ত নিষ্ঠা ও আন্তরিকতার সাথে আমাদের<br>
-                            <span class="cert-program" id="h-program"></span><br>
-                            কার্যক্রমে একজন নিবেদিতপ্রাণ স্বেচ্ছাসেবক হিসেবে অসামান্য অবদান রেখেছেন।<br>
-                            <span style="font-size: 16px; color: #555; display: block; margin-top: 15px; font-family: 'Noto Sans Bengali', sans-serif;">আমরা তার এই মানবিক সেবার গভীর প্রশংসা করছি এবং তার উজ্জ্বল ভবিষ্যৎ কামনা করছি।</span>
-                        </div>
-                        <div class="cert-footer">
-                            <div class="sig-box"><h4>সভাপতি</h4><p>PRESIDENT</p></div>
-                            <div class="sig-box"><h4>সাধারণ সম্পাদক</h4><p>GENERAL SECRETARY</p></div>
+                        <div class="tc-note">Note: This ID Card is valid only for authorized volunteer activities of the organization.</div>
+                        
+                        <div class="contact-info">
+                            <div><i class="fas fa-envelope"></i> info.rkjsomkporishod@gmail.com</div>
+                            <div><i class="fas fa-phone-alt"></i> +8801757876156</div> <!-- আপনি চাইলে নাম্বার আপডেট করতে পারেন -->
+                            <div><i class="fas fa-globe"></i> rjsomp.web.app</div>
                         </div>
                     </div>
                 </div>
+
             </div>
+
         </div>
     </div>
-    
-    <!-- Firebase Logic & Inline Auth -->
+
+    <!-- Firebase & Logic -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
             projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
         };
         
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // ================= ইনলাইন সিকিউরিটি / লগইন চেক =================
+        let mergedUsers = []; 
+        let defaultPresident = "Kazi Ibrahim"; 
+
         onAuthStateChanged(auth, (user) => {
-            if (user) { 
-                document.documentElement.style.display = ''; 
-                loadCertificates(); 
-            } 
-            else { 
-                window.top.location.href = "admin.html"; 
-            }
+            if (user) { document.documentElement.style.display = ''; fetchAndMergeData(); } 
+            else { window.top.location.href = "admin.html"; }
         });
 
-        // ================= অটোমেটিক ডেট এবং আইডি জেনারেট =================
-        document.getElementById('cert_date').valueAsDate = new Date();
-        const generateId = () => "CERT-" + Math.floor(1000 + Math.random() * 9000);
-        document.getElementById('cert_id').value = generateId();
-
-        // ================= ডাটাবেজ থেকে লোড =================
-        window.loadCertificates = async () => {
-            const listDiv = document.getElementById('cert_list');
+        // ================= ৩টি কালেকশন থেকে ডাটা মার্জ করা =================
+        async function fetchAndMergeData() {
             try {
-                const q = query(collection(db, "certificates"), orderBy("timestamp", "desc"));
-                const snap = await getDocs(q);
-                
-                if(snap.empty) { listDiv.innerHTML = '<p class="text-center text-gray-500">কোনো সার্টিফিকেট ইস্যু করা হয়নি।</p>'; return; }
+                const volSnap = await getDocs(collection(db, "volunteers"));
+                const donSnap = await getDocs(collection(db, "blood_donors"));
+                const memSnap = await getDocs(collection(db, "members"));
 
-                let html = '';
-                snap.forEach(d => {
-                    const data = d.data();
-                    html += `
-                        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-100 gap-4 transition hover:shadow-md">
-                            <div class="w-full xl:w-auto">
-                                <h3 class="font-extrabold text-lg text-gray-800">${data.name}</h3>
-                                <p class="text-sm font-bold text-gray-500 mt-1"><i class="fas fa-tasks text-yellow-500"></i> ${data.program}</p>
-                                <p class="text-xs font-bold text-gray-400 mt-0.5"><i class="fas fa-calendar-alt text-blue-400"></i> ${data.date} &nbsp; | &nbsp; <span class="text-red-600 font-mono">${data.certId}</span></p>
-                            </div>
+                let usersMap = new Map(); 
+
+                const processDoc = (docSnap, roleName) => {
+                    docSnap.forEach(d => {
+                        let data = d.data();
+                        let phone = data.phone || "NoPhone_" + d.id;
+                        
+                        if(usersMap.has(phone)) {
+                            let existing = usersMap.get(phone);
+                            if(!existing.roles.includes(roleName)) { existing.roles.push(roleName); }
+                            if(!existing.photo && data.profileImageUrl) { existing.photo = data.profileImageUrl; }
                             
-                            <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto mt-2 xl:mt-0">
-                                <button onclick="processDownload('pdf', '${data.certId}', '${data.name}', '${data.program}', '${data.date}')" class="flex-1 sm:flex-none bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white px-3 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
-                                    <i class="fas fa-file-pdf"></i> PDF
-                                </button>
-                                <button onclick="processDownload('img', '${data.certId}', '${data.name}', '${data.program}', '${data.date}')" class="flex-1 sm:flex-none bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white px-3 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
-                                    <i class="fas fa-image"></i> JPG
-                                </button>
-                                <button onclick="shareWhatsApp('${data.certId}')" class="flex-1 sm:flex-none bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-600 hover:text-white px-3 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
-                                    <i class="fab fa-whatsapp text-sm"></i> শেয়ার
-                                </button>
-                                <button onclick="deleteCert('${d.id}')" class="bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-800 hover:text-white px-3 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                            if(!existing.address) {
+                                existing.address = [data.village, data.upazila, data.district].filter(Boolean).join(", ");
+                            }
+                        } else {
+                            let fullAddress = [data.village, data.upazila, data.district].filter(Boolean).join(", ");
+                            
+                            // 🔴 নতুন আইডি লজিক: RJF-গোপনকোড
+                            let secretData = data.secretCode || data.secretPin;
+                            if(!secretData) secretData = phone.slice(-4); 
+                            let dynamicId = "RJF-" + secretData;
+
+                            usersMap.set(phone, {
+                                id: d.id,
+                                name: data.name,
+                                phone: phone,
+                                blood: data.bloodGroup || "N/A",
+                                address: fullAddress,
+                                idNo: dynamicId,
+                                photo: data.profileImageUrl || "https://via.placeholder.com/150",
+                                roles: [roleName]
+                            });
+                        }
+                    });
+                };
+
+                processDoc(volSnap, "Volunteer");
+                processDoc(donSnap, "Blood Donor");
+                processDoc(memSnap, "Member");
+
+                mergedUsers = Array.from(usersMap.values());
+                document.getElementById('totalUsers').innerText = mergedUsers.length;
+                renderUsers(mergedUsers);
+
+            } catch(e) {
+                document.getElementById('users-grid').innerHTML = '<div class="col-span-full text-center py-10 text-red-600 font-bold">ডাটাবেজ থেকে তথ্য আনতে সমস্যা হয়েছে!</div>';
+            }
+        }
+
+        // ================= ইউজার লিস্ট রেন্ডার করা =================
+        window.renderUsers = (usersArray) => {
+            const grid = document.getElementById('users-grid');
+            if(usersArray.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-16"><p class="text-gray-500 font-bold">কোনো সদস্য পাওয়া যায়নি!</p></div>';
+                return;
+            }
+
+            let html = '';
+            usersArray.forEach((u) => {
+                let roleString = u.roles.join(", ");
+                let safeDataStr = encodeURIComponent(JSON.stringify(u)).replace(/'/g, "%27");
+
+                html += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 transition hover:shadow-md">
+                        <img src="${u.photo}" class="w-16 h-16 rounded-full object-cover border-[3px] border-red-100 shadow-sm shrink-0" onerror="this.src='https://via.placeholder.com/150'">
+                        <div class="flex-grow min-w-0">
+                            <h3 class="font-bold text-gray-800 truncate leading-tight">${u.name}</h3>
+                            <p class="text-[11px] font-bold text-red-600 mt-1 truncate"><i class="fas fa-tag"></i> ${roleString}</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5"><i class="fas fa-map-marker-alt"></i> <span class="truncate">${u.address || 'ঠিকানা নেই'}</span></p>
                         </div>
-                    `;
+                        <button onclick="openIdModal('${safeDataStr}')" class="shrink-0 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm" title="আইডি কার্ড তৈরি করুন">
+                            <i class="fas fa-address-card text-lg"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        };
+
+        window.filterUsers = () => {
+            const txt = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = mergedUsers.filter(u => u.name.toLowerCase().includes(txt) || u.phone.includes(txt));
+            renderUsers(filtered);
+        };
+
+        // ================= লাইভ এডিট ও সিঙ্ক =================
+        window.openIdModal = (dataStr) => {
+            const u = JSON.parse(decodeURIComponent(dataStr));
+            
+            // Populate Edit Form
+            document.getElementById('edit_name').value = u.name;
+            document.getElementById('edit_role').value = u.roles.join(", ");
+            document.getElementById('edit_blood').value = u.blood;
+            document.getElementById('edit_idno').value = u.idNo;
+            document.getElementById('edit_president').value = defaultPresident;
+            
+            // Set Photo
+            const imgEl = document.getElementById('c_photo');
+            imgEl.src = u.photo !== "https://via.placeholder.com/150" ? u.photo : "https://via.placeholder.com/150";
+
+            syncCard();
+
+            const modal = document.getElementById('idCardModal');
+            const content = document.getElementById('idCardModalContent');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+        };
+
+        window.syncCard = () => {
+            const idNo = document.getElementById('edit_idno').value;
+            
+            document.getElementById('c_name').innerText = document.getElementById('edit_name').value;
+            document.getElementById('c_role').innerText = document.getElementById('edit_role').value;
+            document.getElementById('c_blood').innerText = document.getElementById('edit_blood').value;
+            document.getElementById('c_idno').innerText = idNo;
+            
+            const presName = document.getElementById('edit_president').value || "Kazi Ibrahim";
+            document.getElementById('c_president_sig').innerText = presName;
+        };
+
+        window.closeModal = () => {
+            const modal = document.getElementById('idCardModal');
+            const content = document.getElementById('idCardModalContent');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        };
+
+        window.changeIdPhoto = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { document.getElementById('c_photo').src = e.target.result; }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        // ================= HTML2Canvas ডাউনলোড ફিক্স (No line-clamp bug) =================
+        window.downloadIdCard = async () => {
+            const btn = document.getElementById('downloadBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...'; 
+            btn.disabled = true;
+            
+            try {
+                // Front Card
+                const frontDom = document.getElementById('id-card-front-dom');
+                // The issue was line-clamp classes causing infinite loops. They are removed now.
+                const canvasFront = await html2canvas(frontDom, { 
+                    scale: 3, 
+                    useCORS: true, 
+                    allowTaint: true,
+                    backgroundColor: "#ffffff",
+                    logging: false 
                 });
-                listDiv.innerHTML = html;
-            } catch(e) { listDiv.innerHTML = '<p class="text-red-500 text-center font-bold">লোড করতে সমস্যা হয়েছে!</p>'; }
-        };
+                const linkF = document.createElement('a');
+                linkF.download = `ID_Front_${document.getElementById('c_name').innerText}.jpg`;
+                linkF.href = canvasFront.toDataURL('image/jpeg', 1.0);
+                linkF.click();
 
-        // ================= নতুন সার্টিফিকেট সেভ =================
-        window.generateCertificate = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('generateBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...'; btn.disabled = true;
-
-            const newCert = {
-                name: document.getElementById('cert_name').value.trim(),
-                program: document.getElementById('cert_program').value.trim(),
-                date: document.getElementById('cert_date').value,
-                certId: document.getElementById('cert_id').value,
-                timestamp: serverTimestamp()
-            };
-
-            try {
-                await addDoc(collection(db, "certificates"), newCert);
-                alert("সার্টিফিকেট সফলভাবে জেনারেট ও সেভ হয়েছে!\nকোড: " + newCert.certId);
+                // Back Card
+                const backDom = document.getElementById('id-card-back-dom');
+                const canvasBack = await html2canvas(backDom, { 
+                    scale: 3, 
+                    useCORS: true, 
+                    allowTaint: true,
+                    backgroundColor: "#0f172a",
+                    logging: false 
+                });
+                const linkB = document.createElement('a');
+                linkB.download = `ID_Back_${document.getElementById('c_name').innerText}.jpg`;
+                linkB.href = canvasBack.toDataURL('image/jpeg', 1.0);
+                linkB.click();
                 
-                document.getElementById('cert_name').value = '';
-                document.getElementById('cert_program').value = '';
-                document.getElementById('cert_id').value = generateId();
-                loadCertificates();
-            } catch(error) {
-                alert("সমস্যা হয়েছে! ইন্টারনেট সংযোগ চেক করুন।");
-            } finally {
-                btn.innerHTML = '<i class="fas fa-magic"></i> জেনারেট ও সেভ করুন'; btn.disabled = false;
-            }
-        };
-
-        // ================= সার্টিফিকেট ডিলিট =================
-        window.deleteCert = async (id) => {
-            if(confirm("সার্টিফিকেটটি ডিলিট করতে চান? ডিলিট করলে পাবলিকে আর ভেরিফাই হবে না।")) {
-                await deleteDoc(doc(db, "certificates", id));
-                loadCertificates();
-            }
-        };
-
-        // ================= ডাউনলোড ও শেয়ার লজিক =================
-        window.processDownload = async (type, id, name, program, date) => {
-            alert(`অনুগ্রহ করে অপেক্ষা করুন, ${type.toUpperCase()} ফাইলটি তৈরি হচ্ছে...`);
-            
-            // Populating hidden DOM
-            document.getElementById('h-id').innerText = id;
-            document.getElementById('h-date').innerText = date;
-            document.getElementById('h-name').innerText = name;
-            document.getElementById('h-program').innerText = program;
-
-            const certElement = document.getElementById('admin-certificate-dom');
-            
-            try {
-                const canvas = await html2canvas(certElement, { scale: 3, useCORS: true, allowTaint: true });
-                const imgData = canvas.toDataURL('image/jpeg', 1.0);
-
-                if(type === 'img') {
-                    const link = document.createElement('a');
-                    link.download = `Certificate_${id}.jpg`;
-                    link.href = imgData;
-                    link.click();
-                } else if(type === 'pdf') {
-                    const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF('l', 'mm', 'a4');
-                    pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
-                    pdf.save(`Certificate_${id}.pdf`);
-                }
             } catch (error) {
-                alert("ডাউনলোডে সমস্যা হয়েছে!");
+                alert("ডাউনলোডে সমস্যা হয়েছে! দয়া করে ইন্টারনেট কানেকশন চেক করুন।");
+                console.error("HTML2Canvas Error:", error);
+            } finally {
+                btn.innerHTML = originalText; 
+                btn.disabled = false;
             }
-        };
-
-        // হোয়াটসঅ্যাপ অটো-মেসেজ
-        window.shareWhatsApp = (id) => {
-            const text = `আসসালামু আলাইকুম। আপনার অসাধারণ সেবামূলক কাজের স্বীকৃতিস্বরূপ 'রক্তযোদ্ধা সমাজ ও মানব কল্যাণ পরিষদ' থেকে আপনাকে একটি সম্মাননা স্মারক (সার্টিফিকেট) প্রদান করা হয়েছে।\n\nআপনার সার্টিফিকেট আইডি: *${id}*\n\nআমাদের ওয়েবসাইটে গিয়ে 'সার্টিফিকেট ডাউনলোড ও যাচাই' অপশন থেকে এই আইডিটি দিয়ে আপনার অরিজিনাল সার্টিফিকেটটি ডাউনলোড করে নিতে পারেন।\n\nওয়েবসাইট লিংক: https://rjsomp.web.app/certificate`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         };
 
     </script>
