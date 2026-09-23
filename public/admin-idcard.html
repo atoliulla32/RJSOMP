@@ -3,2136 +3,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>অটো আইডি কার্ড জেনারেটর | রক্তযোদ্ধা</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Dancing+Script:wght@700&display=swap"
-          rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        body {
-            font-family: 'Noto Sans Bengali', sans-serif;
-            background: #f1f5f9;
-            overflow-x: hidden;
+        body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; overflow-x: hidden; }
+        .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* ================= Premium ID Card Base (Image Background Method) ================= */
+        .id-card-wrapper {
+            width: 340px; height: 530px; position: relative; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15); flex-shrink: 0; margin: 0 auto;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            box-sizing: border-box;
         }
 
-        .modal-bg {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(5px);
+        /* Front Page Background Image */
+        #c-front-view, #export-front {
+            /* This image contains the left red bar, the red square frame for photo, and the layout structure */
+            background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1703144883/id-front-bg.jpg'); 
         }
 
-        .custom-scroll::-webkit-scrollbar {
-            width: 5px;
+        /* Back Page Background Image */
+        #c-back-view, #export-back {
+            /* This image contains the dark background, right red bar, and white box for logo */
+            background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1703144884/id-back-bg.jpg');
         }
 
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
+        /* Front Elements Placement */
+        .f-logo { position: absolute; top: 25px; left: 120px; width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ef4444; background: white; padding: 2px; }
+        .f-org-title { position: absolute; top: 28px; left: 175px; right: 15px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 800; color: #000; line-height: 1.1; text-transform: uppercase; }
+        
+        .f-photo { position: absolute; top: 125px; left: 35px; width: 140px; height: 165px; object-fit: cover; }
+        
+        .f-name { position: absolute; top: 310px; right: 20px; left: 100px; text-align: right; font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 800; color: #000; text-transform: uppercase; line-height: 1.1; }
+        .f-role { position: absolute; top: 360px; right: 20px; left: 100px; text-align: right; font-size: 13px; font-weight: 700; color: #555; }
+        
+        .f-info-box { position: absolute; top: 390px; right: 20px; left: 100px; text-align: right; }
+        .f-id { font-size: 14px; font-weight: 800; color: #000; margin-bottom: 5px; }
+        .f-blood { font-size: 18px; font-weight: 900; color: #ef4444; }
 
-        #render-container {
-            position: fixed;
-            left: -100000px;
-            top: 0;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-            pointer-events: none;
-        }
+        .f-sig-box { position: absolute; bottom: 25px; right: 20px; left: 100px; text-align: right; }
+        .f-sig-name { font-family: 'Dancing Script', cursive; font-size: 32px; color: #1e3a8a; line-height: 0.8; margin-bottom: 3px; }
+        .f-sig-title { font-size: 10px; font-weight: 800; color: #555; border-top: 1px solid #999; display: inline-block; width: 100px; text-align: center; padding-top: 3px; }
+
+        /* Back Elements Placement */
+        .b-logo { position: absolute; top: 38px; left: 28px; width: 74px; height: 74px; border-radius: 50%; object-fit: cover; }
+        
+        .b-terms-box { position: absolute; top: 140px; left: 25px; width: 220px; color: #fff; }
+        .b-tc-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+        .b-tc-text { font-size: 11px; color: #ddd; line-height: 1.5; margin-bottom: 20px; }
+        .b-tc-note { font-size: 10px; font-weight: 700; color: #fef08a; line-height: 1.4; }
+
+        .b-contact-box { position: absolute; bottom: 35px; left: 25px; color: #ddd; font-size: 11px; line-height: 1.8; }
+
     </style>
-
-    <script>
-        document.documentElement.style.display = 'none';
-    </script>
 </head>
-
 <body class="p-3 sm:p-8 relative">
 
-<div class="max-w-7xl mx-auto pb-10">
-
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm mb-6 border-l-4 border-red-600 gap-3">
-
-        <div class="flex items-center gap-4">
-
-            <div class="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center border border-red-200 text-xl text-red-600">
-                <i class="fas fa-id-badge"></i>
-            </div>
-
-            <div>
-                <h1 class="text-xl md:text-2xl font-bold text-gray-800">
-                    অটো আইডি কার্ড জেনারেটর
-                </h1>
-
-                <p class="text-xs md:text-sm font-bold text-gray-500 mt-1">
-                    সব সদস্যের স্মার্ট আইডি কার্ড ইনফো জেনারেটর ও শেয়ারিং
-                </p>
-            </div>
-
-        </div>
-
-        <a href="admin.html"
-           class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2">
-
-            <i class="fas fa-arrow-left"></i>
-            ড্যাশবোর্ড
-
-        </a>
-
-    </div>
-
-
-    <!-- Search -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-3 items-center">
-
-        <div class="relative w-full md:flex-1">
-
-            <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
-
-            <input
-                type="text"
-                id="searchInput"
-                onkeyup="filterUsers()"
-                placeholder="নাম বা মোবাইল নাম্বার দিয়ে খুঁজুন..."
-                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 bg-gray-50 text-sm font-medium">
-
-        </div>
-
-        <div class="text-sm font-bold text-gray-600 bg-gray-100 px-4 py-2.5 rounded-lg border border-gray-200">
-
-            মোট সদস্য:
-            <span id="totalUsers" class="text-red-600">0</span>
-
-        </div>
-
-    </div>
-
-
-    <!-- Data Grid -->
-    <div id="users-grid"
-         class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-
-        <div class="col-span-full text-center py-16">
-
-            <i class="fas fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i>
-
-            <p class="font-bold text-gray-500">
-                ডাটাবেজ থেকে তথ্য লোড করা হচ্ছে...
-            </p>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================
-     EDIT MODAL
-========================= -->
-
-<div id="idCardModal"
-     class="fixed inset-0 modal-bg z-[100] hidden flex items-center justify-center p-2 sm:p-4 opacity-0 transition-opacity duration-300">
-
-    <div id="idCardModalContent"
-         class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-4 sm:p-6 transform scale-95 transition-transform duration-300 relative flex flex-col h-[90vh] md:h-auto overflow-hidden">
-
-        <!-- Close -->
-        <button onclick="closeModal()"
-                class="absolute top-3 right-3 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-red-600 hover:bg-red-50 transition shadow">
-
-            <i class="fas fa-times"></i>
-
-        </button>
-
-
-        <h3 class="text-lg font-bold text-gray-800 border-b border-gray-200 pb-3 mb-4 shrink-0">
-
-            <i class="fas fa-edit text-blue-500"></i>
-            আইডি কার্ড এডিটর
-
-        </h3>
-
-
-        <!-- Edit Form -->
-        <div class="space-y-3 flex-grow overflow-y-auto pr-2 custom-scroll">
-
-            <!-- Name -->
-            <div>
-
-                <label class="block text-xs font-bold text-gray-700 mb-1">
-                    নাম
-                </label>
-
-                <input
-                    type="text"
-                    id="edit_name"
-                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-bold bg-gray-50">
-
-            </div>
-
-
-            <!-- Role + Blood -->
-            <div class="grid grid-cols-2 gap-3">
-
-                <div>
-
-                    <label class="block text-xs font-bold text-gray-700 mb-1">
-                        পদবী
-                    </label>
-
-                    <input
-                        type="text"
-                        id="edit_role"
-                        class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50">
-
+    <div class="max-w-7xl mx-auto pb-10">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm mb-6 border-l-4 border-red-600 gap-3">
+            <div class="flex items-center gap-4">
+                <div class="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center border border-red-200 text-xl text-red-600">
+                    <i class="fas fa-id-badge"></i>
                 </div>
-
-
                 <div>
-
-                    <label class="block text-xs font-bold text-gray-700 mb-1">
-                        রক্তের গ্রুপ
-                    </label>
-
-                    <input
-                        type="text"
-                        id="edit_blood"
-                        class="w-full p-2.5 border border-red-200 rounded-lg focus:border-red-500 outline-none text-sm font-bold text-red-600 bg-red-50">
-
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-800">অটো আইডি কার্ড জেনারেটর</h1>
+                    <p class="text-xs md:text-sm font-bold text-gray-500 mt-1">সব সদস্যের স্মার্ট আইডি কার্ড ইনফো জেনারেটর ও শেয়ারিং</p>
                 </div>
-
             </div>
-
-
-            <!-- ID -->
-            <div>
-
-                <label class="block text-xs font-bold text-gray-700 mb-1">
-                    আইডি নং
-                </label>
-
-                <input
-                    type="text"
-                    id="edit_idno"
-                    readonly
-                    class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-sm font-mono font-bold text-gray-700 bg-gray-100">
-
-            </div>
-
-
-            <!-- Phone -->
-            <div>
-
-                <label class="block text-xs font-bold text-gray-700 mb-1">
-                    মোবাইল
-                </label>
-
-                <input
-                    type="text"
-                    id="edit_phone"
-                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50">
-
-            </div>
-
-
-            <!-- Address -->
-            <div>
-
-                <label class="block text-xs font-bold text-gray-700 mb-1">
-                    ঠিকানা
-                </label>
-
-                <textarea
-                    id="edit_address"
-                    rows="2"
-                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50"></textarea>
-
-            </div>
-
-
-            <!-- President -->
-            <div>
-
-                <label class="block text-xs font-bold text-gray-700 mb-1 mt-2">
-                    সভাপতির নাম
-                </label>
-
-                <input
-                    type="text"
-                    id="edit_president"
-                    placeholder="Kazi Ibrahim"
-                    class="w-full p-2.5 border border-blue-200 rounded-lg focus:border-blue-500 outline-none text-sm font-bold bg-blue-50 text-blue-700">
-
-            </div>
-
-
-            <!-- Photo -->
-            <div>
-
-                <label class="block text-xs font-bold text-gray-700 mb-1">
-                    সদস্যের নতুন ছবি দিন
-                </label>
-
-                <input
-                    type="file"
-                    id="newPhotoInput"
-                    accept="image/*"
-                    onchange="changeIdPhoto(this)"
-                    class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-xs">
-
-            </div>
-
+            <a href="admin.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> ড্যাশবোর্ড
+            </a>
         </div>
 
-
-        <!-- Hidden Photo Holder -->
-        <img
-            id="c_photo"
-            src="https://placehold.co/300x400/ffffff/999999?text=Photo"
-            class="hidden"
-            crossorigin="anonymous">
-
-
-        <!-- Actions -->
-        <div class="shrink-0 border-t border-gray-200 pt-4 mt-4 space-y-2">
-
-            <!-- Download -->
-            <button
-                onclick="processCardAction('download')"
-                id="downloadImgBtn"
-                class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2 text-sm">
-
-                <i class="fas fa-download"></i>
-
-                কার্ড ডাউনলোড করুন (Front & Back)
-
-            </button>
-
-
-            <div class="flex gap-2">
-
-                <!-- Copy -->
-                <button
-                    onclick="copyCardData()"
-                    class="flex-1 bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-black transition shadow flex items-center justify-center gap-2 text-[13px]">
-
-                    <i class="fas fa-copy"></i>
-                    শুধু তথ্য কপি
-
-                </button>
-
-
-                <!-- WhatsApp -->
-                <button
-                    onclick="shareViaWhatsApp()"
-                    class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition shadow flex items-center justify-center gap-2 text-[13px]">
-
-                    <i class="fab fa-whatsapp text-lg"></i>
-                    হোয়াটসঅ্যাপ
-
-                </button>
-
+        <!-- Search -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-3 items-center">
+            <div class="relative w-full md:flex-1">
+                <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="নাম বা মোবাইল নাম্বার দিয়ে খুঁজুন..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 bg-gray-50 text-sm font-medium">
             </div>
-
+            <div class="text-sm font-bold text-gray-600 bg-gray-100 px-4 py-2.5 rounded-lg border border-gray-200">
+                মোট সদস্য: <span id="totalUsers" class="text-red-600">0</span>
+            </div>
         </div>
 
-    </div>
-
-</div>
-
-
-<!-- Render container -->
-<div id="render-container"></div>
-
-
-<!-- =========================
-     FIREBASE
-========================= -->
-
-<script type="module">
-
-import {
-    initializeApp,
-    getApps,
-    getApp
-}
-from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-
-
-import {
-    getAuth,
-    onAuthStateChanged
-}
-from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-
-import {
-    getFirestore,
-    collection,
-    getDocs
-}
-from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-
-
-/* =========================
-   FIREBASE CONFIG
-========================= */
-
-const firebaseConfig = {
-
-    apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
-
-    authDomain: "rjsomp.firebaseapp.com",
-
-    projectId: "rjsomp",
-
-    storageBucket: "rjsomp.firebasestorage.app",
-
-    messagingSenderId: "1033528754332",
-
-    appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
-
-};
-
-
-const app =
-    !getApps().length
-        ? initializeApp(firebaseConfig)
-        : getApp();
-
-
-const auth = getAuth(app);
-
-const db = getFirestore(app);
-
-
-
-let mergedUsers = [];
-
-let defaultPresident = "Kazi Ibrahim";
-
-
-
-/* =========================
-   AUTH
-========================= */
-
-onAuthStateChanged(auth, (user) => {
-
-    if (user) {
-
-        document.documentElement.style.display = '';
-
-        fetchAndMergeData();
-
-    } else {
-
-        window.top.location.href = "admin.html";
-
-    }
-
-});
-
-
-
-/* =========================
-   LOAD USERS
-========================= */
-
-async function fetchAndMergeData() {
-
-    try {
-
-        const volSnap =
-            await getDocs(collection(db, "volunteers"));
-
-        const donSnap =
-            await getDocs(collection(db, "blood_donors"));
-
-        const memSnap =
-            await getDocs(collection(db, "members"));
-
-
-        const usersMap = new Map();
-
-
-        const processDoc = (docSnap, roleName) => {
-
-            docSnap.forEach(d => {
-
-                const data = d.data();
-
-
-                let phone =
-                    data.phone || "NoPhone_" + d.id;
-
-
-                if (usersMap.has(phone)) {
-
-                    const existing =
-                        usersMap.get(phone);
-
-
-                    if (!existing.roles.includes(roleName)) {
-
-                        existing.roles.push(roleName);
-
-                    }
-
-
-                    if (
-                        !existing.photo &&
-                        data.profileImageUrl
-                    ) {
-
-                        existing.photo =
-                            data.profileImageUrl;
-
-                    }
-
-
-                    if (!existing.address) {
-
-                        existing.address =
-                            [
-                                data.village,
-                                data.upazila,
-                                data.district
-                            ]
-                            .filter(Boolean)
-                            .join(", ");
-
-                    }
-
-                } else {
-
-                    const fullAddress =
-                        [
-                            data.village,
-                            data.upazila,
-                            data.district
-                        ]
-                        .filter(Boolean)
-                        .join(", ");
-
-
-                    let secretData =
-                        data.secretCode ||
-                        data.secretPin;
-
-
-                    if (!secretData) {
-
-                        secretData =
-                            phone.slice(-4);
-
-                    }
-
-
-                    const dynamicId =
-                        "RJF-" + secretData;
-
-
-                    usersMap.set(phone, {
-
-                        id: d.id,
-
-                        name:
-                            data.name || "নাম নেই",
-
-                        phone:
-                            phone,
-
-                        blood:
-                            data.bloodGroup || "N/A",
-
-                        address:
-                            fullAddress || "ঠিকানা নেই",
-
-                        idNo:
-                            dynamicId,
-
-                        photo:
-                            data.profileImageUrl ||
-                            "https://placehold.co/300x400/ffffff/999999?text=Photo",
-
-                        roles:
-                            [roleName]
-
-                    });
-
-                }
-
-            });
-
-        };
-
-
-        processDoc(volSnap, "Volunteer");
-
-        processDoc(donSnap, "Blood Donor");
-
-        processDoc(memSnap, "Member");
-
-
-        mergedUsers =
-            Array.from(usersMap.values());
-
-
-        document.getElementById(
-            'totalUsers'
-        ).innerText =
-            mergedUsers.length;
-
-
-        renderUsers(mergedUsers);
-
-
-    } catch (e) {
-
-        console.error(e);
-
-
-        document.getElementById(
-            'users-grid'
-        ).innerHTML = `
-
-            <div class="col-span-full text-center py-10 text-red-600 font-bold">
-
-                ডাটাবেজ থেকে তথ্য আনতে সমস্যা হয়েছে!
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-
-/* =========================
-   RENDER USERS
-========================= */
-
-window.renderUsers = (usersArray) => {
-
-    const grid =
-        document.getElementById('users-grid');
-
-
-    if (usersArray.length === 0) {
-
-        grid.innerHTML = `
-
+        <!-- Data Grid -->
+        <div id="users-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             <div class="col-span-full text-center py-16">
-
-                <p class="text-gray-500 font-bold">
-
-                    কোনো সদস্য পাওয়া যায়নি!
-
-                </p>
-
+                <i class="fas fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i>
+                <p class="font-bold text-gray-500">ডাটাবেজ থেকে তথ্য লোড করা হচ্ছে...</p>
             </div>
+        </div>
+    </div>
 
-        `;
-
-        return;
-
-    }
-
-
-    let html = '';
-
-
-    usersArray.forEach((u) => {
-
-        const roleString =
-            u.roles.join(", ");
-
-
-        const safeDataStr =
-            encodeURIComponent(
-                JSON.stringify(u)
-            );
-
-
-        html += `
-
-            <div
-                class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 transition hover:shadow-md">
-
-                <img
-                    src="${escapeHtmlAttribute(u.photo)}"
-                    class="w-16 h-16 rounded-full object-cover border-[3px] border-red-100 shadow-sm shrink-0"
-                    onerror="this.src='https://placehold.co/300x400/ffffff/999999?text=Photo'">
-
-
-                <div class="flex-grow min-w-0">
-
-                    <h3 class="font-bold text-gray-800 truncate leading-tight">
-
-                        ${escapeHtml(u.name)}
-
-                    </h3>
-
-
-                    <p class="text-[11px] font-bold text-red-600 mt-1 truncate">
-
-                        <i class="fas fa-tag"></i>
-
-                        ${escapeHtml(roleString)}
-
-                    </p>
-
-
-                    <p class="text-[11px] font-bold text-gray-400 mt-0.5">
-
-                        <i class="fas fa-fingerprint"></i>
-
-                        ID: ${escapeHtml(u.idNo)}
-
-                    </p>
-
+    <!-- ========================= EDIT MODAL ========================= -->
+    <div id="idCardModal" class="fixed inset-0 modal-bg z-[100] hidden flex items-center justify-center p-2 sm:p-4 opacity-0 transition-opacity duration-300">
+        
+        <!-- Two Column Layout for Desktop -->
+        <div id="idCardModalContent" class="bg-gray-50 w-full max-w-6xl rounded-2xl shadow-2xl p-4 sm:p-6 transform scale-95 transition-transform duration-300 relative flex flex-col md:flex-row h-[95vh] gap-6">
+            
+            <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-500 hover:text-red-600 border border-gray-200 transition shadow z-50">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <!-- Left: Edit Form -->
+            <div class="w-full md:w-1/3 flex flex-col space-y-4 h-full">
+                <h3 class="text-lg font-bold text-gray-800 border-b border-gray-300 pb-2"><i class="fas fa-edit text-blue-500"></i> আইডি কার্ড এডিটর</h3>
+                
+                <div class="space-y-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex-grow overflow-y-auto custom-scroll">
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">নাম</label><input type="text" id="edit_name" oninput="syncCard()" class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-bold bg-gray-50"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block text-xs font-bold text-gray-700 mb-1">পদবী</label><input type="text" id="edit_role" oninput="syncCard()" class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50"></div>
+                        <div><label class="block text-xs font-bold text-gray-700 mb-1">রক্তের গ্রুপ</label><input type="text" id="edit_blood" oninput="syncCard()" class="w-full p-2.5 border border-red-200 rounded-lg focus:border-red-500 outline-none text-sm font-bold text-red-600 bg-red-50"></div>
+                    </div>
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">আইডি নং</label><input type="text" id="edit_idno" oninput="syncCard()" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-sm font-mono font-bold text-gray-700 bg-gray-100" readonly></div>
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">মোবাইল</label><input type="text" id="edit_phone" oninput="syncCard()" class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50"></div>
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">ঠিকানা</label><textarea id="edit_address" rows="2" oninput="syncCard()" class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50"></textarea></div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 mt-2">সভাপতির নাম</label>
+                        <input type="text" id="edit_president" oninput="syncCard()" placeholder="Kazi Ibrahim" class="w-full p-2.5 border border-blue-200 rounded-lg focus:border-blue-500 outline-none text-sm font-bold bg-blue-50 text-blue-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 mt-2">সদস্যের নতুন ছবি দিন (বর্গাকার হবে)</label>
+                        <input type="file" accept="image/*" onchange="changeIdPhoto(this)" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-xs">
+                    </div>
                 </div>
 
-
-                <button
-                    onclick="openIdModal('${safeDataStr}')"
-                    class="shrink-0 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm"
-                    title="আইডি কার্ড তৈরি করুন">
-
-                    <i class="fas fa-address-card text-lg"></i>
-
-                </button>
-
+                <div class="shrink-0 border-t border-gray-300 pt-4 space-y-2">
+                    <button onclick="processCardAction('download')" id="downloadImgBtn" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-download"></i> কার্ড ডাউনলোড করুন (Front & Back)
+                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="copyCardData()" class="flex-1 bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-black transition shadow flex items-center justify-center gap-2 text-[13px]">
+                            <i class="fas fa-copy"></i> শুধু তথ্য কপি
+                        </button>
+                        <button onclick="shareViaWhatsApp()" class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition shadow flex items-center justify-center gap-2 text-[13px]">
+                            <i class="fab fa-whatsapp text-lg"></i> হোয়াটসঅ্যাপ
+                        </button>
+                    </div>
+                </div>
             </div>
 
-        `;
-
-    });
-
-
-    grid.innerHTML = html;
-
-};
-
-
-
-/* =========================
-   HTML ESCAPE
-========================= */
-
-function escapeHtml(value) {
-
-    return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-
-}
-
-
-function escapeHtmlAttribute(value) {
-
-    return escapeHtml(value);
-
-}
-
-
-
-/* =========================
-   SEARCH
-========================= */
-
-window.filterUsers = () => {
-
-    const txt =
-        document
-            .getElementById('searchInput')
-            .value
-            .toLowerCase()
-            .trim();
-
-
-    const filtered =
-        mergedUsers.filter(u =>
-
-            String(u.name || '')
-                .toLowerCase()
-                .includes(txt)
-
-            ||
-
-            String(u.phone || '')
-                .includes(txt)
-
-            ||
-
-            String(u.idNo || '')
-                .toLowerCase()
-                .includes(txt)
-
-        );
-
-
-    renderUsers(filtered);
-
-};
-
-
-
-/* =========================
-   OPEN MODAL
-========================= */
-
-window.openIdModal = (dataStr) => {
-
-    try {
-
-        const u =
-            JSON.parse(
-                decodeURIComponent(dataStr)
-            );
-
-
-        document.getElementById(
-            'edit_name'
-        ).value =
-            u.name || '';
-
-
-        document.getElementById(
-            'edit_role'
-        ).value =
-            u.roles.join(", ");
-
-
-        document.getElementById(
-            'edit_blood'
-        ).value =
-            u.blood || 'N/A';
-
-
-        document.getElementById(
-            'edit_idno'
-        ).value =
-            u.idNo || '';
-
-
-        document.getElementById(
-            'edit_phone'
-        ).value =
-            u.phone || '';
-
-
-        document.getElementById(
-            'edit_address'
-        ).value =
-            u.address || '';
-
-
-        document.getElementById(
-            'edit_president'
-        ).value =
-            defaultPresident;
-
-
-        document.getElementById(
-            'c_photo'
-        ).src =
-            u.photo ||
-            'https://placehold.co/300x400/ffffff/999999?text=Photo';
-
-
-        document.getElementById(
-            'newPhotoInput'
-        ).value = '';
-
-
-        const modal =
-            document.getElementById(
-                'idCardModal'
-            );
-
-
-        const content =
-            document.getElementById(
-                'idCardModalContent'
-            );
-
-
-        modal.classList.remove('hidden');
-
-
-        setTimeout(() => {
-
-            modal.classList.remove('opacity-0');
-
-            content.classList.remove('scale-95');
-
-        }, 10);
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert("সদস্যের তথ্য খোলার সময় সমস্যা হয়েছে।");
-
-    }
-
-};
-
-
-
-/* =========================
-   CLOSE MODAL
-========================= */
-
-window.closeModal = () => {
-
-    const modal =
-        document.getElementById(
-            'idCardModal'
-        );
-
-
-    const content =
-        document.getElementById(
-            'idCardModalContent'
-        );
-
-
-    modal.classList.add('opacity-0');
-
-    content.classList.add('scale-95');
-
-
-    setTimeout(() => {
-
-        modal.classList.add('hidden');
-
-    }, 300);
-
-};
-
-
-
-/* =========================
-   CHANGE PHOTO
-========================= */
-
-window.changeIdPhoto = (input) => {
-
-    if (
-        input.files &&
-        input.files[0]
-    ) {
-
-        const file =
-            input.files[0];
-
-
-        if (!file.type.startsWith('image/')) {
-
-            alert("শুধু ছবি নির্বাচন করুন।");
-
-            input.value = '';
-
-            return;
-
-        }
-
-
-        const reader =
-            new FileReader();
-
-
-        reader.onload = function(e) {
-
-            document.getElementById(
-                'c_photo'
-            ).src =
-                e.target.result;
-
+            <!-- Right: Live Preview -->
+            <div class="w-full md:w-2/3 bg-gray-300 p-4 rounded-xl shadow-inner overflow-y-auto flex flex-col md:flex-row items-center justify-center gap-6 h-full">
+                
+                <!-- Front Preview -->
+                <div class="id-card-wrapper" id="c-front-view">
+                    <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" class="f-logo" crossorigin="anonymous">
+                    <div class="f-org-title">ROKTOJODDA SOMAJ<br>O MANOB KOLLAYAN PORISHAD</div>
+                    
+                    <img id="c_photo" src="https://via.placeholder.com/150" class="f-photo" crossorigin="anonymous">
+                    
+                    <div class="f-name" id="c_name">NAME</div>
+                    <div class="f-role" id="c_role">ROLE</div>
+                    
+                    <div class="f-info-box">
+                        <div class="f-id">ID: <span id="c_idno"></span></div>
+                        <div class="f-blood">🩸 <span id="c_blood"></span></div>
+                    </div>
+                    
+                    <div class="f-sig-box">
+                        <div class="f-sig-name" id="c_president_sig">Kazi Ibrahim</div><br>
+                        <div class="f-sig-title">PRESIDENT</div>
+                    </div>
+                </div>
+
+                <!-- Back Preview -->
+                <div class="id-card-wrapper" id="c-back-view">
+                    <img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" class="b-logo" crossorigin="anonymous">
+                    
+                    <div class="b-terms-box">
+                        <div class="b-tc-title">Terms & Conditions</div>
+                        <div class="b-tc-text">
+                            1. This ID Card is issued solely for authorized volunteer activities of Rokttojoddha Somaj o Manob Kollayan Parishad.<br><br>
+                            2. This ID Card is the property of the organization. It must not be misused, transferred, or allowed to be used by any other person without authorization.<br><br>
+                            3. This ID Card does not guarantee any employment, official position, salary, or financial benefit.
+                        </div>
+                        <div class="b-tc-note">Note: This ID Card is valid only for authorized volunteer activities of the organization.</div>
+                    </div>
+
+                    <div class="b-contact-box">
+                        <div>info.rkjsomkporishod@gmail.com</div>
+                        <div id="c_phone_back"></div>
+                        <div>rjsomp.web.app</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- The Magic Hidden Container for Downloading -->
+    <div id="render-container" style="position: fixed; left: -10000px; top: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"></div>
+
+    <!-- ========================= FIREBASE ========================= -->
+    <script type="module">
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
+            projectId: "rjsomp", storageBucket: "rjsomp.firebasestorage.app", messagingSenderId: "1033528754332", appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
         };
-
-
-        reader.readAsDataURL(file);
-
-    }
-
-};
-
-
-
-/* =========================================================
-   CARD TEMPLATE
-========================================================= */
-
-function getCardTemplateHTML() {
-
-    const name =
-        document.getElementById(
-            'edit_name'
-        ).value;
-
-
-    const role =
-        document.getElementById(
-            'edit_role'
-        ).value;
-
-
-    const blood =
-        document.getElementById(
-            'edit_blood'
-        ).value;
-
-
-    const idno =
-        document.getElementById(
-            'edit_idno'
-        ).value;
-
-
-    const phone =
-        document.getElementById(
-            'edit_phone'
-        ).value;
-
-
-    const pres =
-        document.getElementById(
-            'edit_president'
-        ).value ||
-        "Kazi Ibrahim";
-
-
-    const photoSrc =
-        document.getElementById(
-            'c_photo'
-        ).src;
-
-
-    /*
-       External QR server ব্যবহার না করে
-       QR-এর জায়গায় নিরাপদ ID box ব্যবহার করা হয়েছে।
-       ফলে QR server down থাকলেও download আটকে থাকবে না।
-    */
-
-
-    return `
-
-        <!-- ================= FRONT ================= -->
-
-        <div
-            id="export-front"
-            style="
-                width:340px;
-                height:530px;
-                background:#ffffff;
-                position:relative;
-                font-family:'Poppins','Noto Sans Bengali',sans-serif;
-                box-sizing:border-box;
-                overflow:hidden;
-            ">
-
-
-            <!-- RED BAR -->
-
-            <div
-                style="
-                    position:absolute;
-                    left:0;
-                    top:0;
-                    bottom:0;
-                    width:100px;
-                    background:#ef4444;
-                ">
-            </div>
-
-
-            <!-- ORG NAME -->
-
-            <div
-                style="
-                    position:absolute;
-                    top:30px;
-                    right:15px;
-                    text-align:right;
-                    width:220px;
-                    z-index:5;
-                ">
-
-                <div
-                    style="
-                        font-size:16px;
-                        font-weight:800;
-                        color:#000;
-                        line-height:1.2;
-                    ">
-
-                    ROKTOJODDA SOMAJ<br>
-                    O MANOB KOLLAYAN PARISHAD
-
-                </div>
-
-            </div>
-
-
-            <!-- PHOTO -->
-
-            <div
-                style="
-                    position:absolute;
-                    top:120px;
-                    left:20px;
-                    width:150px;
-                    height:180px;
-                    border:8px solid #ef4444;
-                    background:#fff;
-                    box-sizing:border-box;
-                    z-index:10;
-                ">
-
-                <img
-                    src="${photoSrc}"
-                    crossorigin="anonymous"
-                    style="
-                        width:100%;
-                        height:100%;
-                        object-fit:cover;
-                        display:block;
-                    "
-                    onerror="
-                        this.onerror=null;
-                        this.src='https://placehold.co/300x400/ffffff/999999?text=Photo';
-                    ">
-
-            </div>
-
-
-            <!-- DETAILS -->
-
-            <div
-                style="
-                    position:absolute;
-                    top:310px;
-                    right:15px;
-                    text-align:right;
-                    width:300px;
-                    z-index:5;
-                ">
-
-                <div
-                    style="
-                        font-size:24px;
-                        font-weight:800;
-                        color:#000;
-                        text-transform:uppercase;
-                        line-height:1.1;
-                        margin-bottom:5px;
-                    ">
-
-                    ${escapeHtml(name)}
-
-                </div>
-
-
-                <div
-                    style="
-                        font-size:14px;
-                        font-weight:bold;
-                        color:#555;
-                        margin-bottom:15px;
-                    ">
-
-                    ${escapeHtml(role)}
-
-                </div>
-
-
-                <div
-                    style="
-                        font-size:14px;
-                        font-weight:bold;
-                        color:#000;
-                        margin-bottom:5px;
-                    ">
-
-                    ID: ${escapeHtml(idno)}
-
-                </div>
-
-
-                <div
-                    style="
-                        font-size:18px;
-                        font-weight:900;
-                        color:#ef4444;
-                    ">
-
-                    🩸 ${escapeHtml(blood)}
-
-                </div>
-
-            </div>
-
-
-            <!-- SIGNATURE -->
-
-            <div
-                style="
-                    position:absolute;
-                    bottom:20px;
-                    right:15px;
-                    text-align:right;
-                    z-index:5;
-                ">
-
-                <div
-                    style="
-                        font-family:'Dancing Script',cursive;
-                        font-size:32px;
-                        color:#1e3a8a;
-                        line-height:1;
-                        margin-bottom:2px;
-                    ">
-
-                    ${escapeHtml(pres)}
-
-                </div>
-
-
-                <div
-                    style="
-                        font-size:10px;
-                        font-weight:800;
-                        color:#555;
-                        border-top:1px solid #999;
-                        padding-top:3px;
-                    ">
-
-                    PRESIDENT
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- ================= BACK ================= -->
-
-        <div
-            id="export-back"
-            style="
-                width:340px;
-                height:530px;
-                background:#000000;
-                position:relative;
-                color:#ffffff;
-                font-family:'Poppins','Noto Sans Bengali',sans-serif;
-                box-sizing:border-box;
-                overflow:hidden;
-            ">
-
-
-            <!-- RED BAR -->
-
-            <div
-                style="
-                    position:absolute;
-                    right:0;
-                    top:0;
-                    bottom:0;
-                    width:80px;
-                    background:#ef4444;
-                ">
-            </div>
-
-
-            <!-- ID BOX -->
-
-            <div
-                style="
-                    position:absolute;
-                    top:40px;
-                    left:20px;
-                    width:90px;
-                    height:90px;
-                    background:#fff;
-                    color:#000;
-                    padding:8px;
-                    box-sizing:border-box;
-                    z-index:10;
-                    text-align:center;
-                    display:flex;
-                    flex-direction:column;
-                    align-items:center;
-                    justify-content:center;
-                ">
-
-                <div
-                    style="
-                        font-size:9px;
-                        font-weight:800;
-                        color:#555;
-                        margin-bottom:5px;
-                    ">
-
-                    MEMBER ID
-
-                </div>
-
-
-                <div
-                    style="
-                        font-size:13px;
-                        font-weight:900;
-                        word-break:break-all;
-                    ">
-
-                    ${escapeHtml(idno)}
-
-                </div>
-
-            </div>
-
-
-            <!-- TERMS -->
-
-            <div
-                style="
-                    position:absolute;
-                    top:150px;
-                    left:20px;
-                    width:230px;
-                    text-align:left;
-                    z-index:5;
-                ">
-
-                <div
-                    style="
-                        font-size:16px;
-                        font-weight:bold;
-                        color:#fff;
-                        margin-bottom:12px;
-                    ">
-
-                    Terms & Conditions
-
-                </div>
-
-
-                <div
-                    style="
-                        font-size:11px;
-                        color:#ccc;
-                        line-height:1.6;
-                    ">
-
-                    1. This ID Card is issued solely for authorized volunteer activities of Rokttojoddha Somaj o Manob Kollayan Parishad.
-
-                    <br><br>
-
-                    2. This ID Card is the property of the organization. It must not be misused, transferred, or allowed to be used by any other person without authorization.
-
-                    <br><br>
-
-                    3. This ID Card does not guarantee any employment, official position, salary, or financial benefit.
-
-                </div>
-
-
-                <div
-                    style="
-                        font-size:10px;
-                        color:#fef08a;
-                        margin-top:25px;
-                        font-weight:bold;
-                        line-height:1.4;
-                    ">
-
-                    Note: This ID Card is valid only for authorized volunteer activities of the organization.
-
-                </div>
-
-            </div>
-
-
-            <!-- CONTACT -->
-
-            <div
-                style="
-                    position:absolute;
-                    bottom:30px;
-                    left:20px;
-                    font-size:11px;
-                    color:#ccc;
-                    line-height:1.8;
-                    z-index:5;
-                ">
-
-                <div>
-                    info.rkjsomkporishod@gmail.com
-                </div>
-
-                <div>
-                    ${escapeHtml(phone)}
-                </div>
-
-                <div>
-                    rjsomp.web.app
-                </div>
-
-            </div>
-
-        </div>
-
-    `;
-
-}
-
-
-
-/* =========================================================
-   IMAGE LOAD HELPER
-========================================================= */
-
-function waitForImages(container) {
-
-    const images =
-        Array.from(
-            container.querySelectorAll('img')
-        );
-
-
-    if (!images.length) {
-
-        return Promise.resolve();
-
-    }
-
-
-    return Promise.all(
-
-        images.map(img => {
-
-            return new Promise(resolve => {
-
-                let done = false;
-
-
-                const finish = () => {
-
-                    if (done) return;
-
-                    done = true;
-
-                    resolve();
-
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let mergedUsers = [];
+        let defaultPresident = "Kazi Ibrahim";
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) { document.documentElement.style.display = ''; fetchAndMergeData(); } 
+            else { window.top.location.href = "admin.html"; }
+        });
+
+        async function fetchAndMergeData() {
+            try {
+                const volSnap = await getDocs(collection(db, "volunteers"));
+                const donSnap = await getDocs(collection(db, "blood_donors"));
+                const memSnap = await getDocs(collection(db, "members"));
+
+                const usersMap = new Map();
+
+                const processDoc = (docSnap, roleName) => {
+                    docSnap.forEach(d => {
+                        const data = d.data();
+                        let phone = data.phone || "NoPhone_" + d.id;
+                        if (usersMap.has(phone)) {
+                            const existing = usersMap.get(phone);
+                            if (!existing.roles.includes(roleName)) { existing.roles.push(roleName); }
+                            if (!existing.photo && data.profileImageUrl) { existing.photo = data.profileImageUrl; }
+                            if (!existing.address) { existing.address = [data.village, data.upazila, data.district].filter(Boolean).join(", "); }
+                        } else {
+                            const fullAddress = [data.village, data.upazila, data.district].filter(Boolean).join(", ");
+                            let secretData = data.secretCode || data.secretPin;
+                            if (!secretData) { secretData = phone.slice(-4); }
+                            const dynamicId = "RJF-" + secretData;
+
+                            usersMap.set(phone, {
+                                id: d.id, name: data.name || "নাম নেই", phone: phone, blood: data.bloodGroup || "N/A",
+                                address: fullAddress || "ঠিকানা নেই", idNo: dynamicId, photo: data.profileImageUrl || "https://placehold.co/300x400/ffffff/999999?text=Photo", roles: [roleName]
+                            });
+                        }
+                    });
                 };
 
+                processDoc(volSnap, "Volunteer");
+                processDoc(donSnap, "Blood Donor");
+                processDoc(memSnap, "Member");
 
-                if (img.complete) {
+                mergedUsers = Array.from(usersMap.values());
+                document.getElementById('totalUsers').innerText = mergedUsers.length;
+                renderUsers(mergedUsers);
+            } catch (e) { document.getElementById('users-grid').innerHTML = '<div class="col-span-full text-center py-10 text-red-600 font-bold">ডাটাবেজ থেকে তথ্য আনতে সমস্যা হয়েছে!</div>'; }
+        }
 
-                    finish();
+        window.renderUsers = (usersArray) => {
+            const grid = document.getElementById('users-grid');
+            if (usersArray.length === 0) { grid.innerHTML = '<div class="col-span-full text-center py-16"><p class="text-gray-500 font-bold">কোনো সদস্য পাওয়া যায়নি!</p></div>'; return; }
 
-                } else {
-
-                    img.onload = finish;
-
-                    img.onerror = finish;
-
-                    setTimeout(
-                        finish,
-                        4000
-                    );
-
-                }
-
+            let html = '';
+            usersArray.forEach((u) => {
+                const roleString = u.roles.join(", ");
+                const safeDataStr = encodeURIComponent(JSON.stringify(u));
+                html += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 transition hover:shadow-md">
+                        <img src="${u.photo}" class="w-16 h-16 rounded-full object-cover border-[3px] border-red-100 shadow-sm shrink-0" onerror="this.src='https://placehold.co/300x400/ffffff/999999?text=Photo'">
+                        <div class="flex-grow min-w-0">
+                            <h3 class="font-bold text-gray-800 truncate leading-tight">${u.name}</h3>
+                            <p class="text-[11px] font-bold text-red-600 mt-1 truncate"><i class="fas fa-tag"></i> ${roleString}</p>
+                            <p class="text-[11px] font-bold text-gray-400 mt-0.5"><i class="fas fa-fingerprint"></i> ID: ${u.idNo}</p>
+                        </div>
+                        <button onclick="openIdModal('${safeDataStr}')" class="shrink-0 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm" title="আইডি কার্ড তৈরি করুন">
+                            <i class="fas fa-address-card text-lg"></i>
+                        </button>
+                    </div>`;
             });
+            grid.innerHTML = html;
+        };
 
-        })
+        window.filterUsers = () => {
+            const txt = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = mergedUsers.filter(u => String(u.name).toLowerCase().includes(txt) || String(u.phone).includes(txt) || String(u.idNo).toLowerCase().includes(txt));
+            renderUsers(filtered);
+        };
 
-    );
+        window.openIdModal = (dataStr) => {
+            const u = JSON.parse(decodeURIComponent(dataStr));
+            document.getElementById('edit_name').value = u.name || '';
+            document.getElementById('edit_role').value = u.roles.join(", ");
+            document.getElementById('edit_blood').value = u.blood || 'N/A';
+            document.getElementById('edit_idno').value = u.idNo || '';
+            document.getElementById('edit_phone').value = u.phone || '';
+            document.getElementById('edit_address').value = u.address || '';
+            document.getElementById('edit_president').value = defaultPresident;
+            document.getElementById('c_photo').src = u.photo || 'https://placehold.co/300x400/ffffff/999999?text=Photo';
+            
+            syncCard();
 
-}
+            const modal = document.getElementById('idCardModal');
+            const content = document.getElementById('idCardModalContent');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+        };
 
+        window.syncCard = () => {
+            document.getElementById('c_name').innerText = document.getElementById('edit_name').value;
+            document.getElementById('c_role').innerText = document.getElementById('edit_role').value;
+            document.getElementById('c_blood').innerText = document.getElementById('edit_blood').value;
+            document.getElementById('c_idno').innerText = document.getElementById('edit_idno').value;
+            document.getElementById('c_phone_back').innerText = document.getElementById('edit_phone').value;
+            document.getElementById('c_president_sig').innerText = document.getElementById('edit_president').value || "Kazi Ibrahim";
+        };
 
+        window.closeModal = () => {
+            const modal = document.getElementById('idCardModal');
+            const content = document.getElementById('idCardModalContent');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        };
 
-/* =========================================================
-   DOWNLOAD
-========================================================= */
+        window.changeIdPhoto = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { document.getElementById('c_photo').src = e.target.result; };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
 
-window.processCardAction = async (actionType) => {
+        /* ========================= DOWNLOAD MAGIC ========================= */
+        function getCardTemplateHTML() {
+            const name = document.getElementById('edit_name').value;
+            const role = document.getElementById('edit_role').value;
+            const blood = document.getElementById('edit_blood').value;
+            const idno = document.getElementById('edit_idno').value;
+            const phone = document.getElementById('edit_phone').value;
+            const pres = document.getElementById('edit_president').value || "Kazi Ibrahim";
+            const photoSrc = document.getElementById('c_photo').src;
+            const logoSrc = "https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg";
 
-    const btnDown =
-        document.getElementById(
-            'downloadImgBtn'
-        );
+            // Same design, but clean code for html2canvas to read easily
+            return `
+            <div id="export-front" class="id-card-wrapper" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1703144883/id-front-bg.jpg');">
+                <img src="${logoSrc}" class="f-logo" crossorigin="anonymous">
+                <div class="f-org-title">ROKTOJODDA SOMAJ<br>O MANOB KOLLAYAN PORISHAD</div>
+                <img src="${photoSrc}" class="f-photo" crossorigin="anonymous" onerror="this.src='https://placehold.co/300x400/ffffff/999999?text=Photo'">
+                <div class="f-name">${name}</div>
+                <div class="f-role">${role}</div>
+                <div class="f-info-box">
+                    <div class="f-id">ID: <span>${idno}</span></div>
+                    <div class="f-blood">🩸 <span>${blood}</span></div>
+                </div>
+                <div class="f-sig-box">
+                    <div class="f-sig-name">${pres}</div><br>
+                    <div class="f-sig-title">PRESIDENT</div>
+                </div>
+            </div>
 
-
-    const originalDownText =
-        btnDown.innerHTML;
-
-
-    btnDown.innerHTML = `
-
-        <i class="fas fa-spinner fa-spin"></i>
-
-        কার্ড তৈরি হচ্ছে...
-
-    `;
-
-
-    btnDown.disabled = true;
-
-
-    let container = null;
-
-
-    try {
-
-        /* ===============================
-           CREATE RENDER CONTAINER
-        =============================== */
-
-        container =
-            document.createElement('div');
-
-
-        container.style.position =
-            'fixed';
-
-        container.style.left =
-            '-100000px';
-
-        container.style.top =
-            '0';
-
-        container.style.width =
-            '340px';
-
-        container.style.height =
-            '1060px';
-
-        container.style.background =
-            '#ffffff';
-
-        container.style.zIndex =
-            '-99999';
-
-
-        document.body.appendChild(
-            container
-        );
-
-
-        /* ===============================
-           INSERT CARD
-        =============================== */
-
-        container.innerHTML =
-            getCardTemplateHTML();
-
-
-        const front =
-            container.querySelector(
-                '#export-front'
-            );
-
-
-        const back =
-            container.querySelector(
-                '#export-back'
-            );
-
-
-        if (!front || !back) {
-
-            throw new Error(
-                "Card template তৈরি হয়নি"
-            );
-
+            <div id="export-back" class="id-card-wrapper" style="background-image: url('https://res.cloudinary.com/h0dlj3no/image/upload/v1703144884/id-back-bg.jpg');">
+                <img src="${logoSrc}" class="b-logo" crossorigin="anonymous">
+                <div class="b-terms-box">
+                    <div class="b-tc-title">Terms & Conditions</div>
+                    <div class="b-tc-text">
+                        1. This ID Card is issued solely for authorized volunteer activities of Rokttojoddha Somaj o Manob Kollayan Parishad.<br><br>
+                        2. This ID Card is the property of the organization. It must not be misused, transferred, or allowed to be used by any other person without authorization.<br><br>
+                        3. This ID Card does not guarantee any employment, official position, salary, or financial benefit.
+                    </div>
+                    <div class="b-tc-note">Note: This ID Card is valid only for authorized volunteer activities of the organization.</div>
+                </div>
+                <div class="b-contact-box">
+                    <div>info.rkjsomkporishod@gmail.com</div>
+                    <div>${phone}</div>
+                    <div>rjsomp.web.app</div>
+                </div>
+            </div>`;
         }
 
+        window.processCardAction = async (actionType) => {
+            const btnDown = document.getElementById('downloadImgBtn');
+            const originalDownText = btnDown.innerHTML;
+            btnDown.innerHTML = '<i class="fas fa-spinner fa-spin"></i> কার্ড তৈরি হচ্ছে...'; 
+            btnDown.disabled = true;
 
-        /* ===============================
-           WAIT FOR IMAGES
-        =============================== */
+            const container = document.getElementById('render-container');
+            container.innerHTML = getCardTemplateHTML();
 
-        await waitForImages(
-            container
-        );
+            try {
+                // Wait for the background images to load
+                await new Promise(resolve => setTimeout(resolve, 800));
 
+                const front = document.getElementById('export-front');
+                const back = document.getElementById('export-back');
 
-        /* ===============================
-           SMALL DELAY
-        =============================== */
+                const canvasFront = await html2canvas(front, { scale: 3, useCORS: true, allowTaint: true, logging: false });
+                const canvasBack = await html2canvas(back, { scale: 3, useCORS: true, allowTaint: true, logging: false });
 
-        await new Promise(
-            resolve =>
-                setTimeout(resolve, 500)
-        );
+                const userName = document.getElementById('edit_name').value.replace(/\s+/g, '_');
 
+                if (actionType === 'download') {
+                    const linkF = document.createElement('a');
+                    linkF.download = `ID_Front_${userName}.jpg`;
+                    linkF.href = canvasFront.toDataURL('image/jpeg', 1.0);
+                    linkF.click();
 
-        /* ===============================
-           FRONT CANVAS
-        =============================== */
+                    await new Promise(resolve => setTimeout(resolve, 500));
 
-        const frontCanvas =
-            await html2canvas(
-                front,
-                {
-                    scale: 2,
-
-                    backgroundColor:
-                        '#ffffff',
-
-                    logging: false,
-
-                    useCORS: true,
-
-                    allowTaint: false,
-
-                    imageTimeout: 5000,
-
-                    foreignObjectRendering:
-                        false,
-
-                    removeContainer:
-                        true
+                    const linkB = document.createElement('a');
+                    linkB.download = `ID_Back_${userName}.jpg`;
+                    linkB.href = canvasBack.toDataURL('image/jpeg', 1.0);
+                    linkB.click();
                 }
-            );
-
-
-        /* ===============================
-           BACK CANVAS
-        =============================== */
-
-        const backCanvas =
-            await html2canvas(
-                back,
-                {
-                    scale: 2,
-
-                    backgroundColor:
-                        '#000000',
-
-                    logging: false,
-
-                    useCORS: true,
-
-                    allowTaint: false,
-
-                    imageTimeout: 5000,
-
-                    foreignObjectRendering:
-                        false,
-
-                    removeContainer:
-                        true
-                }
-            );
-
-
-        /* ===============================
-           USER NAME
-        =============================== */
-
-        const userName =
-            document.getElementById(
-                'edit_name'
-            ).value.trim()
-            || 'Member';
-
-
-        const safeName =
-            userName
-                .replace(
-                    /[\\/:*?"<>|]/g,
-                    '_'
-                )
-                .replace(
-                    /\s+/g,
-                    '_'
-                );
-
-
-        /* ===============================
-           FRONT DOWNLOAD
-        =============================== */
-
-        const frontBlob =
-            await canvasToBlob(
-                frontCanvas
-            );
-
-
-        if (!frontBlob) {
-
-            throw new Error(
-                "Front image তৈরি হয়নি"
-            );
-
-        }
-
-
-        downloadBlob(
-            frontBlob,
-            `ID_Front_${safeName}.jpg`
-        );
-
-
-        /* ===============================
-           WAIT BEFORE SECOND DOWNLOAD
-        =============================== */
-
-        await new Promise(
-            resolve =>
-                setTimeout(resolve, 1200)
-        );
-
-
-        /* ===============================
-           BACK DOWNLOAD
-        =============================== */
-
-        const backBlob =
-            await canvasToBlob(
-                backCanvas
-            );
-
-
-        if (!backBlob) {
-
-            throw new Error(
-                "Back image তৈরি হয়নি"
-            );
-
-        }
-
-
-        downloadBlob(
-            backBlob,
-            `ID_Back_${safeName}.jpg`
-        );
-
-
-        /* ===============================
-           SUCCESS
-        =============================== */
-
-        setTimeout(() => {
-
-            alert(
-                "✅ আইডি কার্ড সফলভাবে তৈরি হয়েছে!\n\n" +
-                "Front এবং Back দুইটি JPG ফাইল ডাউনলোড হয়েছে।"
-            );
-
-        }, 300);
-
-
-    } catch (error) {
-
-        console.error(
-            "ID CARD DOWNLOAD ERROR:",
-            error
-        );
-
-
-        alert(
-            "❌ আইডি কার্ড ডাউনলোড করা যায়নি!\n\n" +
-            "সমস্যাটি বিস্তারিত জানতে Browser Console দেখুন।\n\n" +
-            "Error: " +
-            (error.message || error)
-        );
-
-
-    } finally {
-
-        /* ===============================
-           REMOVE TEMP CONTAINER
-        =============================== */
-
-        if (
-            container &&
-            container.parentNode
-        ) {
-
-            container.parentNode.removeChild(
-                container
-            );
-
-        }
-
-
-        /* ===============================
-           RESTORE BUTTON
-        =============================== */
-
-        btnDown.innerHTML =
-            originalDownText;
-
-
-        btnDown.disabled = false;
-
-    }
-
-};
-
-
-
-/* =========================================================
-   CANVAS TO BLOB
-========================================================= */
-
-function canvasToBlob(canvas) {
-
-    return new Promise(resolve => {
-
-        canvas.toBlob(
-            blob => resolve(blob),
-            'image/jpeg',
-            0.95
-        );
-
-    });
-
-}
-
-
-
-/* =========================================================
-   DOWNLOAD BLOB
-========================================================= */
-
-function downloadBlob(blob, filename) {
-
-    const url =
-        URL.createObjectURL(blob);
-
-
-    const link =
-        document.createElement('a');
-
-
-    link.href =
-        url;
-
-
-    link.download =
-        filename;
-
-
-    link.style.display =
-        'none';
-
-
-    document.body.appendChild(
-        link
-    );
-
-
-    link.click();
-
-
-    setTimeout(() => {
-
-        link.remove();
-
-        URL.revokeObjectURL(url);
-
-    }, 2000);
-
-}
-
-
-
-/* =========================================================
-   COPY CARD DATA
-========================================================= */
-
-window.copyCardData = async () => {
-
-    const name =
-        document.getElementById(
-            'edit_name'
-        ).value;
-
-
-    const role =
-        document.getElementById(
-            'edit_role'
-        ).value;
-
-
-    const blood =
-        document.getElementById(
-            'edit_blood'
-        ).value;
-
-
-    const idno =
-        document.getElementById(
-            'edit_idno'
-        ).value;
-
-
-    const phone =
-        document.getElementById(
-            'edit_phone'
-        ).value;
-
-
-    const address =
-        document.getElementById(
-            'edit_address'
-        ).value;
-
-
-    const pres =
-        document.getElementById(
-            'edit_president'
-        ).value ||
-        "Kazi Ibrahim";
-
-
-    const textToCopy =
-
-`🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸
-
-👤 *নাম:* ${name}
-
-🏷 *পদবী:* ${role}
-
-🩸 *রক্তের গ্রুপ:* ${blood}
-
-🪪 *আইডি নং:* ${idno}
-
-📞 *মোবাইল:* ${phone}
-
-📍 *ঠিকানা:* ${address}
-
-🖋 *সভাপতি:* ${pres}
-
-(কম্পিউটার অপারেটর এই তথ্যগুলো ব্যবহার করে আইডি কার্ড প্রিন্ট করবেন)`;
-
-
-    try {
-
-        await navigator.clipboard.writeText(
-            textToCopy
-        );
-
-
-        alert(
-            "✅ আইডি কার্ডের সব তথ্য সুন্দরভাবে কপি করা হয়েছে!"
-        );
-
-
-    } catch (error) {
-
-        /* Fallback */
-
-        const textArea =
-            document.createElement(
-                "textarea"
-            );
-
-
-        textArea.value =
-            textToCopy;
-
-
-        textArea.style.position =
-            "fixed";
-
-        textArea.style.left =
-            "-9999px";
-
-
-        document.body.appendChild(
-            textArea
-        );
-
-
-        textArea.focus();
-
-        textArea.select();
-
-
-        try {
-
-            document.execCommand(
-                'copy'
-            );
-
-
-            alert(
-                "✅ আইডি কার্ডের সব তথ্য সুন্দরভাবে কপি করা হয়েছে!"
-            );
-
-
-        } catch (err) {
-
-            alert(
-                "দুঃখিত, তথ্য কপি করা সম্ভব হয়নি!"
-            );
-
-        }
-
-
-        textArea.remove();
-
-    }
-
-};
-
-
-
-/* =========================================================
-   WHATSAPP
-========================================================= */
-
-window.shareViaWhatsApp = () => {
-
-    const name =
-        document.getElementById(
-            'edit_name'
-        ).value;
-
-
-    const role =
-        document.getElementById(
-            'edit_role'
-        ).value;
-
-
-    const blood =
-        document.getElementById(
-            'edit_blood'
-        ).value;
-
-
-    const idno =
-        document.getElementById(
-            'edit_idno'
-        ).value;
-
-
-    const phone =
-        document.getElementById(
-            'edit_phone'
-        ).value;
-
-
-    const address =
-        document.getElementById(
-            'edit_address'
-        ).value;
-
-
-    const pres =
-        document.getElementById(
-            'edit_president'
-        ).value ||
-        "Kazi Ibrahim";
-
-
-    const textToShare =
-
-`🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸
-
-👤 *নাম:* ${name}
-
-🏷 *পদবী:* ${role}
-
-🩸 *রক্তের গ্রুপ:* ${blood}
-
-🪪 *আইডি নং:* ${idno}
-
-📞 *মোবাইল:* ${phone}
-
-📍 *ঠিকানা:* ${address}
-
-🖋 *সভাপতি:* ${pres}`;
-
-
-    const whatsappUrl =
-        `https://wa.me/?text=${encodeURIComponent(textToShare)}`;
-
-
-    window.open(
-        whatsappUrl,
-        '_blank'
-    );
-
-};
-
-
-
-/* =========================================================
-   ESC KEY
-========================================================= */
-
-document.addEventListener(
-    'keydown',
-    (event) => {
-
-        if (
-            event.key === 'Escape'
-        ) {
-
-            closeModal();
-
-        }
-
-    }
-);
-
-
-
-/* =========================================================
-   CLICK OUTSIDE MODAL
-========================================================= */
-
-document.getElementById(
-    'idCardModal'
-).addEventListener(
-    'click',
-    function(event) {
-
-        if (
-            event.target === this
-        ) {
-
-            closeModal();
-
-        }
-
-    }
-);
-
-</script>
-
+            } catch (error) {
+                alert("ডাউনলোড করতে সমস্যা হয়েছে! ইন্টারনেট কানেকশন চেক করুন।");
+            } finally {
+                container.innerHTML = '';
+                btnDown.innerHTML = originalDownText; 
+                btnDown.disabled = false;
+            }
+        };
+
+        // ================= COPY AND SHARE =================
+        window.copyCardData = async () => {
+            const textToCopy = `🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸\n\n👤 *নাম:* ${document.getElementById('edit_name').value}\n🏷 *পদবী:* ${document.getElementById('edit_role').value}\n🩸 *রক্তের গ্রুপ:* ${document.getElementById('edit_blood').value}\n🪪 *আইডি নং:* ${document.getElementById('edit_idno').value}\n📞 *মোবাইল:* ${document.getElementById('edit_phone').value}\n📍 *ঠিকানা:* ${document.getElementById('edit_address').value}\n\n🖋 *সভাপতি:* ${document.getElementById('edit_president').value || "Kazi Ibrahim"}`;
+            try { await navigator.clipboard.writeText(textToCopy); alert("✅ আইডি কার্ডের সব তথ্য কপি করা হয়েছে!"); } 
+            catch (error) { alert("দুঃখিত, তথ্য কপি করা সম্ভব হয়নি!"); }
+        };
+
+        window.shareViaWhatsApp = () => {
+            const textToShare = `🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸\n\n👤 *নাম:* ${document.getElementById('edit_name').value}\n🏷 *পদবী:* ${document.getElementById('edit_role').value}\n🩸 *রক্তের গ্রুপ:* ${document.getElementById('edit_blood').value}\n🪪 *আইডি নং:* ${document.getElementById('edit_idno').value}\n📞 *মোবাইল:* ${document.getElementById('edit_phone').value}\n📍 *ঠিকানা:* ${document.getElementById('edit_address').value}\n\n🖋 *সভাপতি:* ${document.getElementById('edit_president').value || "Kazi Ibrahim"}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(textToShare)}`, '_blank');
+        };
+
+    </script>
 </body>
 </html>
