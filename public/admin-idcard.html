@@ -9,6 +9,7 @@
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <!-- html2canvas library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -27,14 +28,12 @@
             margin: 0 auto;
         }
         
-        /* Solid Red Sidebar (Fixes the hanging download issue) */
         .pattern-sidebar-front {
             position: absolute; left: 0; top: 0; bottom: 0; width: 110px;
             background: #ef4444;
             z-index: 1;
         }
         
-        /* Logo on the left over red bar */
         .front-logo {
             position: absolute; top: 20px; left: 20px; width: 70px; height: 70px;
             border-radius: 50%; border: 2px solid white; z-index: 10;
@@ -42,11 +41,9 @@
         }
         .front-logo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
-        /* Organization Title */
         .front-header { position: absolute; top: 25px; left: 120px; right: 15px; text-align: right; z-index: 5; }
         .org-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.2; text-transform: uppercase; }
         
-        /* Circular Photo Box */
         .id-photo-wrapper {
             position: absolute; top: 120px; left: 20px; width: 130px; height: 130px;
             background: #fff; border: 5px solid #ef4444; border-radius: 50%; z-index: 10;
@@ -54,7 +51,6 @@
         }
         .id-photo-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
         
-        /* User Details */
         .front-details { position: absolute; top: 280px; left: 120px; right: 15px; text-align: right; z-index: 5; }
         .user-name { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; color: #0f172a; text-transform: uppercase; line-height: 1.1; margin-bottom: 2px; word-wrap: break-word; }
         .user-role { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 15px; }
@@ -62,7 +58,6 @@
         .user-info { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
         .blood-badge { font-size: 16px; font-weight: 800; color: #dc2626; margin-bottom: 5px; display: inline-block; }
         
-        /* Signature */
         .front-signature { position: absolute; bottom: 20px; left: 120px; right: 15px; text-align: right; z-index: 5; }
         .sig-text { font-family: 'Dancing Script', cursive; font-size: 28px; color: #1e3a8a; line-height: 0.8; transform: rotate(-5deg); display: inline-block; margin-bottom: 5px; }
         .sig-line { font-size: 9px; font-weight: 800; color: #64748b; border-top: 1px solid #94a3b8; padding-top: 2px; display: inline-block; width: 110px; text-align: center; }
@@ -71,7 +66,7 @@
         .id-card-back {
             width: 340px;
             height: 530px;
-            background: #0f172a; /* Dark Background */
+            background: #0f172a; 
             position: relative;
             overflow: hidden;
             box-shadow: 0 10px 20px rgba(0,0,0,0.15);
@@ -99,6 +94,7 @@
 
     </style>
     
+    <!-- ইনলাইন সিকিউরিটি -->
     <script> document.documentElement.style.display = 'none'; </script>
 </head>
 <body class="p-3 sm:p-8 relative">
@@ -151,9 +147,8 @@
                         <div><label class="block text-xs font-bold text-gray-700 mb-1">পদবী</label><input type="text" id="edit_role" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-semibold"></div>
                         <div><label class="block text-xs font-bold text-gray-700 mb-1">রক্তের গ্রুপ</label><input type="text" id="edit_blood" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 text-sm font-bold text-red-600"></div>
                     </div>
-                    <div><label class="block text-xs font-bold text-gray-700 mb-1">আইডি নং</label><input type="text" id="edit_idno" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-mono font-bold text-gray-700"></div>
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">গোপন কোড</label><input type="text" id="edit_idno" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-mono font-bold text-gray-700"></div>
                     <div><label class="block text-xs font-bold text-gray-700 mb-1">মোবাইল</label><input type="text" id="edit_phone" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-semibold"></div>
-                    <div><label class="block text-xs font-bold text-gray-700 mb-1">ঠিকানা (গ্রাম, থানা, জেলা)</label><textarea id="edit_address" rows="2" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-semibold"></textarea></div>
                     
                     <div class="border-t border-gray-200 pt-3 mt-3">
                         <label class="block text-xs font-bold text-gray-700 mb-1 text-blue-600">সভাপতির নাম (সিগনেচারের জন্য)</label>
@@ -183,7 +178,7 @@
                     </div>
 
                     <div class="front-header">
-                        <div class="org-title">ROKTOJODDHA SOMAJ<br>O MANOB KOLLAYAN PORISHAD</div>
+                        <div class="org-title">ROKTOJODDA SOMAJ O MANOB KOLLAYAN PORISHAD</div>
                     </div>
                     
                     <div class="id-photo-wrapper">
@@ -239,7 +234,7 @@
     <script type="module">
         import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw", authDomain: "rjsomp.firebaseapp.com",
@@ -251,7 +246,7 @@
         const db = getFirestore(app);
 
         let mergedUsers = []; 
-        let defaultPresident = "Kazi Ibrahim"; // ডিফল্ট সভাপতির নাম
+        let defaultPresident = "Kazi Ibrahim"; 
 
         onAuthStateChanged(auth, (user) => {
             if (user) { document.documentElement.style.display = ''; fetchAndMergeData(); } 
@@ -282,7 +277,7 @@
                             }
                         } else {
                             let fullAddress = [data.village, data.upazila, data.district].filter(Boolean).join(", ");
-                            let dynamicId = "RJS-" + phone.slice(-4) + Math.floor(10 + Math.random() * 90);
+                            let dynamicId = data.secretCode || data.secretPin || "N/A"; // Use secretPin or secretCode directly as ID
 
                             usersMap.set(phone, {
                                 id: d.id,
@@ -357,7 +352,6 @@
             document.getElementById('edit_blood').value = u.blood;
             document.getElementById('edit_idno').value = u.idNo;
             document.getElementById('edit_phone').value = u.phone;
-            document.getElementById('edit_address').value = u.address;
             document.getElementById('edit_president').value = defaultPresident;
             
             // Set Photo
@@ -382,7 +376,7 @@
             document.getElementById('c_idno').innerText = idNo;
             document.getElementById('c_phone_back').innerText = phoneStr;
             
-            const presName = document.getElementById('edit_president').value || "President";
+            const presName = document.getElementById('edit_president').value || "Kazi Ibrahim";
             document.getElementById('c_president_sig').innerText = presName;
         };
 
@@ -401,7 +395,7 @@
             }
         };
 
-        // ================= HTML2Canvas ডাউনলোড ফিক্স =================
+        // ================= HTML2Canvas ডাউনলোড ફিক্স =================
         window.downloadIdCard = async () => {
             const btn = document.getElementById('downloadBtn');
             const originalText = btn.innerHTML;
@@ -411,25 +405,39 @@
             try {
                 // Front Card
                 const frontDom = document.getElementById('id-card-front-dom');
-                const canvasFront = await html2canvas(frontDom, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+                // Ensuring cross-origin images are loaded and rendering is accurate
+                const canvasFront = await html2canvas(frontDom, { 
+                    scale: 3, 
+                    useCORS: true, 
+                    allowTaint: true,
+                    backgroundColor: "#ffffff",
+                    logging: false 
+                });
                 const linkF = document.createElement('a');
                 linkF.download = `ID_Front_${document.getElementById('c_name').innerText}.jpg`;
                 linkF.href = canvasFront.toDataURL('image/jpeg', 1.0);
                 linkF.click();
 
                 // ছোট্ট বিরতি (যাতে ব্রাউজার ক্র্যাশ না করে)
-                await new Promise(r => setTimeout(r, 500));
+                await new Promise(r => setTimeout(r, 600));
 
                 // Back Card
                 const backDom = document.getElementById('id-card-back-dom');
-                const canvasBack = await html2canvas(backDom, { scale: 3, useCORS: true, backgroundColor: "#0f172a" });
+                const canvasBack = await html2canvas(backDom, { 
+                    scale: 3, 
+                    useCORS: true, 
+                    allowTaint: true,
+                    backgroundColor: "#0f172a",
+                    logging: false 
+                });
                 const linkB = document.createElement('a');
                 linkB.download = `ID_Back_${document.getElementById('c_name').innerText}.jpg`;
                 linkB.href = canvasBack.toDataURL('image/jpeg', 1.0);
                 linkB.click();
                 
             } catch (error) {
-                alert("ডাউনলোড করতে সমস্যা হয়েছে! " + error.message);
+                alert("ডাউনলোড করতে সমস্যা হয়েছে! দয়া করে ইন্টারনেট কানেকশন চেক করুন।");
+                console.error("HTML2Canvas Error:", error);
             } finally {
                 btn.innerHTML = originalText; 
                 btn.disabled = false;
