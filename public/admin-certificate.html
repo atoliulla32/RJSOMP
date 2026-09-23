@@ -7,53 +7,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     
+    <!-- html2canvas Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body { font-family: 'Noto Sans Bengali', sans-serif; background: #f1f5f9; overflow-x: hidden; }
         .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); }
         
-        /* Hidden Rendering Box for Download Magic */
-        #hidden-render-box { position: absolute; left: -9999px; top: 0; z-index: -100; }
-
-        /* ================= Live Preview Design ================= */
-        .id-card-front {
-            width: 340px; height: 530px; background: #ffffff; position: relative;
-            overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.15); flex-shrink: 0; margin: 0 auto;
-        }
-        .pattern-sidebar-front { position: absolute; left: 0; top: 0; bottom: 0; width: 110px; background: #ef4444; z-index: 1; }
-        .front-logo { position: absolute; top: 20px; left: 20px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid white; z-index: 10; background: white; padding: 2px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .front-logo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-        .front-header { position: absolute; top: 25px; left: 120px; right: 15px; text-align: right; z-index: 5; }
-        .org-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.2; text-transform: uppercase; }
-        .id-photo-wrapper { position: absolute; top: 120px; left: 20px; width: 130px; height: 130px; background: #fff; border: 5px solid #ef4444; border-radius: 50%; z-index: 10; box-shadow: 4px 4px 15px rgba(0,0,0,0.15); overflow: hidden; padding: 2px; }
-        .id-photo-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-        .front-details { position: absolute; top: 280px; left: 120px; right: 15px; text-align: right; z-index: 5; }
-        .user-name { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; color: #0f172a; text-transform: uppercase; line-height: 1.1; margin-bottom: 2px; word-wrap: break-word; }
-        .user-role { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 15px; }
-        .user-info { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
-        .blood-badge { font-size: 16px; font-weight: 800; color: #dc2626; margin-bottom: 5px; display: inline-block; }
-        .front-signature { position: absolute; bottom: 20px; left: 120px; right: 15px; text-align: right; z-index: 5; }
-        .sig-text { font-family: 'Dancing Script', cursive; font-size: 28px; color: #1e3a8a; line-height: 0.8; transform: rotate(-5deg); display: inline-block; margin-bottom: 5px; }
-        .sig-line { font-size: 9px; font-weight: 800; color: #64748b; border-top: 1px solid #94a3b8; padding-top: 2px; display: inline-block; width: 110px; text-align: center; }
-
-        .id-card-back {
-            width: 340px; height: 530px; background: #0f172a; position: relative;
-            overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.15); flex-shrink: 0; margin: 0 auto;
-        }
-        .pattern-sidebar-back { position: absolute; right: 0; top: 0; bottom: 0; width: 60px; background: #ef4444; z-index: 1; }
-        .back-content { position: absolute; top: 30px; left: 20px; right: 80px; text-align: left; z-index: 5; color: white; }
-        .back-logo { width: 70px; height: 70px; background: white; padding: 2px; border-radius: 50%; margin-bottom: 20px; border: 2px solid #ef4444; }
-        .back-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        .tc-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 4px; text-transform: uppercase; }
-        .tc-text { font-size: 9px; font-weight: 400; color: #cbd5e1; line-height: 1.6; margin-bottom: 15px; text-align: justify; }
-        .tc-text ul { padding-left: 0; list-style: none; margin: 0; }
-        .tc-text li { margin-bottom: 6px; }
-        .tc-note { font-weight: 600; color: #fef08a; font-size: 8.5px; margin-bottom: 25px; }
-        .contact-info { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 500; color: #cbd5e1; line-height: 1.8; }
-        .contact-info i { color: #ef4444; width: 15px; text-align: center; margin-right: 5px; }
+        /* The Magic Render Box (Hidden from user, only for html2canvas) */
+        #hidden-render-box { position: absolute; left: -9999px; top: 0; display: none; }
     </style>
     
     <script> document.documentElement.style.display = 'none'; </script>
@@ -61,17 +26,19 @@
 <body class="p-3 sm:p-8 relative">
 
     <div class="max-w-7xl mx-auto pb-10">
+        <!-- Header -->
         <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm mb-6 border-l-4 border-red-600 gap-3">
             <div class="flex items-center gap-4">
                 <div class="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center border border-red-200 text-xl text-red-600"><i class="fas fa-id-badge"></i></div>
                 <div>
                     <h1 class="text-xl md:text-2xl font-bold text-gray-800">অটো আইডি কার্ড জেনারেটর</h1>
-                    <p class="text-xs md:text-sm font-bold text-gray-500 mt-1">সব সদস্যের জন্য স্মার্ট আইডি কার্ড ইনফো জেনারেটর ও শেয়ারিং</p>
+                    <p class="text-xs md:text-sm font-bold text-gray-500 mt-1">সব সদস্যের স্মার্ট আইডি কার্ড ইনফো জেনারেটর ও শেয়ারিং</p>
                 </div>
             </div>
             <a href="admin.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ড</a>
         </div>
 
+        <!-- Search -->
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-3 items-center">
             <div class="relative w-full md:flex-1">
                 <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
@@ -82,95 +49,66 @@
             </div>
         </div>
 
+        <!-- Data Grid -->
         <div id="users-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             <div class="col-span-full text-center py-16"><i class="fas fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i><p class="font-bold text-gray-500">ডাটাবেজ থেকে তথ্য লোড করা হচ্ছে...</p></div>
         </div>
     </div>
 
+    <!-- Live Edit Modal -->
     <div id="idCardModal" class="fixed inset-0 modal-bg z-[100] hidden flex items-center justify-center p-2 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-gray-50 w-full max-w-6xl h-[95vh] rounded-2xl shadow-2xl p-4 sm:p-6 transform scale-95 transition-transform duration-300 relative flex flex-col md:flex-row gap-6" id="idCardModalContent">
-            <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-500 hover:text-red-600 border border-gray-200 transition shadow z-50"><i class="fas fa-times"></i></button>
+        
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-4 sm:p-6 transform scale-95 transition-transform duration-300 relative flex flex-col h-[90vh] md:h-auto overflow-hidden" id="idCardModalContent">
             
-            <div class="w-full md:w-1/3 flex flex-col space-y-4 h-full">
-                <h3 class="text-lg font-bold text-gray-800 border-b border-gray-300 pb-2"><i class="fas fa-edit text-blue-500"></i> আইডি কার্ড এডিটর</h3>
-                <div class="space-y-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex-grow overflow-y-auto">
-                    <div><label class="block text-xs font-bold text-gray-700 mb-1">নাম</label><input type="text" id="edit_name" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-bold"></div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div><label class="block text-xs font-bold text-gray-700 mb-1">পদবী</label><input type="text" id="edit_role" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-semibold"></div>
-                        <div><label class="block text-xs font-bold text-gray-700 mb-1">রক্তের গ্রুপ</label><input type="text" id="edit_blood" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 text-sm font-bold text-red-600"></div>
-                    </div>
-                    <div><label class="block text-xs font-bold text-gray-700 mb-1">আইডি নং</label><input type="text" id="edit_idno" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-mono font-bold text-gray-700"></div>
-                    <div><label class="block text-xs font-bold text-gray-700 mb-1">মোবাইল</label><input type="text" id="edit_phone" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-semibold"></div>
-                    <div><label class="block text-xs font-bold text-gray-700 mb-1">ঠিকানা (গ্রাম, থানা, জেলা)</label><textarea id="edit_address" rows="2" oninput="syncCard()" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-semibold"></textarea></div>
-                    <div class="border-t border-gray-200 pt-3 mt-3">
-                        <label class="block text-xs font-bold text-gray-700 mb-1 text-blue-600">সভাপতির নাম</label>
-                        <input type="text" id="edit_president" oninput="syncCard()" placeholder="যেমন: Kazi Ibrahim" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-sm font-bold bg-blue-50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1 mt-2">সদস্যের ছবি (গোল দেখাবে)</label>
-                        <input type="file" accept="image/*" onchange="changeIdPhoto(this)" class="w-full p-1 border border-gray-300 rounded bg-gray-50 text-xs">
-                    </div>
+            <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-red-600 hover:bg-red-50 transition shadow"><i class="fas fa-times"></i></button>
+            
+            <h3 class="text-lg font-bold text-gray-800 border-b border-gray-200 pb-3 mb-4 shrink-0"><i class="fas fa-edit text-blue-500"></i> আইডি কার্ড এডিটর</h3>
+            
+            <!-- Edit Form -->
+            <div class="space-y-3 flex-grow overflow-y-auto pr-2 custom-scroll">
+                <div><label class="block text-xs font-bold text-gray-700 mb-1">নাম</label><input type="text" id="edit_name" class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-bold bg-gray-50"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">পদবী</label><input type="text" id="edit_role" class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50"></div>
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">রক্তের গ্রুপ</label><input type="text" id="edit_blood" class="w-full p-2.5 border border-red-200 rounded-lg focus:border-red-500 outline-none text-sm font-bold text-red-600 bg-red-50"></div>
                 </div>
+                <div><label class="block text-xs font-bold text-gray-700 mb-1">আইডি নং</label><input type="text" id="edit_idno" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-sm font-mono font-bold text-gray-700 bg-gray-100" readonly></div>
+                <div><label class="block text-xs font-bold text-gray-700 mb-1">মোবাইল</label><input type="text" id="edit_phone" class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50"></div>
+                <div><label class="block text-xs font-bold text-gray-700 mb-1">ঠিকানা</label><textarea id="edit_address" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50"></textarea></div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">সভাপতির নাম</label>
+                    <input type="text" id="edit_president" placeholder="Kazi Ibrahim" class="w-full p-2.5 border border-blue-200 rounded-lg focus:border-blue-500 outline-none text-sm font-bold bg-blue-50 text-blue-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1 mt-2">সদস্যের নতুন ছবি দিন</label>
+                    <input type="file" accept="image/*" onchange="changeIdPhoto(this)" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-xs">
+                </div>
+            </div>
 
-                <div class="flex flex-col gap-2 shrink-0 border-t border-gray-300 pt-3">
-                    <button onclick="downloadImageCard()" id="downloadImgBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow flex items-center justify-center gap-2 text-sm">
-                        <i class="fas fa-download"></i> ছবি ডাউনলোড করুন
+            <!-- Hidden Photo Holder -->
+            <img id="c_photo" src="https://via.placeholder.com/150" class="hidden" crossorigin="anonymous">
+
+            <!-- Actions -->
+            <div class="shrink-0 border-t border-gray-200 pt-4 mt-4 space-y-2">
+                <button onclick="processCardAction('download')" id="downloadImgBtn" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-download"></i> কার্ড ডাউনলোড করুন (Front & Back)
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="copyCardData()" class="flex-1 bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-black transition shadow flex items-center justify-center gap-2 text-[13px]">
+                        <i class="fas fa-copy"></i> শুধু তথ্য কপি
                     </button>
-                    <div class="flex gap-2">
-                        <button onclick="copyCardData()" class="flex-1 bg-gray-800 text-white font-bold py-2.5 rounded-xl hover:bg-black transition shadow flex items-center justify-center gap-2 text-[13px]">
-                            <i class="fas fa-copy"></i> তথ্য কপি
-                        </button>
-                        <button onclick="shareViaWhatsApp()" class="flex-1 bg-green-600 text-white font-bold py-2.5 rounded-xl hover:bg-green-700 transition shadow flex items-center justify-center gap-2 text-[13px]">
-                            <i class="fab fa-whatsapp text-lg"></i> হোয়াটসঅ্যাপ
-                        </button>
-                    </div>
+                    <button onclick="shareViaWhatsApp()" class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition shadow flex items-center justify-center gap-2 text-[13px]">
+                        <i class="fab fa-whatsapp text-lg"></i> হোয়াটসঅ্যাপ
+                    </button>
                 </div>
             </div>
-
-            <div class="w-full md:w-2/3 bg-gray-300 p-4 rounded-xl shadow-inner overflow-y-auto flex flex-col md:flex-row items-center justify-center gap-6 h-full">
-                <div class="id-card-front">
-                    <div class="pattern-sidebar-front"></div>
-                    <div class="front-logo"><img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" crossorigin="anonymous"></div>
-                    <div class="front-header"><div class="org-title">ROKTOJODDA SOMAJ<br>O MANOB KOLLAYAN PORISHAD</div></div>
-                    <div class="id-photo-wrapper"><img id="c_photo" src="https://via.placeholder.com/150" crossorigin="anonymous"></div>
-                    <div class="front-details">
-                        <div class="user-name" id="c_name">NAME</div>
-                        <div class="user-role" id="c_role">ROLE</div>
-                        <div class="blood-badge" id="c_blood">A+</div>
-                        <div class="user-info">ID: <span id="c_idno" class="font-bold"></span></div>
-                    </div>
-                    <div class="front-signature">
-                        <div class="sig-text" id="c_president_sig">Kazi Ibrahim</div><br>
-                        <div class="sig-line">PRESIDENT</div>
-                    </div>
-                </div>
-
-                <div class="id-card-back">
-                    <div class="pattern-sidebar-back"></div>
-                    <div class="back-content">
-                        <div class="back-logo"><img src="https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg" crossorigin="anonymous"></div>
-                        <div class="tc-title">TERMS & CONDITIONS</div>
-                        <div class="tc-text">
-                            <ul>
-                                <li>1. This ID Card is issued solely for authorized volunteer activities of Rokttojoddha Somaj o Manob Kollayan Parishad.</li>
-                                <li>2. This ID Card is the property of the organization. It must not be misused, transferred, or allowed to be used by any other person without authorization.</li>
-                                <li>3. This ID Card does not guarantee any employment, official position, salary, or financial benefit.</li>
-                            </ul>
-                        </div>
-                        <div class="tc-note">Note: This ID Card is valid only for authorized volunteer activities of the organization.</div>
-                        <div class="contact-info">
-                            <div><i class="fas fa-envelope"></i> info.rkjsomkporishod@gmail.com</div>
-                            <div><i class="fas fa-phone-alt"></i> <span id="c_phone_back"></span></div>
-                            <div><i class="fas fa-globe"></i> rjsomp.web.app</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
     </div>
 
-    <div id="hidden-render-box"></div>
+    <!-- The Magic Container (Dynamic Injection for html2canvas) -->
+    <div id="render-container"></div>
 
+    <!-- Firebase & Logic -->
     <script type="module">
         import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -186,6 +124,7 @@
         const db = getFirestore(app);
 
         let mergedUsers = []; 
+        let defaultPresident = "Kazi Ibrahim"; 
 
         onAuthStateChanged(auth, (user) => {
             if (user) { document.documentElement.style.display = ''; fetchAndMergeData(); } 
@@ -249,7 +188,7 @@
                         <div class="flex-grow min-w-0">
                             <h3 class="font-bold text-gray-800 truncate leading-tight">${u.name}</h3>
                             <p class="text-[11px] font-bold text-red-600 mt-1 truncate"><i class="fas fa-tag"></i> ${roleString}</p>
-                            <p class="text-[11px] text-gray-500 mt-0.5"><i class="fas fa-map-marker-alt"></i> <span class="truncate">${u.address || 'ঠিকানা নেই'}</span></p>
+                            <p class="text-[11px] font-bold text-gray-400 mt-0.5"><i class="fas fa-fingerprint"></i> ID: ${u.idNo}</p>
                         </div>
                         <button onclick="openIdModal('${safeDataStr}')" class="shrink-0 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm" title="আইডি কার্ড তৈরি করুন">
                             <i class="fas fa-address-card text-lg"></i>
@@ -262,7 +201,7 @@
 
         window.filterUsers = () => {
             const txt = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = mergedUsers.filter(u => u.name.toLowerCase().includes(txt) || u.phone.includes(txt));
+            const filtered = mergedUsers.filter(u => u.name.toLowerCase().includes(txt) || u.phone.includes(txt) || u.idNo.toLowerCase().includes(txt));
             renderUsers(filtered);
         };
 
@@ -274,25 +213,13 @@
             document.getElementById('edit_idno').value = u.idNo;
             document.getElementById('edit_phone').value = u.phone;
             document.getElementById('edit_address').value = u.address;
-            document.getElementById('edit_president').value = "Kazi Ibrahim";
-            
+            document.getElementById('edit_president').value = defaultPresident;
             document.getElementById('c_photo').src = u.photo !== "https://via.placeholder.com/150" ? u.photo : "https://via.placeholder.com/150";
-
-            syncCard();
 
             const modal = document.getElementById('idCardModal');
             const content = document.getElementById('idCardModalContent');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
-        };
-
-        window.syncCard = () => {
-            document.getElementById('c_name').innerText = document.getElementById('edit_name').value;
-            document.getElementById('c_role').innerText = document.getElementById('edit_role').value;
-            document.getElementById('c_blood').innerText = document.getElementById('edit_blood').value;
-            document.getElementById('c_idno').innerText = document.getElementById('edit_idno').value;
-            document.getElementById('c_phone_back').innerText = document.getElementById('edit_phone').value;
-            document.getElementById('c_president_sig').innerText = document.getElementById('edit_president').value || "Kazi Ibrahim";
         };
 
         window.closeModal = () => {
@@ -310,8 +237,8 @@
             }
         };
 
-        // ================= HTML2Canvas ডাউনলোড ફিক্স (Hidden Render System) =================
-        function getInlineCardTemplate() {
+        // ================= The Magic Dynamic HTML Template (No CSS loops, 100% Downloadable) =================
+        function getCardTemplateHTML() {
             const name = document.getElementById('edit_name').value;
             const role = document.getElementById('edit_role').value;
             const blood = document.getElementById('edit_blood').value;
@@ -319,93 +246,117 @@
             const phone = document.getElementById('edit_phone').value;
             const pres = document.getElementById('edit_president').value || "Kazi Ibrahim";
             const photoSrc = document.getElementById('c_photo').src;
-            const logoSrc = "https://res.cloudinary.com/h0dlj3no/image/upload/v1789160839/43189_ed9caz.jpg";
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent('ID: ' + idno)}`;
 
             return `
-            <div id="capture-front" style="width: 340px; height: 530px; background: #ffffff; position: relative; overflow: hidden; font-family: 'Poppins', sans-serif;">
-                <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 110px; background: #ef4444;"></div>
-                <div style="position: absolute; top: 20px; left: 20px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid white; background: white; padding: 2px;">
-                    <img src="${logoSrc}" crossorigin="anonymous" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <div id="export-front" style="width: 340px; height: 530px; background: #ffffff; position: relative; font-family: 'Poppins', 'Noto Sans Bengali', sans-serif; box-sizing: border-box;">
+                <!-- Left Red Bar -->
+                <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 100px; background: #ef4444;"></div>
+                
+                <!-- Org Name -->
+                <div style="position: absolute; top: 30px; right: 15px; text-align: right; width: 220px; z-index: 5;">
+                    <div style="font-size: 16px; font-weight: 800; color: #000; line-height: 1.2;">ROKTOJODDA SOMAJ<br>O MANOB KOLLAYAN PORISHAD</div>
                 </div>
-                <div style="position: absolute; top: 30px; left: 120px; right: 15px; text-align: right;">
-                    <div style="font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.3; text-transform: uppercase;">ROKTOJODDA SOMAJ<br>O MANOB KOLLAYAN PORISHAD</div>
+                
+                <!-- Photo (Rectangular overlapping) -->
+                <div style="position: absolute; top: 120px; left: 20px; width: 150px; height: 180px; border: 8px solid #ef4444; background: #fff; box-sizing: border-box; z-index: 10;">
+                    <img src="${photoSrc}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <div style="position: absolute; top: 120px; left: 20px; width: 130px; height: 130px; background: #fff; border: 5px solid #ef4444; border-radius: 50%; overflow: hidden; padding: 2px;">
-                    <img src="${photoSrc}" crossorigin="anonymous" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                
+                <!-- Details -->
+                <div style="position: absolute; top: 310px; right: 15px; text-align: right; width: 300px; z-index: 5;">
+                    <div style="font-size: 24px; font-weight: 800; color: #000; text-transform: uppercase; line-height: 1.1; margin-bottom: 5px;">${name}</div>
+                    <div style="font-size: 14px; font-weight: bold; color: #555; margin-bottom: 15px;">${role}</div>
+                    <div style="font-size: 14px; font-weight: bold; color: #000; margin-bottom: 5px;">ID: ${idno}</div>
+                    <div style="font-size: 18px; font-weight: 900; color: #ef4444;">🩸 ${blood}</div>
                 </div>
-                <div style="position: absolute; top: 280px; left: 120px; right: 15px; text-align: right;">
-                    <div style="font-size: 20px; font-weight: 800; color: #0f172a; text-transform: uppercase; line-height: 1.1; margin-bottom: 2px;">${name}</div>
-                    <div style="font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 15px;">${role}</div>
-                    <div style="font-size: 16px; font-weight: 800; color: #dc2626; margin-bottom: 5px; display: inline-block;">${blood}</div>
-                    <div style="font-size: 11px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">ID: <b>${idno}</b></div>
-                </div>
-                <div style="position: absolute; bottom: 20px; left: 120px; right: 15px; text-align: right;">
-                    <div style="font-family: 'Dancing Script', cursive; font-size: 28px; color: #1e3a8a; line-height: 0.8; transform: rotate(-5deg); display: inline-block; margin-bottom: 5px;">${pres}</div><br>
-                    <div style="font-size: 9px; font-weight: 800; color: #64748b; border-top: 1px solid #94a3b8; padding-top: 2px; display: inline-block; width: 110px; text-align: center;">PRESIDENT</div>
+                
+                <!-- Signature -->
+                <div style="position: absolute; bottom: 20px; right: 15px; text-align: right; z-index: 5;">
+                    <div style="font-family: 'Dancing Script', cursive; font-size: 32px; color: #1e3a8a; line-height: 1; margin-bottom: 2px;">${pres}</div>
+                    <div style="font-size: 10px; font-weight: 800; color: #555; border-top: 1px solid #999; padding-top: 3px;">PRESIDENT</div>
                 </div>
             </div>
 
-            <div id="capture-back" style="width: 340px; height: 530px; background: #0f172a; position: relative; overflow: hidden; color: white; font-family: 'Poppins', sans-serif;">
-                <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 60px; background: #ef4444;"></div>
-                <div style="position: absolute; top: 30px; left: 20px; right: 80px; text-align: left;">
-                    <div style="width: 70px; height: 70px; background: white; padding: 2px; border-radius: 50%; margin-bottom: 20px; border: 2px solid #ef4444;">
-                        <img src="${logoSrc}" crossorigin="anonymous" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <div id="export-back" style="width: 340px; height: 530px; background: #000000; position: relative; color: #ffffff; font-family: 'Poppins', 'Noto Sans Bengali', sans-serif; box-sizing: border-box;">
+                <!-- Right Red Bar -->
+                <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 80px; background: #ef4444;"></div>
+                
+                <!-- QR Code -->
+                <div style="position: absolute; top: 40px; left: 20px; width: 90px; height: 90px; background: #fff; padding: 5px; box-sizing: border-box; z-index: 10;">
+                    <img src="${qrUrl}" crossorigin="anonymous" style="width: 100%; height: 100%;">
+                </div>
+                
+                <!-- T&C -->
+                <div style="position: absolute; top: 150px; left: 20px; width: 230px; text-align: left; z-index: 5;">
+                    <div style="font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 12px;">Terms & Conditions</div>
+                    <div style="font-size: 11px; color: #ccc; line-height: 1.6;">
+                        1. This ID Card is issued solely for authorized volunteer activities of Rokttojoddha Somaj o Manob Kollayan Parishad.<br><br>
+                        2. This ID Card is the property of the organization. It must not be misused, transferred, or allowed to be used by any other person without authorization.<br><br>
+                        3. This ID Card does not guarantee any employment, official position, salary, or financial benefit.
                     </div>
-                    <div style="font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 4px;">TERMS & CONDITIONS</div>
-                    <div style="font-size: 10px; font-weight: 400; color: #cbd5e1; line-height: 1.5; margin-bottom: 15px; text-align: justify;">
-                        <ul style="padding-left:0; list-style:none; margin:0;">
-                            <li style="margin-bottom:8px;">1. This ID Card is issued solely for authorized volunteer activities of Rokttojoddha Somaj o Manob Kollayan Parishad.</li>
-                            <li style="margin-bottom:8px;">2. This ID Card is the property of the organization. It must not be misused, transferred, or allowed to be used by any other person without authorization.</li>
-                            <li style="margin-bottom:8px;">3. This ID Card does not guarantee any employment, official position, salary, or financial benefit.</li>
-                        </ul>
-                    </div>
-                    <div style="font-weight: 600; color: #fef08a; font-size: 9px; margin-bottom: 25px; line-height: 1.4;">Note: This ID Card is valid only for authorized volunteer activities of the organization.</div>
-                    <div style="font-size: 9.5px; font-weight: 500; color: #cbd5e1; line-height: 1.8;">
-                        <div>info.rkjsomkporishod@gmail.com</div>
-                        <div>${phone}</div>
-                        <div>rjsomp.web.app</div>
-                    </div>
+                    <div style="font-size: 10px; color: #fef08a; margin-top: 25px; font-weight: bold; line-height: 1.4;">Note: This ID Card is valid only for authorized volunteer activities of the organization.</div>
+                </div>
+                
+                <!-- Contact -->
+                <div style="position: absolute; bottom: 30px; left: 20px; font-size: 11px; color: #ccc; line-height: 1.8; z-index: 5;">
+                    <div>info.rkjsomkporishod@gmail.com</div>
+                    <div>${phone}</div>
+                    <div>rjsomp.web.app</div>
                 </div>
             </div>`;
         }
 
-        window.downloadImageCard = async () => {
-            const btn = document.getElementById('downloadImgBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং...'; 
-            btn.disabled = true;
+        window.processCardAction = async (actionType) => {
+            const btnDown = document.getElementById('downloadImgBtn');
+            const originalDownText = btnDown.innerHTML;
+            btnDown.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...'; 
+            btnDown.disabled = true;
 
-            const hiddenBox = document.getElementById('hidden-render-box');
-            hiddenBox.innerHTML = getInlineCardTemplate();
+            const container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            document.body.appendChild(container);
+            
+            container.innerHTML = getCardTemplateHTML();
 
             try {
-                // Front Capture
-                await new Promise(r => setTimeout(r, 500)); // wait for DOM update
-                const canvasFront = await html2canvas(document.getElementById('capture-front'), { scale: 3, useCORS: true, allowTaint: true, logging: false });
-                const linkF = document.createElement('a');
-                linkF.download = `ID_Front_${document.getElementById('edit_name').value}.jpg`;
-                linkF.href = canvasFront.toDataURL('image/jpeg', 1.0);
-                linkF.click();
+                // ব্রাউজারকে ছবি লোড করার জন্য ১ সেকেন্ড সময় দেওয়া হলো (এটিই সমস্যার সমাধান)
+                await new Promise(resolve => setTimeout(resolve, 1000));
 
-                // Back Capture
-                await new Promise(r => setTimeout(r, 600)); // small delay
-                const canvasBack = await html2canvas(document.getElementById('capture-back'), { scale: 3, useCORS: true, allowTaint: true, logging: false });
-                const linkB = document.createElement('a');
-                linkB.download = `ID_Back_${document.getElementById('edit_name').value}.jpg`;
-                linkB.href = canvasBack.toDataURL('image/jpeg', 1.0);
-                linkB.click();
+                const opt = { scale: 2, useCORS: true, allowTaint: true, logging: false };
+                
+                const canvasFront = await html2canvas(document.getElementById('export-front'), { ...opt, backgroundColor: "#ffffff" });
+                const canvasBack = await html2canvas(document.getElementById('export-back'), { ...opt, backgroundColor: "#000000" });
 
+                const userName = document.getElementById('edit_name').value;
+
+                if (actionType === 'download') {
+                    const linkF = document.createElement('a');
+                    linkF.download = `ID_Front_${userName}.jpg`;
+                    linkF.href = canvasFront.toDataURL('image/jpeg', 1.0);
+                    linkF.click();
+
+                    await new Promise(r => setTimeout(r, 400));
+
+                    const linkB = document.createElement('a');
+                    linkB.download = `ID_Back_${userName}.jpg`;
+                    linkB.href = canvasBack.toDataURL('image/jpeg', 1.0);
+                    linkB.click();
+                }
             } catch (error) {
-                alert("ডাউনলোডে সমস্যা হয়েছে! দয়া করে ইন্টারনেট কানেকশন চেক করুন।");
-            } finally {
-                hiddenBox.innerHTML = ''; // clear memory
-                btn.innerHTML = originalText; 
-                btn.disabled = false;
+                alert("ডাউনলোড করতে সমস্যা হয়েছে! ইন্টারনেট কানেকশন চেক করুন।");
+                console.error(error);
             }
+
+            document.body.removeChild(container);
+            btnDown.innerHTML = originalDownText; 
+            btnDown.disabled = false;
         };
 
-        // ================= টেক্সট কপি ও শেয়ার লজিক =================
-        function getFormattedCardData() {
+        // ================= টেক্সট কপি লজিক =================
+        window.copyCardData = () => {
             const name = document.getElementById('edit_name').value;
             const role = document.getElementById('edit_role').value;
             const blood = document.getElementById('edit_blood').value;
@@ -414,11 +365,8 @@
             const address = document.getElementById('edit_address').value;
             const pres = document.getElementById('edit_president').value || "Kazi Ibrahim";
 
-            return `🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸\n\n👤 *নাম:* ${name}\n🏷 *পদবী:* ${role}\n🩸 *রক্তের গ্রুপ:* ${blood}\n🪪 *আইডি নং:* ${idno}\n📞 *মোবাইল:* ${phone}\n📍 *ঠিকানা:* ${address}\n\n🖋 *সভাপতি:* ${pres}\n\n(কম্পিউটার অপারেটর এই তথ্যগুলো ব্যবহার করে আইডি কার্ড প্রিন্ট করবেন)`;
-        }
-
-        window.copyCardData = () => {
-            const textToCopy = getFormattedCardData();
+            const textToCopy = `🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸\n\n👤 *নাম:* ${name}\n🏷 *পদবী:* ${role}\n🩸 *রক্তের গ্রুপ:* ${blood}\n🪪 *আইডি নং:* ${idno}\n📞 *মোবাইল:* ${phone}\n📍 *ঠিকানা:* ${address}\n\n🖋 *সভাপতি:* ${pres}\n\n(কম্পিউটার অপারেটর এই তথ্যগুলো ব্যবহার করে আইডি কার্ড প্রিন্ট করবেন)`;
+            
             const textArea = document.createElement("textarea");
             textArea.value = textToCopy;
             document.body.appendChild(textArea);
@@ -429,7 +377,7 @@
         };
 
         window.shareViaWhatsApp = () => {
-            const textToShare = getFormattedCardData();
+            const textToShare = `🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸\n\n👤 *নাম:* ${document.getElementById('edit_name').value}\n🏷 *পদবী:* ${document.getElementById('edit_role').value}\n🩸 *রক্তের গ্রুপ:* ${document.getElementById('edit_blood').value}\n🪪 *আইডি নং:* ${document.getElementById('edit_idno').value}\n📞 *মোবাইল:* ${document.getElementById('edit_phone').value}\n📍 *ঠিকানা:* ${document.getElementById('edit_address').value}\n\n🖋 *সভাপতি:* ${document.getElementById('edit_president').value || "Kazi Ibrahim"}`;
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(textToShare)}`;
             window.open(whatsappUrl, '_blank');
         };
