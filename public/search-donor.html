@@ -11,9 +11,15 @@
         body { font-family: 'Noto Sans Bengali', sans-serif; background: #f8fafc; }
         .modal-bg { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); }
         
-        /* ফিল্টার বটম শিট অ্যানিমেশন */
-        .bottom-sheet { transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .bottom-sheet.show { transform: translateY(0); }
+        /* ফিল্টার বটম শিট অ্যানিমেশন (Mobile) / পপ-আপ (Desktop) */
+        .modal-animate { transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        @media (min-width: 640px) {
+            .modal-animate { transform: scale(0.95); opacity: 0; transition: all 0.3s ease; }
+            .modal-animate.show { transform: scale(1); opacity: 1; }
+        }
+        @media (max-width: 639px) {
+            .modal-animate.show { transform: translateY(0); }
+        }
         
         /* কার্ড হোভার ইফেক্ট */
         .donor-card:hover { transform: translateY(-3px); border-color: #fca5a5; }
@@ -48,10 +54,13 @@
         </div>
     </section>
 
-    <!-- ================= মোবাইল ফ্রেন্ডলি ফিল্টার প্যানেল (Bottom Sheet) ================= -->
-    <div id="filterModalOverlay" class="fixed inset-0 modal-bg z-[60] hidden transition-opacity opacity-0" onclick="closeFilterModal()"></div>
-    <div id="filterModal" class="fixed bottom-0 left-0 w-full z-[70] bottom-sheet sm:max-w-md sm:mx-auto sm:left-1/2 sm:-translate-x-1/2 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:rounded-2xl flex flex-col">
-        <div class="bg-white w-full rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 relative">
+    <!-- ================= ফিল্টার প্যানেল (Responsive Modal) ================= -->
+    <div id="filterModalWrapper" class="fixed inset-0 z-[60] hidden flex items-end sm:items-center justify-center">
+        <!-- Overlay -->
+        <div id="filterModalOverlay" class="fixed inset-0 modal-bg transition-opacity opacity-0" onclick="closeFilterModal()"></div>
+        
+        <!-- Modal Content -->
+        <div id="filterModal" class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 relative z-[70] modal-animate">
             <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4 sm:hidden"></div>
             <div class="flex justify-between items-center mb-5">
                 <h2 class="text-lg font-bold text-gray-800"><i class="fas fa-sliders-h text-red-500 mr-2"></i> ফিল্টার অপশন</h2>
@@ -225,10 +234,11 @@
 
         // --- ফিল্টার প্যানেল লজিক ---
         window.openFilterModal = () => {
+            const wrapper = document.getElementById('filterModalWrapper');
             const overlay = document.getElementById('filterModalOverlay');
             const sheet = document.getElementById('filterModal');
-            overlay.classList.remove('hidden');
-            sheet.classList.remove('hidden');
+            
+            wrapper.classList.remove('hidden');
             setTimeout(() => {
                 overlay.classList.remove('opacity-0');
                 sheet.classList.add('show');
@@ -236,13 +246,15 @@
         };
 
         window.closeFilterModal = () => {
+            const wrapper = document.getElementById('filterModalWrapper');
             const overlay = document.getElementById('filterModalOverlay');
             const sheet = document.getElementById('filterModal');
+            
             sheet.classList.remove('show');
             overlay.classList.add('opacity-0');
+            
             setTimeout(() => {
-                overlay.classList.add('hidden');
-                if(window.innerWidth < 640) sheet.classList.add('hidden'); 
+                wrapper.classList.add('hidden');
             }, 300);
         };
 
