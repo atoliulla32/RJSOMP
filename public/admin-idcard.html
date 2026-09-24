@@ -7,26 +7,29 @@
 <title>অটো আইডি কার্ড জেনারেটর | রক্তযোদ্ধা</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
+
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Dancing+Script:wght@700&display=swap"
       rel="stylesheet">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <style>
+
 *{
     box-sizing:border-box;
 }
 
 body{
-    margin:0;
     font-family:'Noto Sans Bengali',sans-serif;
     background:#f1f5f9;
     overflow-x:hidden;
 }
 
 .modal-bg{
-    background:rgba(15,23,42,.85);
+    background:rgba(15,23,42,.86);
     backdrop-filter:blur(5px);
 }
 
@@ -39,62 +42,106 @@ body{
     border-radius:20px;
 }
 
+/* =====================================================
+   RED TRIANGLE PATTERN
+   ===================================================== */
+
+.triangle-pattern{
+    background-color:#ef4444;
+
+    background-image:
+        linear-gradient(45deg,
+            transparent 0%,
+            transparent 48%,
+            #ffffff 49%,
+            #ffffff 51%,
+            transparent 52%,
+            transparent 100%),
+
+        linear-gradient(-45deg,
+            transparent 0%,
+            transparent 48%,
+            #ffffff 49%,
+            #ffffff 51%,
+            transparent 52%,
+            transparent 100%);
+
+    background-size:32px 32px;
+    background-position:0 0,16px 16px;
+}
+
+/*
+   ছোট triangle pattern – html2canvas friendly
+*/
+.pattern-small{
+    position:absolute;
+    inset:0;
+    background-color:#ef4444;
+    background-image:
+        linear-gradient(45deg,
+            transparent 0 48%,
+            #fff 49% 51%,
+            transparent 52%),
+        linear-gradient(-45deg,
+            transparent 0 48%,
+            #fff 49% 51%,
+            transparent 52%);
+    background-size:28px 28px;
+}
+
+/* Render area */
+.export-wrapper{
+    position:relative;
+    overflow:hidden;
+}
+
+.export-card{
+    width:680px;
+    height:1060px;
+    position:relative;
+    overflow:hidden;
+}
+
+/* photo */
+.card-photo{
+    object-fit:cover;
+    display:block;
+}
+
+/* prevent selection */
 button{
     -webkit-tap-highlight-color:transparent;
 }
 
-#loadingScreen{
-    position:fixed;
-    inset:0;
-    background:#fff;
-    z-index:9999;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-}
-
-.spinner{
-    width:45px;
-    height:45px;
-    border:5px solid #fee2e2;
-    border-top-color:#ef4444;
-    border-radius:50%;
-    animation:spin 1s linear infinite;
-}
-
-@keyframes spin{
-    to{transform:rotate(360deg);}
-}
 </style>
 
 <script>
 document.documentElement.style.display='none';
 </script>
+
 </head>
 
 <body class="p-3 sm:p-8">
 
-<!-- Loading -->
-<div id="loadingScreen">
-    <div class="spinner"></div>
-    <p style="margin-top:15px;font-weight:700;color:#64748b;">
-        ডাটাবেজ থেকে তথ্য লোড হচ্ছে...
-    </p>
-</div>
-
 <div class="max-w-7xl mx-auto pb-10">
 
     <!-- HEADER -->
-    <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm mb-6 border-l-4 border-red-600 gap-3">
+    <div class="flex flex-col sm:flex-row justify-between items-center
+                bg-white p-6 rounded-2xl shadow-sm mb-6
+                border-l-4 border-red-600 gap-3">
 
         <div class="flex items-center gap-4">
 
-            <div class="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center border border-red-200 text-xl text-red-600">
+            <div class="bg-red-50 w-12 h-12 rounded-full
+                        flex items-center justify-center
+                        border border-red-200 text-xl text-red-600">
+
                 <i class="fas fa-id-badge"></i>
+
             </div>
 
             <div>
+
                 <h1 class="text-xl md:text-2xl font-bold text-gray-800">
                     অটো আইডি কার্ড জেনারেটর
                 </h1>
@@ -102,21 +149,27 @@ document.documentElement.style.display='none';
                 <p class="text-xs md:text-sm font-bold text-gray-500 mt-1">
                     সব সদস্যের স্মার্ট আইডি কার্ড ইনফো জেনারেটর ও শেয়ারিং
                 </p>
+
             </div>
 
         </div>
 
         <a href="admin.html"
-           class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2">
+           class="bg-gray-100 hover:bg-gray-200 text-gray-700
+                  px-4 py-2.5 rounded-xl font-bold text-sm
+                  transition flex items-center gap-2">
+
             <i class="fas fa-arrow-left"></i>
             ড্যাশবোর্ড
+
         </a>
 
     </div>
 
 
     <!-- SEARCH -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-3 items-center">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6
+                flex flex-col md:flex-row gap-3 items-center">
 
         <div class="relative w-full md:flex-1">
 
@@ -125,13 +178,17 @@ document.documentElement.style.display='none';
             <input
                 type="text"
                 id="searchInput"
-                oninput="filterUsers()"
+                onkeyup="filterUsers()"
                 placeholder="নাম বা মোবাইল নাম্বার দিয়ে খুঁজুন..."
-                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 bg-gray-50 text-sm font-medium">
+                class="w-full pl-10 pr-4 py-2.5 border border-gray-300
+                       rounded-lg outline-none focus:border-red-500
+                       bg-gray-50 text-sm font-medium">
 
         </div>
 
-        <div class="text-sm font-bold text-gray-600 bg-gray-100 px-4 py-2.5 rounded-lg border border-gray-200">
+        <div class="text-sm font-bold text-gray-600
+                    bg-gray-100 px-4 py-2.5 rounded-lg
+                    border border-gray-200">
 
             মোট সদস্য:
             <span id="totalUsers" class="text-red-600">0</span>
@@ -146,10 +203,13 @@ document.documentElement.style.display='none';
          class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
 
         <div class="col-span-full text-center py-16">
+
             <i class="fas fa-circle-notch fa-spin text-4xl text-red-500 mb-4"></i>
+
             <p class="font-bold text-gray-500">
                 ডাটাবেজ থেকে তথ্য লোড করা হচ্ছে...
             </p>
+
         </div>
 
     </div>
@@ -157,31 +217,47 @@ document.documentElement.style.display='none';
 </div>
 
 
-<!-- ===================================================== -->
-<!-- EDIT MODAL -->
-<!-- ===================================================== -->
+<!-- =====================================================
+     EDIT MODAL
+     ===================================================== -->
 
 <div id="idCardModal"
-     class="fixed inset-0 modal-bg z-[100] hidden flex items-center justify-center p-2 sm:p-4 opacity-0 transition-opacity duration-300">
+     class="fixed inset-0 modal-bg z-[100] hidden
+            flex items-center justify-center p-2 sm:p-4
+            opacity-0 transition-opacity duration-300">
 
     <div id="idCardModalContent"
-         class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-4 sm:p-6 transform scale-95 transition-transform duration-300 relative flex flex-col h-[90vh] md:h-auto overflow-hidden">
+         class="bg-white w-full max-w-lg rounded-2xl shadow-2xl
+                p-4 sm:p-6 transform scale-95
+                transition-transform duration-300
+                relative flex flex-col h-[90vh] md:h-auto overflow-hidden">
 
-        <button
-            onclick="closeModal()"
-            class="absolute top-3 right-3 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-red-600 hover:bg-red-50 transition shadow">
+        <button onclick="closeModal()"
+                class="absolute top-3 right-3 w-8 h-8
+                       bg-gray-100 rounded-full flex items-center
+                       justify-center text-gray-500
+                       hover:text-red-600 hover:bg-red-50 transition shadow">
+
             <i class="fas fa-times"></i>
+
         </button>
 
-        <h3 class="text-lg font-bold text-gray-800 border-b border-gray-200 pb-3 mb-4 shrink-0">
+
+        <h3 class="text-lg font-bold text-gray-800
+                   border-b border-gray-200 pb-3 mb-4 shrink-0">
+
             <i class="fas fa-edit text-blue-500"></i>
             আইডি কার্ড এডিটর
+
         </h3>
 
+
+        <!-- FORM -->
 
         <div class="space-y-3 flex-grow overflow-y-auto pr-2 custom-scroll">
 
             <div>
+
                 <label class="block text-xs font-bold text-gray-700 mb-1">
                     নাম
                 </label>
@@ -189,13 +265,17 @@ document.documentElement.style.display='none';
                 <input
                     type="text"
                     id="edit_name"
-                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-bold bg-gray-50">
+                    class="w-full p-2.5 border border-gray-300
+                           rounded-lg focus:border-blue-500
+                           outline-none text-sm font-bold bg-gray-50">
+
             </div>
 
 
             <div class="grid grid-cols-2 gap-3">
 
                 <div>
+
                     <label class="block text-xs font-bold text-gray-700 mb-1">
                         পদবী
                     </label>
@@ -203,11 +283,15 @@ document.documentElement.style.display='none';
                     <input
                         type="text"
                         id="edit_role"
-                        class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50">
+                        class="w-full p-2.5 border border-gray-300
+                               rounded-lg focus:border-blue-500
+                               outline-none text-sm font-semibold bg-gray-50">
+
                 </div>
 
 
                 <div>
+
                     <label class="block text-xs font-bold text-gray-700 mb-1">
                         রক্তের গ্রুপ
                     </label>
@@ -215,13 +299,18 @@ document.documentElement.style.display='none';
                     <input
                         type="text"
                         id="edit_blood"
-                        class="w-full p-2.5 border border-red-200 rounded-lg focus:border-red-500 outline-none text-sm font-bold text-red-600 bg-red-50">
+                        class="w-full p-2.5 border border-red-200
+                               rounded-lg focus:border-red-500
+                               outline-none text-sm font-bold
+                               text-red-600 bg-red-50">
+
                 </div>
 
             </div>
 
 
             <div>
+
                 <label class="block text-xs font-bold text-gray-700 mb-1">
                     আইডি নং
                 </label>
@@ -230,11 +319,15 @@ document.documentElement.style.display='none';
                     type="text"
                     id="edit_idno"
                     readonly
-                    class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-sm font-mono font-bold text-gray-700 bg-gray-100">
+                    class="w-full p-2.5 border border-gray-300
+                           rounded-lg outline-none text-sm font-mono
+                           font-bold text-gray-700 bg-gray-100">
+
             </div>
 
 
             <div>
+
                 <label class="block text-xs font-bold text-gray-700 mb-1">
                     মোবাইল
                 </label>
@@ -242,11 +335,15 @@ document.documentElement.style.display='none';
                 <input
                     type="text"
                     id="edit_phone"
-                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50">
+                    class="w-full p-2.5 border border-gray-300
+                           rounded-lg focus:border-blue-500
+                           outline-none text-sm font-semibold bg-gray-50">
+
             </div>
 
 
             <div>
+
                 <label class="block text-xs font-bold text-gray-700 mb-1">
                     ঠিকানা
                 </label>
@@ -254,7 +351,10 @@ document.documentElement.style.display='none';
                 <textarea
                     id="edit_address"
                     rows="2"
-                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:border-blue-500 outline-none text-sm font-semibold bg-gray-50"></textarea>
+                    class="w-full p-2.5 border border-gray-300
+                           rounded-lg focus:border-blue-500
+                           outline-none text-sm font-semibold bg-gray-50"></textarea>
+
             </div>
 
 
@@ -268,7 +368,10 @@ document.documentElement.style.display='none';
                     type="text"
                     id="edit_president"
                     placeholder="Kazi Ibrahim"
-                    class="w-full p-2.5 border border-blue-200 rounded-lg focus:border-blue-500 outline-none text-sm font-bold bg-blue-50 text-blue-700">
+                    class="w-full p-2.5 border border-blue-200
+                           rounded-lg focus:border-blue-500
+                           outline-none text-sm font-bold
+                           bg-blue-50 text-blue-700">
 
             </div>
 
@@ -281,24 +384,36 @@ document.documentElement.style.display='none';
 
                 <input
                     type="file"
-                    id="photoInput"
                     accept="image/*"
                     onchange="changeIdPhoto(this)"
-                    class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-xs">
+                    class="w-full p-2 border border-gray-300
+                           rounded-lg bg-gray-50 text-xs">
 
             </div>
 
         </div>
 
 
-        <!-- ACTIONS -->
+        <!-- HIDDEN IMAGE -->
 
-        <div class="shrink-0 border-t border-gray-200 pt-4 mt-4 space-y-2">
+        <img id="c_photo"
+             src="https://via.placeholder.com/300"
+             crossorigin="anonymous"
+             class="hidden">
+
+
+        <!-- ACTION BUTTONS -->
+
+        <div class="shrink-0 border-t border-gray-200
+                    pt-4 mt-4 space-y-2">
 
             <button
-                onclick="processCardAction()"
+                onclick="processCardAction('download')"
                 id="downloadImgBtn"
-                class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2 text-sm">
+                class="w-full bg-blue-600 text-white
+                       font-bold py-3.5 rounded-xl
+                       hover:bg-blue-700 transition shadow-lg
+                       flex items-center justify-center gap-2 text-sm">
 
                 <i class="fas fa-download"></i>
                 কার্ড ডাউনলোড করুন (Front & Back)
@@ -310,7 +425,10 @@ document.documentElement.style.display='none';
 
                 <button
                     onclick="copyCardData()"
-                    class="flex-1 bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-black transition shadow flex items-center justify-center gap-2 text-[13px]">
+                    class="flex-1 bg-gray-800 text-white
+                           font-bold py-3 rounded-xl
+                           hover:bg-black transition shadow
+                           flex items-center justify-center gap-2 text-[13px]">
 
                     <i class="fas fa-copy"></i>
                     শুধু তথ্য কপি
@@ -320,7 +438,10 @@ document.documentElement.style.display='none';
 
                 <button
                     onclick="shareViaWhatsApp()"
-                    class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition shadow flex items-center justify-center gap-2 text-[13px]">
+                    class="flex-1 bg-green-600 text-white
+                           font-bold py-3 rounded-xl
+                           hover:bg-green-700 transition shadow
+                           flex items-center justify-center gap-2 text-[13px]">
 
                     <i class="fab fa-whatsapp text-lg"></i>
                     হোয়াটসঅ্যাপ
@@ -336,9 +457,9 @@ document.documentElement.style.display='none';
 </div>
 
 
-<!-- ===================================================== -->
-<!-- JAVASCRIPT -->
-<!-- ===================================================== -->
+<!-- =====================================================
+     FIREBASE
+     ===================================================== -->
 
 <script type="module">
 
@@ -349,11 +470,13 @@ import {
 }
 from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
+
 import {
     getAuth,
     onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
 
 import {
     getFirestore,
@@ -364,8 +487,8 @@ from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 
 /* =====================================================
-   FIREBASE
-===================================================== */
+   FIREBASE CONFIG
+   ===================================================== */
 
 const firebaseConfig = {
 
@@ -401,67 +524,29 @@ const db = getFirestore(app);
 
 
 /* =====================================================
-   SETTINGS
-===================================================== */
-
-const LOGO_URL =
-"https://res.cloudinary.com/h0dlj3no/image/upload/v1790184181/46481_m4t9sk.png";
-
-const ORGANIZATION =
-"ROKTOJODDA SOMAJ O MANOB KOLLAYAN PARISHAD";
-
-const EMAIL =
-"info.rkjsomkporishod@gmail.com";
-
-const WEBSITE =
-"rjsomp.web.app";
-
-const DEFAULT_PRESIDENT =
-"Kazi Ibrahim";
+   GLOBAL
+   ===================================================== */
 
 let mergedUsers = [];
 
-let currentPhoto = "";
-
-let logoImage = null;
-
-
-/* =====================================================
-   SHOW PAGE
-===================================================== */
-
-function showPage(){
-
-    document.documentElement.style.display = "";
-
-    const loader =
-        document.getElementById("loadingScreen");
-
-    if(loader){
-        loader.style.display = "none";
-    }
-
-}
+let defaultPresident = "Kazi Ibrahim";
 
 
 /* =====================================================
    AUTH
-===================================================== */
+   ===================================================== */
 
-onAuthStateChanged(auth, async (user)=>{
+onAuthStateChanged(auth, (user) => {
 
     if(user){
 
-        showPage();
-
-        await loadLogo();
+        document.documentElement.style.display = '';
 
         fetchAndMergeData();
 
     }else{
 
-        window.top.location.href =
-        "admin.html";
+        window.top.location.href = "admin.html";
 
     }
 
@@ -469,186 +554,46 @@ onAuthStateChanged(auth, async (user)=>{
 
 
 /* =====================================================
-   LOAD LOGO
-===================================================== */
-
-async function loadLogo(){
-
-    try{
-
-        logoImage =
-            await loadImage(LOGO_URL);
-
-    }catch(e){
-
-        console.warn(
-            "Logo load failed",
-            e
-        );
-
-        logoImage = null;
-
-    }
-
-}
-
-
-/* =====================================================
-   LOAD IMAGE SAFELY
-===================================================== */
-
-function loadImage(src){
-
-    return new Promise((resolve,reject)=>{
-
-        if(!src){
-
-            reject(
-                new Error("No image")
-            );
-
-            return;
-
-        }
-
-        const img =
-            new Image();
-
-        img.crossOrigin =
-            "anonymous";
-
-        let finished = false;
-
-        const timer =
-            setTimeout(()=>{
-
-                if(!finished){
-
-                    finished = true;
-
-                    reject(
-                        new Error(
-                            "Image timeout"
-                        )
-                    );
-
-                }
-
-            },7000);
-
-
-        img.onload = ()=>{
-
-            if(finished) return;
-
-            finished = true;
-
-            clearTimeout(timer);
-
-            resolve(img);
-
-        };
-
-
-        img.onerror = ()=>{
-
-            if(finished) return;
-
-            finished = true;
-
-            clearTimeout(timer);
-
-            reject(
-                new Error(
-                    "Image load failed"
-                )
-            );
-
-        };
-
-
-        img.src = src;
-
-    });
-
-}
-
-
-/* =====================================================
-   FIREBASE DATA
-===================================================== */
+   LOAD USERS
+   ===================================================== */
 
 async function fetchAndMergeData(){
 
     try{
 
         const volSnap =
-            await getDocs(
-                collection(
-                    db,
-                    "volunteers"
-                )
-            );
-
+            await getDocs(collection(db,"volunteers"));
 
         const donSnap =
-            await getDocs(
-                collection(
-                    db,
-                    "blood_donors"
-                )
-            );
-
+            await getDocs(collection(db,"blood_donors"));
 
         const memSnap =
-            await getDocs(
-                collection(
-                    db,
-                    "members"
-                )
-            );
+            await getDocs(collection(db,"members"));
 
 
-        const usersMap =
-            new Map();
+        const usersMap = new Map();
 
 
-        function processDoc(
-            snap,
-            roleName
-        ){
+        function processDoc(snapshot,roleName){
 
-            snap.forEach(d=>{
+            snapshot.forEach(docSnap => {
 
-                const data =
-                    d.data() || {};
-
+                const data = docSnap.data();
 
                 const phone =
-                    String(
-                        data.phone ||
-                        "NoPhone_" +
-                        d.id
-                    );
+                    data.phone ||
+                    "NoPhone_" + docSnap.id;
 
 
-                if(
-                    usersMap.has(phone)
-                ){
+                if(usersMap.has(phone)){
 
                     const existing =
                         usersMap.get(phone);
 
 
-                    if(
-                        !existing.roles.includes(
-                            roleName
-                        )
-                    ){
+                    if(!existing.roles.includes(roleName)){
 
-                        existing.roles.push(
-                            roleName
-                        );
+                        existing.roles.push(roleName);
 
                     }
 
@@ -664,9 +609,7 @@ async function fetchAndMergeData(){
                     }
 
 
-                    if(
-                        !existing.address
-                    ){
+                    if(!existing.address){
 
                         existing.address =
                             [
@@ -679,10 +622,9 @@ async function fetchAndMergeData(){
 
                     }
 
-
                 }else{
 
-                    const address =
+                    const fullAddress =
                         [
                             data.village,
                             data.upazila,
@@ -706,41 +648,35 @@ async function fetchAndMergeData(){
 
 
                     const dynamicId =
-                        "RJF-" +
-                        secretData;
+                        "RJF-" + secretData;
 
 
-                    usersMap.set(
-                        phone,
-                        {
+                    usersMap.set(phone,{
 
-                            id:d.id,
+                        id:docSnap.id,
 
-                            name:
-                                data.name ||
-                                "Unknown",
+                        name:
+                            data.name || "Unknown",
 
-                            phone:phone,
+                        phone:phone,
 
-                            blood:
-                                data.bloodGroup ||
-                                "N/A",
+                        blood:
+                            data.bloodGroup || "N/A",
 
-                            address:address,
+                        address:
+                            fullAddress,
 
-                            idNo:
-                                dynamicId,
+                        idNo:
+                            dynamicId,
 
-                            photo:
-                                data.profileImageUrl ||
-                                "",
+                        photo:
+                            data.profileImageUrl ||
+                            "https://via.placeholder.com/300",
 
-                            roles:[
-                                roleName
-                            ]
+                        roles:
+                            [roleName]
 
-                        }
-                    );
+                    });
 
                 }
 
@@ -749,56 +685,35 @@ async function fetchAndMergeData(){
         }
 
 
-        processDoc(
-            volSnap,
-            "Volunteer"
-        );
+        processDoc(volSnap,"Volunteer");
 
-        processDoc(
-            donSnap,
-            "Blood Donor"
-        );
+        processDoc(donSnap,"Blood Donor");
 
-        processDoc(
-            memSnap,
-            "Member"
-        );
+        processDoc(memSnap,"Member");
 
 
         mergedUsers =
-            Array.from(
-                usersMap.values()
-            );
+            Array.from(usersMap.values());
 
 
-        document.getElementById(
-            "totalUsers"
-        ).innerText =
+        document.getElementById("totalUsers")
+            .innerText =
             mergedUsers.length;
 
 
-        renderUsers(
-            mergedUsers
-        );
+        renderUsers(mergedUsers);
 
+    }
 
-    }catch(error){
+    catch(error){
 
         console.error(error);
 
-        document.getElementById(
-            "users-grid"
-        ).innerHTML = `
+        document.getElementById("users-grid").innerHTML = `
 
-            <div class="col-span-full text-center py-10">
+            <div class="col-span-full text-center py-10 text-red-600 font-bold">
 
-                <div class="text-red-600 text-4xl mb-3">
-                    <i class="fas fa-triangle-exclamation"></i>
-                </div>
-
-                <p class="text-red-600 font-bold">
-                    ডাটাবেজ থেকে তথ্য আনতে সমস্যা হয়েছে!
-                </p>
+                ডাটাবেজ থেকে তথ্য আনতে সমস্যা হয়েছে!
 
             </div>
 
@@ -810,16 +725,13 @@ async function fetchAndMergeData(){
 
 
 /* =====================================================
-   RENDER USERS
-===================================================== */
+   USER CARDS
+   ===================================================== */
 
-window.renderUsers =
-function(usersArray){
+window.renderUsers = function(usersArray){
 
     const grid =
-        document.getElementById(
-            "users-grid"
-        );
+        document.getElementById("users-grid");
 
 
     if(usersArray.length === 0){
@@ -829,7 +741,9 @@ function(usersArray){
             <div class="col-span-full text-center py-16">
 
                 <p class="text-gray-500 font-bold">
+
                     কোনো সদস্য পাওয়া যায়নি!
+
                 </p>
 
             </div>
@@ -844,60 +758,74 @@ function(usersArray){
     let html = "";
 
 
-    usersArray.forEach((u,index)=>{
+    usersArray.forEach(u => {
 
         const roleString =
             u.roles.join(", ");
 
 
-        const dataString =
+        const safeDataStr =
             encodeURIComponent(
                 JSON.stringify(u)
-            );
+            )
+            .replace(/'/g,"%27");
 
 
         html += `
 
-        <div
-            class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 transition hover:shadow-md">
+        <div class="bg-white p-4 rounded-2xl
+                    shadow-sm border border-gray-200
+                    flex items-center gap-4
+                    transition hover:shadow-md">
 
             <img
-                src="${u.photo || ''}"
-                class="w-16 h-16 rounded-full object-cover border-[3px] border-red-100 shadow-sm shrink-0"
-                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-
-            <div
-                style="display:${u.photo ? 'none':'flex'}"
-                class="w-16 h-16 rounded-full bg-red-50 border-[3px] border-red-100 items-center justify-center text-red-500 shrink-0">
-
-                <i class="fas fa-user text-xl"></i>
-
-            </div>
+                src="${u.photo}"
+                class="w-16 h-16 rounded-full
+                       object-cover border-[3px]
+                       border-red-100 shadow-sm shrink-0"
+                onerror="this.src='https://via.placeholder.com/300'">
 
 
             <div class="flex-grow min-w-0">
 
-                <h3 class="font-bold text-gray-800 truncate leading-tight">
-                    ${escapeHTML(u.name)}
+                <h3 class="font-bold text-gray-800
+                           truncate leading-tight">
+
+                    ${escapeHtml(u.name)}
+
                 </h3>
 
-                <p class="text-[11px] font-bold text-red-600 mt-1 truncate">
+
+                <p class="text-[11px] font-bold
+                          text-red-600 mt-1 truncate">
+
                     <i class="fas fa-tag"></i>
-                    ${escapeHTML(roleString)}
+
+                    ${escapeHtml(roleString)}
+
                 </p>
 
-                <p class="text-[11px] font-bold text-gray-400 mt-0.5">
+
+                <p class="text-[11px] font-bold
+                          text-gray-400 mt-0.5">
+
                     <i class="fas fa-fingerprint"></i>
-                    ID: ${escapeHTML(u.idNo)}
+
+                    ID: ${escapeHtml(u.idNo)}
+
                 </p>
 
             </div>
 
 
             <button
-                onclick="openIdModal('${dataString}')"
-                class="shrink-0 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm"
-                title="আইডি কার্ড তৈরি করুন">
+                onclick="openIdModal('${safeDataStr}')"
+                class="shrink-0 bg-red-50
+                       text-red-600 hover:bg-red-600
+                       hover:text-white border
+                       border-red-200 w-10 h-10
+                       rounded-xl flex items-center
+                       justify-center transition shadow-sm">
 
                 <i class="fas fa-address-card text-lg"></i>
 
@@ -910,19 +838,18 @@ function(usersArray){
     });
 
 
-    grid.innerHTML =
-        html;
+    grid.innerHTML = html;
 
 };
 
 
 /* =====================================================
    ESCAPE HTML
-===================================================== */
+   ===================================================== */
 
-function escapeHTML(value){
+function escapeHtml(value){
 
-    return String(value || "")
+    return String(value ?? "")
         .replace(/&/g,"&amp;")
         .replace(/</g,"&lt;")
         .replace(/>/g,"&gt;")
@@ -934,198 +861,140 @@ function escapeHTML(value){
 
 /* =====================================================
    SEARCH
-===================================================== */
+   ===================================================== */
 
-window.filterUsers =
-function(){
+window.filterUsers = function(){
 
     const txt =
-        document.getElementById(
-            "searchInput"
-        )
+        document.getElementById("searchInput")
         .value
         .toLowerCase()
         .trim();
 
 
     const filtered =
-        mergedUsers.filter(u=>{
+        mergedUsers.filter(u =>
 
-            return (
+            String(u.name || "")
+                .toLowerCase()
+                .includes(txt)
 
-                String(u.name || "")
-                    .toLowerCase()
-                    .includes(txt)
+            ||
 
-                ||
+            String(u.phone || "")
+                .includes(txt)
 
-                String(u.phone || "")
-                    .includes(txt)
+            ||
 
-                ||
+            String(u.idNo || "")
+                .toLowerCase()
+                .includes(txt)
 
-                String(u.idNo || "")
-                    .toLowerCase()
-                    .includes(txt)
-
-            );
-
-        });
+        );
 
 
-    renderUsers(
-        filtered
-    );
+    renderUsers(filtered);
 
 };
 
 
 /* =====================================================
    OPEN MODAL
-===================================================== */
+   ===================================================== */
 
-window.openIdModal =
-function(dataStr){
+window.openIdModal = function(dataStr){
 
-    try{
-
-        const u =
-            JSON.parse(
-                decodeURIComponent(
-                    dataStr
-                )
-            );
-
-
-        document.getElementById(
-            "edit_name"
-        ).value =
-            u.name || "";
-
-
-        document.getElementById(
-            "edit_role"
-        ).value =
-            u.roles
-            ? u.roles.join(", ")
-            : "";
-
-
-        document.getElementById(
-            "edit_blood"
-        ).value =
-            u.blood || "N/A";
-
-
-        document.getElementById(
-            "edit_idno"
-        ).value =
-            u.idNo || "";
-
-
-        document.getElementById(
-            "edit_phone"
-        ).value =
-            u.phone || "";
-
-
-        document.getElementById(
-            "edit_address"
-        ).value =
-            u.address || "";
-
-
-        document.getElementById(
-            "edit_president"
-        ).value =
-            DEFAULT_PRESIDENT;
-
-
-        currentPhoto =
-            u.photo || "";
-
-
-        document.getElementById(
-            "photoInput"
-        ).value = "";
-
-
-        const modal =
-            document.getElementById(
-                "idCardModal"
-            );
-
-
-        const content =
-            document.getElementById(
-                "idCardModalContent"
-            );
-
-
-        modal.classList.remove(
-            "hidden"
+    const u =
+        JSON.parse(
+            decodeURIComponent(dataStr)
         );
 
 
-        setTimeout(()=>{
-
-            modal.classList.remove(
-                "opacity-0"
-            );
-
-            content.classList.remove(
-                "scale-95"
-            );
-
-        },10);
+    document.getElementById("edit_name")
+        .value =
+        u.name || "";
 
 
-    }catch(e){
+    document.getElementById("edit_role")
+        .value =
+        u.roles.join(", ");
 
-        console.error(e);
 
-        alert(
-            "তথ্য খোলার সময় সমস্যা হয়েছে।"
-        );
+    document.getElementById("edit_blood")
+        .value =
+        u.blood || "";
 
-    }
+
+    document.getElementById("edit_idno")
+        .value =
+        u.idNo || "";
+
+
+    document.getElementById("edit_phone")
+        .value =
+        u.phone || "";
+
+
+    document.getElementById("edit_address")
+        .value =
+        u.address || "";
+
+
+    document.getElementById("edit_president")
+        .value =
+        defaultPresident;
+
+
+    document.getElementById("c_photo")
+        .src =
+        u.photo ||
+        "https://via.placeholder.com/300";
+
+
+    const modal =
+        document.getElementById("idCardModal");
+
+
+    const content =
+        document.getElementById("idCardModalContent");
+
+
+    modal.classList.remove("hidden");
+
+
+    setTimeout(() => {
+
+        modal.classList.remove("opacity-0");
+
+        content.classList.remove("scale-95");
+
+    },10);
 
 };
 
 
 /* =====================================================
-   CLOSE MODAL
-===================================================== */
+   CLOSE
+   ===================================================== */
 
-window.closeModal =
-function(){
+window.closeModal = function(){
 
     const modal =
-        document.getElementById(
-            "idCardModal"
-        );
+        document.getElementById("idCardModal");
 
 
     const content =
-        document.getElementById(
-            "idCardModalContent"
-        );
+        document.getElementById("idCardModalContent");
 
 
-    modal.classList.add(
-        "opacity-0"
-    );
+    modal.classList.add("opacity-0");
 
-    content.classList.add(
-        "scale-95"
-    );
+    content.classList.add("scale-95");
 
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
-        modal.classList.add(
-            "hidden"
-        );
+        modal.classList.add("hidden");
 
     },300);
 
@@ -1134,52 +1003,31 @@ function(){
 
 /* =====================================================
    CHANGE PHOTO
-===================================================== */
+   ===================================================== */
 
-window.changeIdPhoto =
-function(input){
+window.changeIdPhoto = function(input){
 
     if(
         input.files &&
         input.files[0]
     ){
 
-        const file =
-            input.files[0];
-
-
-        if(
-            !file.type.startsWith(
-                "image/"
-            )
-        ){
-
-            alert(
-                "শুধু ছবি নির্বাচন করুন।"
-            );
-
-            input.value = "";
-
-            return;
-
-        }
-
-
         const reader =
             new FileReader();
 
 
         reader.onload =
-        function(e){
+            function(e){
 
-            currentPhoto =
-                e.target.result;
+                document.getElementById("c_photo")
+                    .src =
+                    e.target.result;
 
-        };
+            };
 
 
         reader.readAsDataURL(
-            file
+            input.files[0]
         );
 
     }
@@ -1188,1046 +1036,846 @@ function(input){
 
 
 /* =====================================================
-   CANVAS HELPERS
-===================================================== */
+   IMAGE LOAD WAIT
+   ===================================================== */
 
-function roundRect(
-    ctx,
-    x,
-    y,
-    w,
-    h,
-    r
-){
+function waitForImage(img,timeout=7000){
 
-    const radius =
-        Math.min(
-            r,
-            w/2,
-            h/2
-        );
+    return new Promise(resolve => {
 
+        if(!img){
 
-    ctx.beginPath();
+            resolve(false);
 
-    ctx.moveTo(
-        x + radius,
-        y
-    );
-
-    ctx.arcTo(
-        x+w,
-        y,
-        x+w,
-        y+h,
-        radius
-    );
-
-    ctx.arcTo(
-        x+w,
-        y+h,
-        x,
-        y+h,
-        radius
-    );
-
-    ctx.arcTo(
-        x,
-        y+h,
-        x,
-        y,
-        radius
-    );
-
-    ctx.arcTo(
-        x,
-        y,
-        x+w,
-        y,
-        radius
-    );
-
-    ctx.closePath();
-
-}
-
-
-/* =====================================================
-   TRIANGLE PATTERN
-===================================================== */
-
-function drawTrianglePattern(
-    ctx,
-    x,
-    y,
-    width,
-    height,
-    size,
-    bgColor
-){
-
-    ctx.save();
-
-    ctx.fillStyle =
-        bgColor;
-
-    ctx.fillRect(
-        x,
-        y,
-        width,
-        height
-    );
-
-
-    ctx.fillStyle =
-        "#ffffff";
-
-
-    for(
-        let row=0;
-        row<Math.ceil(height/size);
-        row++
-    ){
-
-        for(
-            let col=0;
-            col<Math.ceil(width/size);
-            col++
-        ){
-
-            const px =
-                x + col*size;
-
-            const py =
-                y + row*size;
-
-
-            ctx.beginPath();
-
-            ctx.moveTo(
-                px,
-                py
-            );
-
-            ctx.lineTo(
-                px+size,
-                py
-            );
-
-            ctx.lineTo(
-                px,
-                py+size
-            );
-
-            ctx.closePath();
-
-            ctx.fill();
-
-
-            ctx.beginPath();
-
-            ctx.moveTo(
-                px+size,
-                py+size
-            );
-
-            ctx.lineTo(
-                px+size,
-                py
-            );
-
-            ctx.lineTo(
-                px,
-                py+size
-            );
-
-            ctx.closePath();
-
-            ctx.fill();
+            return;
 
         }
 
-    }
 
+        if(img.complete){
 
-    ctx.restore();
-
-}
-
-
-/* =====================================================
-   TEXT WRAP
-===================================================== */
-
-function wrapText(
-    ctx,
-    text,
-    x,
-    y,
-    maxWidth,
-    lineHeight,
-    maxLines=20
-){
-
-    text =
-        String(text || "");
-
-
-    const words =
-        text.split(/\s+/);
-
-
-    let line = "";
-
-    let lines = [];
-
-
-    for(
-        let n=0;
-        n<words.length;
-        n++
-    ){
-
-        const testLine =
-            line
-            ? line + " " + words[n]
-            : words[n];
-
-
-        const metrics =
-            ctx.measureText(
-                testLine
+            resolve(
+                img.naturalWidth > 0
             );
 
-
-        if(
-            metrics.width >
-                maxWidth &&
-            line
-        ){
-
-            lines.push(
-                line
-            );
-
-            line =
-                words[n];
-
-            if(
-                lines.length >=
-                maxLines
-            ){
-
-                break;
-
-            }
-
-        }else{
-
-            line =
-                testLine;
+            return;
 
         }
 
-    }
+
+        let finished = false;
 
 
-    if(
-        line &&
-        lines.length < maxLines
-    ){
+        const done = (result) => {
 
-        lines.push(
-            line
+            if(finished) return;
+
+            finished = true;
+
+            resolve(result);
+
+        };
+
+
+        img.onload =
+            () => done(true);
+
+
+        img.onerror =
+            () => done(false);
+
+
+        setTimeout(
+            () => done(false),
+            timeout
         );
-
-    }
-
-
-    lines.forEach(
-        (ln,i)=>{
-
-            ctx.fillText(
-                ln,
-                x,
-                y + i*lineHeight
-            );
-
-        }
-    );
-
-
-    return lines.length;
-
-}
-
-
-/* =====================================================
-   LOAD MEMBER PHOTO
-===================================================== */
-
-async function getMemberPhoto(){
-
-    if(!currentPhoto){
-
-        return null;
-
-    }
-
-
-    try{
-
-        return await loadImage(
-            currentPhoto
-        );
-
-    }catch(e){
-
-        console.warn(
-            "Member photo could not load"
-        );
-
-        return null;
-
-    }
-
-}
-
-
-/* =====================================================
-   DRAW CIRCLE PHOTO
-===================================================== */
-
-function drawCirclePhoto(
-    ctx,
-    img,
-    cx,
-    cy,
-    radius
-){
-
-    ctx.save();
-
-
-    ctx.beginPath();
-
-    ctx.arc(
-        cx,
-        cy,
-        radius,
-        0,
-        Math.PI*2
-    );
-
-    ctx.clip();
-
-
-    if(img){
-
-        const ratio =
-            Math.max(
-                radius*2/img.width,
-                radius*2/img.height
-            );
-
-
-        const w =
-            img.width*ratio;
-
-        const h =
-            img.height*ratio;
-
-
-        ctx.drawImage(
-            img,
-            cx-w/2,
-            cy-h/2,
-            w,
-            h
-        );
-
-    }else{
-
-        ctx.fillStyle =
-            "#f1f5f9";
-
-        ctx.fillRect(
-            cx-radius,
-            cy-radius,
-            radius*2,
-            radius*2
-        );
-
-
-        ctx.fillStyle =
-            "#94a3b8";
-
-        ctx.font =
-            "bold 55px Arial";
-
-        ctx.textAlign =
-            "center";
-
-        ctx.textBaseline =
-            "middle";
-
-        ctx.fillText(
-            "👤",
-            cx,
-            cy
-        );
-
-    }
-
-
-    ctx.restore();
-
-
-    /* red outer circle */
-
-    ctx.beginPath();
-
-    ctx.arc(
-        cx,
-        cy,
-        radius+12,
-        0,
-        Math.PI*2
-    );
-
-    ctx.strokeStyle =
-        "#ef4444";
-
-    ctx.lineWidth =
-        14;
-
-    ctx.stroke();
-
-}
-
-
-/* =====================================================
-   DRAW FRONT
-===================================================== */
-
-async function createFrontCard(){
-
-    const W = 680;
-    const H = 1060;
-
-    const canvas =
-        document.createElement(
-            "canvas"
-        );
-
-    canvas.width = W;
-    canvas.height = H;
-
-    const ctx =
-        canvas.getContext("2d");
-
-
-    /* white background */
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-
-    /* LEFT PATTERN */
-
-    drawTrianglePattern(
-        ctx,
-        0,
-        0,
-        205,
-        H,
-        55,
-        "#ef4444"
-    );
-
-
-    /* logo */
-
-    if(logoImage){
-
-        ctx.save();
-
-        ctx.beginPath();
-
-        ctx.arc(
-            110,
-            145,
-            68,
-            0,
-            Math.PI*2
-        );
-
-        ctx.clip();
-
-        ctx.drawImage(
-            logoImage,
-            42,
-            77,
-            136,
-            136
-        );
-
-        ctx.restore();
-
-    }
-
-
-    /* ORGANIZATION NAME */
-
-    ctx.fillStyle =
-        "#000000";
-
-    ctx.textAlign =
-        "center";
-
-    ctx.font =
-        "800 29px Poppins, Arial";
-
-    wrapText(
-        ctx,
-        ORGANIZATION,
-        442,
-        105,
-        400,
-        38,
-        3
-    );
-
-
-    /* PHOTO */
-
-    const photo =
-        await getMemberPhoto();
-
-
-    drawCirclePhoto(
-        ctx,
-        photo,
-        205,
-        445,
-        125
-    );
-
-
-    /* MEMBER NAME */
-
-    const name =
-        document.getElementById(
-            "edit_name"
-        ).value || "Member";
-
-
-    const role =
-        document.getElementById(
-            "edit_role"
-        ).value || "Volunteer";
-
-
-    const idno =
-        document.getElementById(
-            "edit_idno"
-        ).value || "";
-
-
-    const blood =
-        document.getElementById(
-            "edit_blood"
-        ).value || "N/A";
-
-
-    const president =
-        document.getElementById(
-            "edit_president"
-        ).value ||
-        DEFAULT_PRESIDENT;
-
-
-    ctx.textAlign =
-        "center";
-
-
-    ctx.fillStyle =
-        "#000000";
-
-    ctx.font =
-        "800 43px Poppins, 'Noto Sans Bengali', Arial";
-
-
-    wrapText(
-        ctx,
-        name.toUpperCase(),
-        440,
-        650,
-        430,
-        48,
-        2
-    );
-
-
-    /* ROLE */
-
-    ctx.fillStyle =
-        "#555555";
-
-    ctx.font =
-        "600 25px Poppins, 'Noto Sans Bengali', Arial";
-
-
-    wrapText(
-        ctx,
-        role,
-        440,
-        755,
-        430,
-        32,
-        2
-    );
-
-
-    /* ID */
-
-    ctx.fillStyle =
-        "#111111";
-
-    ctx.font =
-        "700 26px Poppins, Arial";
-
-
-    ctx.fillText(
-        "ID: " + idno,
-        440,
-        840
-    );
-
-
-    /* BLOOD */
-
-    ctx.fillStyle =
-        "#ef4444";
-
-    ctx.font =
-        "900 34px Poppins, Arial";
-
-
-    ctx.fillText(
-        "🩸 " + blood,
-        440,
-        900
-    );
-
-
-    /* SIGNATURE */
-
-    ctx.fillStyle =
-        "#1e3a8a";
-
-    ctx.font =
-        "700 45px 'Dancing Script', cursive";
-
-
-    ctx.fillText(
-        president,
-        515,
-        985
-    );
-
-
-    ctx.strokeStyle =
-        "#999999";
-
-    ctx.lineWidth = 2;
-
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        380,
-        995
-    );
-
-    ctx.lineTo(
-        630,
-        995
-    );
-
-    ctx.stroke();
-
-
-    ctx.fillStyle =
-        "#555555";
-
-    ctx.font =
-        "800 17px Poppins, Arial";
-
-
-    ctx.fillText(
-        "PRESIDENT",
-        505,
-        1025
-    );
-
-
-    return canvas;
-
-}
-
-
-/* =====================================================
-   DRAW BACK
-===================================================== */
-
-function createBackCard(){
-
-    const W = 680;
-    const H = 1060;
-
-    const canvas =
-        document.createElement(
-            "canvas"
-        );
-
-    canvas.width = W;
-    canvas.height = H;
-
-    const ctx =
-        canvas.getContext("2d");
-
-
-    /* BLACK */
-
-    ctx.fillStyle =
-        "#000000";
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-
-    /* RIGHT PATTERN */
-
-    drawTrianglePattern(
-        ctx,
-        540,
-        0,
-        140,
-        H,
-        55,
-        "#ef4444"
-    );
-
-
-    /* LOGO */
-
-    if(logoImage){
-
-        ctx.save();
-
-        ctx.beginPath();
-
-        ctx.arc(
-            110,
-            115,
-            70,
-            0,
-            Math.PI*2
-        );
-
-        ctx.clip();
-
-        ctx.drawImage(
-            logoImage,
-            40,
-            45,
-            140,
-            140
-        );
-
-        ctx.restore();
-
-    }
-
-
-    /* TITLE */
-
-    ctx.textAlign =
-        "left";
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.font =
-        "800 35px Poppins, Arial";
-
-
-    ctx.fillText(
-        "TERMS & CONDITIONS",
-        42,
-        270
-    );
-
-
-    /* TERMS */
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.font =
-        "500 21px Poppins, Arial";
-
-
-    const terms = [
-
-        "1. This ID Card is issued solely for authorized volunteer activities of Rokttojoddha Somaj o Manob Kollayan Parishad.",
-
-        "2. This ID Card is the property of the organization. It must not be misused, transferred, or allowed to be used by any other person without authorization.",
-
-        "3. This ID Card does not guarantee any employment, official position, salary, or financial benefit."
-
-    ];
-
-
-    let y = 325;
-
-
-    terms.forEach(term=>{
-
-        const lines =
-            wrapText(
-                ctx,
-                term,
-                42,
-                y,
-                465,
-                31,
-                6
-            );
-
-
-        y +=
-            lines*31 + 32;
 
     });
 
-
-    /* NOTE */
-
-    ctx.fillStyle =
-        "#fef08a";
-
-    ctx.font =
-        "700 20px Poppins, Arial";
+}
 
 
-    wrapText(
-        ctx,
-        "Note: This ID Card is valid only for authorized volunteer activities of the organization.",
-        42,
-        y,
-        465,
-        29,
-        4
-    );
+/* =====================================================
+   WAIT FOR FONTS
+   ===================================================== */
 
+async function waitForFonts(){
 
-    /* CONTACT */
+    try{
 
-    ctx.fillStyle =
-        "#ffffff";
+        if(document.fonts &&
+           document.fonts.ready){
 
-    ctx.font =
-        "700 20px Poppins, Arial";
+            await Promise.race([
 
+                document.fonts.ready,
 
-    const phone =
-        document.getElementById(
-            "edit_phone"
-        ).value || "";
+                new Promise(resolve =>
+                    setTimeout(resolve,4000)
+                )
 
+            ]);
 
-    const contactY =
-        880;
+        }
 
-
-    ctx.fillText(
-        "Mail",
-        42,
-        contactY
-    );
-
-    ctx.fillStyle =
-        "#cccccc";
-
-    ctx.font =
-        "500 19px Poppins, Arial";
-
-
-    ctx.fillText(
-        EMAIL,
-        42,
-        contactY+32
-    );
-
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.font =
-        "700 20px Poppins, Arial";
-
-
-    ctx.fillText(
-        "Number",
-        42,
-        contactY+85
-    );
-
-
-    ctx.fillStyle =
-        "#cccccc";
-
-    ctx.font =
-        "500 20px Poppins, Arial";
-
-
-    ctx.fillText(
-        phone,
-        42,
-        contactY+117
-    );
-
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.font =
-        "700 20px Poppins, Arial";
-
-
-    ctx.fillText(
-        "Website",
-        42,
-        contactY+170
-    );
-
-
-    ctx.fillStyle =
-        "#cccccc";
-
-    ctx.font =
-        "500 20px Poppins, Arial";
-
-
-    ctx.fillText(
-        WEBSITE,
-        42,
-        contactY+202
-    );
-
-
-    return canvas;
+    }catch(e){}
 
 }
 
 
 /* =====================================================
-   DOWNLOAD CANVAS
-===================================================== */
+   CARD HTML
+   ===================================================== */
 
-function downloadCanvas(
-    canvas,
-    filename
-){
+function getCardTemplateHTML(){
 
-    return new Promise(
-        resolve=>{
+    const name =
+        document.getElementById("edit_name")
+        .value
+        .trim();
 
-            canvas.toBlob(
-                blob=>{
 
-                    if(!blob){
+    const role =
+        document.getElementById("edit_role")
+        .value
+        .trim();
 
-                        throw new Error(
+
+    const blood =
+        document.getElementById("edit_blood")
+        .value
+        .trim();
+
+
+    const idno =
+        document.getElementById("edit_idno")
+        .value
+        .trim();
+
+
+    const phone =
+        document.getElementById("edit_phone")
+        .value
+        .trim();
+
+
+    const pres =
+        document.getElementById("edit_president")
+        .value
+        .trim()
+        ||
+        "Kazi Ibrahim";
+
+
+    const photoSrc =
+        document.getElementById("c_photo")
+        .src;
+
+
+    const logoSrc =
+        "https://res.cloudinary.com/h0dlj3no/image/upload/v1790184181/46481_m4t9sk.png";
+
+
+    /*
+       HTML escape
+    */
+
+    const esc = (value) => {
+
+        return String(value)
+            .replace(/&/g,"&amp;")
+            .replace(/</g,"&lt;")
+            .replace(/>/g,"&gt;")
+            .replace(/"/g,"&quot;")
+            .replace(/'/g,"&#039;");
+
+    };
+
+
+    return `
+
+    <!-- ==================================================
+         FRONT CARD
+         ================================================== -->
+
+    <div id="export-front"
+         class="export-card"
+         style="
+            width:680px;
+            height:1060px;
+            background:#ffffff;
+            position:relative;
+            overflow:hidden;
+            font-family:'Poppins','Noto Sans Bengali',Arial,sans-serif;
+         ">
+
+
+        <!-- RED TRIANGLE LEFT STRIP -->
+
+        <div class="triangle-pattern"
+             style="
+                position:absolute;
+                left:0;
+                top:0;
+                bottom:0;
+                width:205px;
+                z-index:1;
+             ">
+        </div>
+
+
+        <!-- WHITE AREA -->
+
+        <div style="
+            position:absolute;
+            left:205px;
+            top:0;
+            right:0;
+            bottom:0;
+            background:#ffffff;
+            z-index:2;
+        "></div>
+
+
+        <!-- LOGO -->
+
+        <div style="
+            position:absolute;
+            left:48px;
+            top:65px;
+            width:125px;
+            height:125px;
+            border-radius:50%;
+            background:#ffffff;
+            padding:8px;
+            z-index:10;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+         ">
+
+            <img
+                src="${logoSrc}"
+                crossorigin="anonymous"
+                style="
+                    width:100%;
+                    height:100%;
+                    object-fit:contain;
+                    border-radius:50%;
+                    display:block;
+                "
+            >
+
+        </div>
+
+
+        <!-- ORGANIZATION NAME -->
+
+        <div style="
+            position:absolute;
+            left:235px;
+            right:35px;
+            top:78px;
+            text-align:center;
+            z-index:10;
+        ">
+
+            <div style="
+                font-size:28px;
+                line-height:1.28;
+                font-weight:800;
+                color:#000000;
+                text-transform:uppercase;
+            ">
+
+                ROKTOJODDA SOMAJ O<br>
+                MANOB KOLLAYAN<br>
+                PARISHAD
+
+            </div>
+
+        </div>
+
+
+        <!-- CIRCULAR PHOTO -->
+
+        <div style="
+            position:absolute;
+            left:52px;
+            top:285px;
+            width:300px;
+            height:300px;
+            border-radius:50%;
+            border:12px solid #ef4444;
+            background:#ffffff;
+            padding:7px;
+            z-index:20;
+            box-shadow:0 0 0 3px #ffffff;
+            overflow:hidden;
+        ">
+
+            <img
+                src="${photoSrc}"
+                crossorigin="anonymous"
+                class="card-photo"
+                style="
+                    width:100%;
+                    height:100%;
+                    border-radius:50%;
+                    object-fit:cover;
+                "
+            >
+
+        </div>
+
+
+        <!-- NAME -->
+
+        <div style="
+            position:absolute;
+            left:370px;
+            right:32px;
+            top:600px;
+            text-align:center;
+            z-index:10;
+        ">
+
+            <div style="
+                font-family:'Noto Sans Bengali','Poppins',sans-serif;
+                font-size:34px;
+                line-height:1.35;
+                font-weight:800;
+                color:#000000;
+            ">
+
+                ${esc(name)}
+
+            </div>
+
+        </div>
+
+
+        <!-- ROLE -->
+
+        <div style="
+            position:absolute;
+            left:350px;
+            right:30px;
+            top:720px;
+            text-align:center;
+            z-index:10;
+        ">
+
+            <div style="
+                font-size:22px;
+                line-height:1.4;
+                font-weight:700;
+                color:#555555;
+            ">
+
+                ${esc(role)}
+
+            </div>
+
+        </div>
+
+
+        <!-- ID -->
+
+        <div style="
+            position:absolute;
+            left:360px;
+            right:30px;
+            top:815px;
+            text-align:center;
+            z-index:10;
+        ">
+
+            <div style="
+                font-size:24px;
+                font-weight:800;
+                color:#111111;
+            ">
+
+                ID: ${esc(idno)}
+
+            </div>
+
+        </div>
+
+
+        <!-- BLOOD -->
+
+        <div style="
+            position:absolute;
+            left:420px;
+            right:30px;
+            top:885px;
+            text-align:center;
+            z-index:10;
+        ">
+
+            <div style="
+                font-size:28px;
+                font-weight:900;
+                color:#ef4444;
+            ">
+
+                🩸 ${esc(blood)}
+
+            </div>
+
+        </div>
+
+
+        <!-- PRESIDENT SIGNATURE -->
+
+        <div style="
+            position:absolute;
+            left:370px;
+            right:25px;
+            bottom:58px;
+            text-align:center;
+            z-index:10;
+        ">
+
+            <div style="
+                font-family:'Dancing Script',cursive;
+                font-size:46px;
+                color:#174ea6;
+                line-height:1;
+                margin-bottom:7px;
+            ">
+
+                ${esc(pres)}
+
+            </div>
+
+
+            <div style="
+                border-top:2px solid #999999;
+                width:250px;
+                margin:auto;
+                padding-top:7px;
+                font-size:15px;
+                font-weight:800;
+                color:#555555;
+            ">
+
+                PRESIDENT
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ==================================================
+         BACK CARD
+         ================================================== -->
+
+    <div id="export-back"
+         class="export-card"
+         style="
+            width:680px;
+            height:1060px;
+            background:#000000;
+            position:relative;
+            overflow:hidden;
+            color:#ffffff;
+            font-family:'Poppins','Noto Sans Bengali',Arial,sans-serif;
+         ">
+
+
+        <!-- BLACK MAIN AREA -->
+
+        <div style="
+            position:absolute;
+            inset:0;
+            background:#000000;
+            z-index:1;
+        "></div>
+
+
+        <!-- RED PATTERN RIGHT -->
+
+        <div class="triangle-pattern"
+             style="
+                position:absolute;
+                right:0;
+                top:0;
+                bottom:0;
+                width:140px;
+                z-index:2;
+             ">
+        </div>
+
+
+        <!-- LOGO -->
+
+        <div style="
+            position:absolute;
+            left:45px;
+            top:58px;
+            width:130px;
+            height:130px;
+            background:#ffffff;
+            border-radius:50%;
+            padding:8px;
+            z-index:10;
+        ">
+
+            <img
+                src="${logoSrc}"
+                crossorigin="anonymous"
+                style="
+                    width:100%;
+                    height:100%;
+                    object-fit:contain;
+                    border-radius:50%;
+                    display:block;
+                "
+            >
+
+        </div>
+
+
+        <!-- TERMS TITLE -->
+
+        <div style="
+            position:absolute;
+            left:45px;
+            right:175px;
+            top:245px;
+            z-index:10;
+        ">
+
+            <div style="
+                font-size:31px;
+                font-weight:800;
+                line-height:1.2;
+                color:#ffffff;
+            ">
+
+                TERMS &amp; CONDITIONS
+
+            </div>
+
+        </div>
+
+
+        <!-- TERMS -->
+
+        <div style="
+            position:absolute;
+            left:45px;
+            right:175px;
+            top:330px;
+            z-index:10;
+        ">
+
+            <div style="
+                font-size:17px;
+                line-height:1.55;
+                color:#eeeeee;
+                font-weight:500;
+            ">
+
+                <div style="margin-bottom:32px;">
+
+                    <strong>1.</strong>
+                    This ID Card is issued solely for authorized
+                    volunteer activities of Rokttojoddha Somaj o
+                    Manob Kollayan Parishad.
+
+                </div>
+
+
+                <div style="margin-bottom:32px;">
+
+                    <strong>2.</strong>
+                    This ID Card is the property of the
+                    organization. It must not be misused,
+                    transferred, or allowed to be used by any
+                    other person without authorization.
+
+                </div>
+
+
+                <div style="margin-bottom:35px;">
+
+                    <strong>3.</strong>
+                    This ID Card does not guarantee any
+                    employment, official position, salary, or
+                    financial benefit.
+
+                </div>
+
+
+                <div style="
+                    color:#fef08a;
+                    font-weight:800;
+                    line-height:1.5;
+                ">
+
+                    Note: This ID Card is valid only for authorized
+                    volunteer activities of the organization.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CONTACT -->
+
+        <div style="
+            position:absolute;
+            left:45px;
+            right:175px;
+            bottom:65px;
+            z-index:10;
+            color:#ffffff;
+        ">
+
+
+            <div style="
+                font-size:15px;
+                font-weight:800;
+                margin-bottom:4px;
+            ">
+
+                Mail
+
+            </div>
+
+
+            <div style="
+                font-size:16px;
+                color:#dddddd;
+                margin-bottom:23px;
+            ">
+
+                info.rkjsomkporishod@gmail.com
+
+            </div>
+
+
+            <div style="
+                font-size:15px;
+                font-weight:800;
+                margin-bottom:4px;
+            ">
+
+                Number
+
+            </div>
+
+
+            <div style="
+                font-size:16px;
+                color:#dddddd;
+                margin-bottom:23px;
+            ">
+
+                ${esc(phone)}
+
+            </div>
+
+
+            <div style="
+                font-size:15px;
+                font-weight:800;
+                margin-bottom:4px;
+            ">
+
+                Website
+
+            </div>
+
+
+            <div style="
+                font-size:16px;
+                color:#dddddd;
+            ">
+
+                rjsomp.web.app
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   SAFE HTML2CANVAS
+   ===================================================== */
+
+async function renderCard(element){
+
+    if(!element){
+
+        throw new Error("Card element not found");
+
+    }
+
+
+    /*
+       Force browser layout
+    */
+
+    element.style.display = "block";
+
+
+    await waitForFonts();
+
+
+    /*
+       Give browser time to paint
+    */
+
+    await new Promise(resolve =>
+        requestAnimationFrame(() =>
+            requestAnimationFrame(resolve)
+        )
+    );
+
+
+    const options = {
+
+        scale:2,
+
+        useCORS:true,
+
+        allowTaint:false,
+
+        backgroundColor:
+            element.id === "export-back"
+            ? "#000000"
+            : "#ffffff",
+
+        logging:false,
+
+        imageTimeout:5000,
+
+        removeContainer:true,
+
+        foreignObjectRendering:false
+
+    };
+
+
+    return await Promise.race([
+
+        html2canvas(element,options),
+
+        new Promise((resolve,reject) => {
+
+            setTimeout(() => {
+
+                reject(
+                    new Error(
+                        "Card rendering timeout"
+                    )
+                );
+
+            },15000);
+
+        })
+
+    ]);
+
+}
+
+
+/* =====================================================
+   DOWNLOAD IMAGE – ANDROID FRIENDLY
+   ===================================================== */
+
+function downloadCanvas(canvas,fileName){
+
+    return new Promise((resolve,reject) => {
+
+        try{
+
+            canvas.toBlob(function(blob){
+
+                if(!blob){
+
+                    reject(
+                        new Error(
                             "Image conversion failed"
-                        );
-
-                    }
-
-
-                    const url =
-                        URL.createObjectURL(
-                            blob
-                        );
-
-
-                    const a =
-                        document.createElement(
-                            "a"
-                        );
-
-                    a.href =
-                        url;
-
-                    a.download =
-                        filename;
-
-                    a.style.display =
-                        "none";
-
-
-                    document.body.appendChild(
-                        a
+                        )
                     );
 
+                    return;
 
-                    a.click();
+                }
 
 
-                    setTimeout(()=>{
+                const url =
+                    URL.createObjectURL(blob);
 
-                        document.body.removeChild(
-                            a
-                        );
 
-                        URL.revokeObjectURL(
-                            url
-                        );
+                const link =
+                    document.createElement("a");
 
-                        resolve();
 
-                    },800);
+                link.href = url;
 
-                },
-                "image/jpeg",
-                0.95
-            );
+                link.download = fileName;
+
+                link.style.display = "none";
+
+
+                document.body.appendChild(link);
+
+
+                link.click();
+
+
+                setTimeout(() => {
+
+                    document.body.removeChild(link);
+
+                    URL.revokeObjectURL(url);
+
+                    resolve();
+
+                },1200);
+
+
+            },"image/jpeg",0.98);
 
         }
-    );
+
+        catch(error){
+
+            reject(error);
+
+        }
+
+    });
 
 }
 
 
 /* =====================================================
    MAIN DOWNLOAD
-===================================================== */
+   ===================================================== */
 
 window.processCardAction =
-async function(){
+async function(actionType){
 
     const btn =
         document.getElementById(
@@ -2241,119 +1889,246 @@ async function(){
 
     btn.disabled = true;
 
-
     btn.innerHTML = `
-        <i class="fas fa-spinner fa-spin"></i>
+
+        <i class="fas fa-circle-notch fa-spin"></i>
+
         কার্ড তৈরি হচ্ছে...
+
     `;
+
+
+    let container = null;
 
 
     try{
 
         /*
-         * প্রথমে Front
-         */
+           Create render container
+        */
 
-        const front =
-            await createFrontCard();
+        container =
+            document.createElement("div");
 
+
+        container.style.position =
+            "fixed";
+
+        container.style.left =
+            "-10000px";
+
+        container.style.top =
+            "0";
+
+        container.style.width =
+            "680px";
+
+        container.style.background =
+            "transparent";
+
+        container.style.zIndex =
+            "-9999";
+
+
+        document.body.appendChild(
+            container
+        );
+
+
+        /*
+           Inject card
+        */
+
+        container.innerHTML =
+            getCardTemplateHTML();
+
+
+        /*
+           Wait logo + photo
+        */
+
+        const images =
+            container.querySelectorAll("img");
+
+
+        await Promise.all(
+
+            Array.from(images)
+                .map(img =>
+                    waitForImage(img,7000)
+                )
+
+        );
+
+
+        await waitForFonts();
+
+
+        /*
+           Extra paint time
+        */
+
+        await new Promise(resolve =>
+            setTimeout(resolve,800)
+        );
+
+
+        /*
+           FRONT
+        */
 
         btn.innerHTML = `
+
             <i class="fas fa-spinner fa-spin"></i>
-            Front Card তৈরি হচ্ছে...
+
+            Front তৈরি হচ্ছে...
+
         `;
 
 
-        const name =
+        const front =
             document.getElementById(
-                "edit_name"
-            ).value
-            .trim()
-            .replace(/[\\/:*?"<>|]/g,"_");
+                "export-front"
+            );
 
 
-        await downloadCanvas(
-            front,
-            "ID_Front_" +
-            (name || "Member") +
-            ".jpg"
-        );
+        const canvasFront =
+            await renderCard(front);
 
 
         /*
-         * একটু বিরতি
-         * Android Chrome-এ দুইটি
-         * download আলাদা রাখতে
-         */
-
-        await new Promise(
-            resolve =>
-                setTimeout(
-                    resolve,
-                    1200
-                )
-        );
-
-
-        /*
-         * Back
-         */
+           BACK
+        */
 
         btn.innerHTML = `
+
             <i class="fas fa-spinner fa-spin"></i>
-            Back Card তৈরি হচ্ছে...
+
+            Back তৈরি হচ্ছে...
+
         `;
 
 
         const back =
-            createBackCard();
+            document.getElementById(
+                "export-back"
+            );
 
 
-        await downloadCanvas(
-            back,
-            "ID_Back_" +
-            (name || "Member") +
-            ".jpg"
-        );
+        const canvasBack =
+            await renderCard(back);
 
+
+        /*
+           DOWNLOAD
+        */
 
         btn.innerHTML = `
-            <i class="fas fa-check"></i>
-            ডাউনলোড সম্পন্ন
+
+            <i class="fas fa-download"></i>
+
+            ডাউনলোড হচ্ছে...
+
         `;
 
 
-        setTimeout(()=>{
+        const safeName =
+            document.getElementById(
+                "edit_name"
+            )
+            .value
+            .trim()
+            .replace(/[\\/:*?"<>|]/g,"_")
+            || "Member";
 
-            btn.innerHTML =
-                oldHTML;
 
-            btn.disabled =
-                false;
+        /*
+           Front download
+        */
 
-        },1800);
+        await downloadCanvas(
+            canvasFront,
+            `ID_Front_${safeName}.jpg`
+        );
 
 
-    }catch(error){
+        /*
+           Give Android browser time
+        */
+
+        await new Promise(resolve =>
+            setTimeout(resolve,1200)
+        );
+
+
+        /*
+           Back download
+        */
+
+        await downloadCanvas(
+            canvasBack,
+            `ID_Back_${safeName}.jpg`
+        );
+
+
+        /*
+           SUCCESS
+        */
+
+        btn.innerHTML = `
+
+            <i class="fas fa-check-circle"></i>
+
+            ডাউনলোড সম্পন্ন হয়েছে
+
+        `;
+
+
+        setTimeout(() => {
+
+            btn.innerHTML = oldHTML;
+
+        },2500);
+
+    }
+
+
+    catch(error){
 
         console.error(
-            "CARD ERROR:",
+            "ID CARD ERROR:",
             error
         );
 
 
         alert(
             "❌ কার্ড তৈরি করতে সমস্যা হয়েছে।\n\n" +
-            "ছবি বা লোগো লোড না হলেও কার্ড তৈরি হওয়ার কথা। " +
-            "আবার চেষ্টা করুন।"
+            "সম্ভবত সদস্যের ছবি বা লোগো লোড হতে সমস্যা হয়েছে।\n\n" +
+            "Chrome ব্রাউজারে আবার চেষ্টা করুন।"
         );
 
 
-        btn.innerHTML =
-            oldHTML;
+        btn.innerHTML = oldHTML;
 
-        btn.disabled =
-            false;
+    }
+
+
+    finally{
+
+        btn.disabled = false;
+
+
+        if(container){
+
+            try{
+
+                document.body.removeChild(
+                    container
+                );
+
+            }catch(e){}
+
+        }
 
     }
 
@@ -2362,55 +2137,188 @@ async function(){
 
 /* =====================================================
    COPY
-===================================================== */
+   ===================================================== */
 
-window.copyCardData =
-function(){
+window.copyCardData = function(){
 
     const name =
-        document.getElementById(
-            "edit_name"
-        ).value;
+        document.getElementById("edit_name").value;
 
 
     const role =
-        document.getElementById(
-            "edit_role"
-        ).value;
+        document.getElementById("edit_role").value;
 
 
     const blood =
-        document.getElementById(
-            "edit_blood"
-        ).value;
+        document.getElementById("edit_blood").value;
 
 
     const idno =
-        document.getElementById(
-            "edit_idno"
-        ).value;
+        document.getElementById("edit_idno").value;
 
 
     const phone =
-        document.getElementById(
-            "edit_phone"
-        ).value;
+        document.getElementById("edit_phone").value;
 
 
     const address =
-        document.getElementById(
-            "edit_address"
-        ).value;
+        document.getElementById("edit_address").value;
 
 
     const pres =
-        document.getElementById(
-            "edit_president"
-        ).value ||
-        DEFAULT_PRESIDENT;
+        document.getElementById("edit_president").value
+        ||
+        "Kazi Ibrahim";
 
 
     const textToCopy =
+
+`🩸 রক্তযোদ্ধা আইডি কার্ডের তথ্য 🩸
+
+👤 নাম: ${name}
+🏷 পদবী: ${role}
+🩸 রক্তের গ্রুপ: ${blood}
+🪪 আইডি নং: ${idno}
+📞 মোবাইল: ${phone}
+📍 ঠিকানা: ${address}
+
+🖋 সভাপতি: ${pres}
+
+কম্পিউটার অপারেটর এই তথ্যগুলো ব্যবহার করে আইডি কার্ড প্রিন্ট করবেন।`;
+
+
+    /*
+       Modern clipboard
+    */
+
+    if(
+        navigator.clipboard &&
+        window.isSecureContext
+    ){
+
+        navigator.clipboard
+            .writeText(textToCopy)
+            .then(() => {
+
+                alert(
+                    "✅ আইডি কার্ডের সব তথ্য সুন্দরভাবে কপি করা হয়েছে!"
+                );
+
+            })
+            .catch(() => {
+
+                fallbackCopy(textToCopy);
+
+            });
+
+    }else{
+
+        fallbackCopy(textToCopy);
+
+    }
+
+};
+
+
+/* =====================================================
+   FALLBACK COPY
+   ===================================================== */
+
+function fallbackCopy(text){
+
+    const textArea =
+        document.createElement("textarea");
+
+
+    textArea.value =
+        text;
+
+
+    textArea.style.position =
+        "fixed";
+
+
+    textArea.style.left =
+        "-9999px";
+
+
+    document.body.appendChild(
+        textArea
+    );
+
+
+    textArea.focus();
+
+    textArea.select();
+
+
+    try{
+
+        document.execCommand(
+            "copy"
+        );
+
+
+        alert(
+            "✅ আইডি কার্ডের সব তথ্য কপি করা হয়েছে!"
+        );
+
+    }
+
+    catch(error){
+
+        alert(
+            "❌ তথ্য কপি করা সম্ভব হয়নি।"
+        );
+
+    }
+
+
+    document.body.removeChild(
+        textArea
+    );
+
+}
+
+
+/* =====================================================
+   WHATSAPP
+   ===================================================== */
+
+window.shareViaWhatsApp = function(){
+
+    const name =
+        document.getElementById("edit_name").value;
+
+
+    const role =
+        document.getElementById("edit_role").value;
+
+
+    const blood =
+        document.getElementById("edit_blood").value;
+
+
+    const idno =
+        document.getElementById("edit_idno").value;
+
+
+    const phone =
+        document.getElementById("edit_phone").value;
+
+
+    const address =
+        document.getElementById("edit_address").value;
+
+
+    const pres =
+        document.getElementById("edit_president").value
+        ||
+        "Kazi Ibrahim";
+
+
+    const textToShare =
+
 `🩸 রক্তযোদ্ধা আইডি কার্ডের তথ্য 🩸
 
 👤 নাম: ${name}
@@ -2423,195 +2331,17 @@ function(){
 🖋 সভাপতি: ${pres}`;
 
 
-    if(
-        navigator.clipboard &&
-        window.isSecureContext
-    ){
-
-        navigator.clipboard
-        .writeText(
-            textToCopy
-        )
-        .then(()=>{
-
-            alert(
-                "✅ আইডি কার্ডের সব তথ্য কপি হয়েছে!"
-            );
-
-        })
-        .catch(()=>{
-
-            fallbackCopy(
-                textToCopy
-            );
-
-        });
-
-    }else{
-
-        fallbackCopy(
-            textToCopy
-        );
-
-    }
-
-};
-
-
-/* =====================================================
-   FALLBACK COPY
-===================================================== */
-
-function fallbackCopy(text){
-
-    const textarea =
-        document.createElement(
-            "textarea"
-        );
-
-
-    textarea.value =
-        text;
-
-    textarea.style.position =
-        "fixed";
-
-    textarea.style.left =
-        "-9999px";
-
-
-    document.body.appendChild(
-        textarea
-    );
-
-
-    textarea.select();
-
-
-    try{
-
-        document.execCommand(
-            "copy"
-        );
-
-        alert(
-            "✅ তথ্য কপি হয়েছে!"
-        );
-
-    }catch(e){
-
-        alert(
-            "❌ তথ্য কপি করা সম্ভব হয়নি।"
-        );
-
-    }
-
-
-    document.body.removeChild(
-        textarea
-    );
-
-}
-
-
-/* =====================================================
-   WHATSAPP
-===================================================== */
-
-window.shareViaWhatsApp =
-function(){
-
-    const name =
-        document.getElementById(
-            "edit_name"
-        ).value;
-
-
-    const role =
-        document.getElementById(
-            "edit_role"
-        ).value;
-
-
-    const blood =
-        document.getElementById(
-            "edit_blood"
-        ).value;
-
-
-    const idno =
-        document.getElementById(
-            "edit_idno"
-        ).value;
-
-
-    const phone =
-        document.getElementById(
-            "edit_phone"
-        ).value;
-
-
-    const address =
-        document.getElementById(
-            "edit_address"
-        ).value;
-
-
-    const pres =
-        document.getElementById(
-            "edit_president"
-        ).value ||
-        DEFAULT_PRESIDENT;
-
-
-    const text =
-`🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸
-
-👤 *নাম:* ${name}
-🏷 *পদবী:* ${role}
-🩸 *রক্তের গ্রুপ:* ${blood}
-🪪 *আইডি নং:* ${idno}
-📞 *মোবাইল:* ${phone}
-📍 *ঠিকানা:* ${address}
-
-🖋 *সভাপতি:* ${pres}`;
-
-
-    const url =
+    const whatsappUrl =
         "https://wa.me/?text=" +
-        encodeURIComponent(
-            text
-        );
+        encodeURIComponent(textToShare);
 
 
     window.open(
-        url,
+        whatsappUrl,
         "_blank"
     );
 
 };
-
-
-/* =====================================================
-   CLOSE MODAL OUTSIDE CLICK
-===================================================== */
-
-document.getElementById(
-    "idCardModal"
-).addEventListener(
-    "click",
-    function(e){
-
-        if(
-            e.target === this
-        ){
-
-            closeModal();
-
-        }
-
-    }
-);
 
 </script>
 
