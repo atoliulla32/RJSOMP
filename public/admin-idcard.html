@@ -268,7 +268,7 @@ document.documentElement.style.display='none';
             <div>
 
                 <label class="block text-xs font-bold text-gray-700 mb-1 mt-2">
-                    সদস্যের নতুন ছবি দিন (গোল হবে)
+                    সদস্যের নতুন ছবি দিন
                 </label>
 
                 <input
@@ -354,25 +354,12 @@ from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 ===================================================== */
 
 const firebaseConfig = {
-
-    apiKey:
-    "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
-
-    authDomain:
-    "rjsomp.firebaseapp.com",
-
-    projectId:
-    "rjsomp",
-
-    storageBucket:
-    "rjsomp.firebasestorage.app",
-
-    messagingSenderId:
-    "1033528754332",
-
-    appId:
-    "1:1033528754332:web:a2dd02fc14096c1eeeed59"
-
+    apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+    authDomain: "rjsomp.firebaseapp.com",
+    projectId: "rjsomp",
+    storageBucket: "rjsomp.firebasestorage.app",
+    messagingSenderId: "1033528754332",
+    appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
 };
 
 
@@ -417,16 +404,9 @@ let logoImage = null;
 ===================================================== */
 
 function showPage(){
-
     document.documentElement.style.display = "";
-
-    const loader =
-        document.getElementById("loadingScreen");
-
-    if(loader){
-        loader.style.display = "none";
-    }
-
+    const loader = document.getElementById("loadingScreen");
+    if(loader){ loader.style.display = "none"; }
 }
 
 
@@ -435,22 +415,13 @@ function showPage(){
 ===================================================== */
 
 onAuthStateChanged(auth, async (user)=>{
-
     if(user){
-
         showPage();
-
         await loadLogo();
-
         fetchAndMergeData();
-
     }else{
-
-        window.top.location.href =
-        "admin.html";
-
+        window.top.location.href = "admin.html";
     }
-
 });
 
 
@@ -459,23 +430,12 @@ onAuthStateChanged(auth, async (user)=>{
 ===================================================== */
 
 async function loadLogo(){
-
     try{
-
-        logoImage =
-            await loadImage(LOGO_URL);
-
+        logoImage = await loadImage(LOGO_URL);
     }catch(e){
-
-        console.warn(
-            "Logo load failed",
-            e
-        );
-
+        console.warn("Logo load failed", e);
         logoImage = null;
-
     }
-
 }
 
 
@@ -484,79 +444,30 @@ async function loadLogo(){
 ===================================================== */
 
 function loadImage(src){
-
     return new Promise((resolve,reject)=>{
-
-        if(!src){
-
-            reject(
-                new Error("No image")
-            );
-
-            return;
-
-        }
-
-        const img =
-            new Image();
-
-        img.crossOrigin =
-            "anonymous";
-
+        if(!src){ reject(new Error("No image")); return; }
+        const img = new Image();
+        img.crossOrigin = "anonymous";
         let finished = false;
-
-        const timer =
-            setTimeout(()=>{
-
-                if(!finished){
-
-                    finished = true;
-
-                    reject(
-                        new Error(
-                            "Image timeout"
-                        )
-                    );
-
-                }
-
-            },7000);
-
+        const timer = setTimeout(()=>{
+            if(!finished){ finished = true; reject(new Error("Image timeout")); }
+        },7000);
 
         img.onload = ()=>{
-
             if(finished) return;
-
             finished = true;
-
             clearTimeout(timer);
-
             resolve(img);
-
         };
-
 
         img.onerror = ()=>{
-
             if(finished) return;
-
             finished = true;
-
             clearTimeout(timer);
-
-            reject(
-                new Error(
-                    "Image load failed"
-                )
-            );
-
+            reject(new Error("Image load failed"));
         };
-
-
         img.src = src;
-
     });
-
 }
 
 
@@ -565,233 +476,62 @@ function loadImage(src){
 ===================================================== */
 
 async function fetchAndMergeData(){
-
     try{
+        const volSnap = await getDocs(collection(db,"volunteers"));
+        const donSnap = await getDocs(collection(db,"blood_donors"));
+        const memSnap = await getDocs(collection(db,"members"));
 
-        const volSnap =
-            await getDocs(
-                collection(
-                    db,
-                    "volunteers"
-                )
-            );
+        const usersMap = new Map();
 
-
-        const donSnap =
-            await getDocs(
-                collection(
-                    db,
-                    "blood_donors"
-                )
-            );
-
-
-        const memSnap =
-            await getDocs(
-                collection(
-                    db,
-                    "members"
-                )
-            );
-
-
-        const usersMap =
-            new Map();
-
-
-        function processDoc(
-            snap,
-            roleName
-        ){
-
+        function processDoc(snap, roleName){
             snap.forEach(d=>{
+                const data = d.data() || {};
+                const phone = String(data.phone || "NoPhone_" + d.id);
 
-                const data =
-                    d.data() || {};
-
-
-                const phone =
-                    String(
-                        data.phone ||
-                        "NoPhone_" +
-                        d.id
-                    );
-
-
-                if(
-                    usersMap.has(phone)
-                ){
-
-                    const existing =
-                        usersMap.get(phone);
-
-
-                    if(
-                        !existing.roles.includes(
-                            roleName
-                        )
-                    ){
-
-                        existing.roles.push(
-                            roleName
-                        );
-
+                if(usersMap.has(phone)){
+                    const existing = usersMap.get(phone);
+                    if(!existing.roles.includes(roleName)){ existing.roles.push(roleName); }
+                    if(!existing.photo && data.profileImageUrl){ existing.photo = data.profileImageUrl; }
+                    if(!existing.address){
+                        existing.address = [data.village, data.upazila, data.district].filter(Boolean).join(", ");
                     }
-
-
-                    if(
-                        !existing.photo &&
-                        data.profileImageUrl
-                    ){
-
-                        existing.photo =
-                            data.profileImageUrl;
-
-                    }
-
-
-                    if(
-                        !existing.address
-                    ){
-
-                        existing.address =
-                            [
-                                data.village,
-                                data.upazila,
-                                data.district
-                            ]
-                            .filter(Boolean)
-                            .join(", ");
-
-                    }
-
-
                 }else{
+                    const address = [data.village, data.upazila, data.district].filter(Boolean).join(", ");
+                    let secretData = data.secretCode || data.secretPin;
+                    if(!secretData){ secretData = phone.slice(-4); }
+                    const dynamicId = "RJF-" + secretData;
 
-                    const address =
-                        [
-                            data.village,
-                            data.upazila,
-                            data.district
-                        ]
-                        .filter(Boolean)
-                        .join(", ");
-
-
-                    let secretData =
-                        data.secretCode ||
-                        data.secretPin;
-
-
-                    if(!secretData){
-
-                        secretData =
-                            phone.slice(-4);
-
-                    }
-
-
-                    const dynamicId =
-                        "RJF-" +
-                        secretData;
-
-
-                    usersMap.set(
-                        phone,
-                        {
-
-                            id:d.id,
-
-                            name:
-                                data.name ||
-                                "Unknown",
-
-                            phone:phone,
-
-                            blood:
-                                data.bloodGroup ||
-                                "N/A",
-
-                            address:address,
-
-                            idNo:
-                                dynamicId,
-
-                            photo:
-                                data.profileImageUrl ||
-                                "",
-
-                            roles:[
-                                roleName
-                            ]
-
-                        }
-                    );
-
+                    usersMap.set(phone, {
+                        id:d.id,
+                        name: data.name || "Unknown",
+                        phone:phone,
+                        blood: data.bloodGroup || "N/A",
+                        address:address,
+                        idNo: dynamicId,
+                        photo: data.profileImageUrl || "",
+                        roles:[roleName]
+                    });
                 }
-
             });
-
         }
 
+        processDoc(volSnap,"Volunteer");
+        processDoc(donSnap,"Blood Donor");
+        processDoc(memSnap,"Member");
 
-        processDoc(
-            volSnap,
-            "Volunteer"
-        );
-
-        processDoc(
-            donSnap,
-            "Blood Donor"
-        );
-
-        processDoc(
-            memSnap,
-            "Member"
-        );
-
-
-        mergedUsers =
-            Array.from(
-                usersMap.values()
-            );
-
-
-        document.getElementById(
-            "totalUsers"
-        ).innerText =
-            mergedUsers.length;
-
-
-        renderUsers(
-            mergedUsers
-        );
-
+        mergedUsers = Array.from(usersMap.values());
+        document.getElementById("totalUsers").innerText = mergedUsers.length;
+        renderUsers(mergedUsers);
 
     }catch(error){
-
         console.error(error);
-
-        document.getElementById(
-            "users-grid"
-        ).innerHTML = `
-
+        document.getElementById("users-grid").innerHTML = `
             <div class="col-span-full text-center py-10">
-
-                <div class="text-red-600 text-4xl mb-3">
-                    <i class="fas fa-triangle-exclamation"></i>
-                </div>
-
-                <p class="text-red-600 font-bold">
-                    ডাটাবেজ থেকে তথ্য আনতে সমস্যা হয়েছে!
-                </p>
-
+                <div class="text-red-600 text-4xl mb-3"><i class="fas fa-triangle-exclamation"></i></div>
+                <p class="text-red-600 font-bold">ডাটাবেজ থেকে তথ্য আনতে সমস্যা হয়েছে!</p>
             </div>
-
         `;
-
     }
-
 }
 
 
@@ -799,1523 +539,482 @@ async function fetchAndMergeData(){
    RENDER USERS
 ===================================================== */
 
-window.renderUsers =
-function(usersArray){
-
-    const grid =
-        document.getElementById(
-            "users-grid"
-        );
-
-
+window.renderUsers = function(usersArray){
+    const grid = document.getElementById("users-grid");
     if(usersArray.length === 0){
-
         grid.innerHTML = `
-
             <div class="col-span-full text-center py-16">
-
-                <p class="text-gray-500 font-bold">
-                    কোনো সদস্য পাওয়া যায়নি!
-                </p>
-
+                <p class="text-gray-500 font-bold">কোনো সদস্য পাওয়া যায়নি!</p>
             </div>
-
         `;
-
         return;
-
     }
 
-
     let html = "";
-
-
     usersArray.forEach((u,index)=>{
-
-        const roleString =
-            u.roles.join(", ");
-
-
-        const dataString =
-            encodeURIComponent(
-                JSON.stringify(u)
-            );
-
+        const roleString = u.roles.join(", ");
+        const dataString = encodeURIComponent(JSON.stringify(u));
 
         html += `
-
-        <div
-            class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 transition hover:shadow-md">
-
-            <img
-                src="${u.photo || ''}"
-                class="w-16 h-16 rounded-full object-cover border-[3px] border-red-100 shadow-sm shrink-0"
-                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-
-            <div
-                style="display:${u.photo ? 'none':'flex'}"
-                class="w-16 h-16 rounded-full bg-red-50 border-[3px] border-red-100 items-center justify-center text-red-500 shrink-0">
-
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 transition hover:shadow-md">
+            <img src="${u.photo || ''}" class="w-16 h-16 rounded-full object-cover border-[3px] border-red-100 shadow-sm shrink-0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div style="display:${u.photo ? 'none':'flex'}" class="w-16 h-16 rounded-full bg-red-50 border-[3px] border-red-100 items-center justify-center text-red-500 shrink-0">
                 <i class="fas fa-user text-xl"></i>
-
             </div>
-
-
             <div class="flex-grow min-w-0">
-
-                <h3 class="font-bold text-gray-800 truncate leading-tight">
-                    ${escapeHTML(u.name)}
-                </h3>
-
-                <p class="text-[11px] font-bold text-red-600 mt-1 truncate">
-                    <i class="fas fa-tag"></i>
-                    ${escapeHTML(roleString)}
-                </p>
-
-                <p class="text-[11px] font-bold text-gray-400 mt-0.5">
-                    <i class="fas fa-fingerprint"></i>
-                    ID: ${escapeHTML(u.idNo)}
-                </p>
-
+                <h3 class="font-bold text-gray-800 truncate leading-tight">${escapeHTML(u.name)}</h3>
+                <p class="text-[11px] font-bold text-red-600 mt-1 truncate"><i class="fas fa-tag"></i> ${escapeHTML(roleString)}</p>
+                <p class="text-[11px] font-bold text-gray-400 mt-0.5"><i class="fas fa-fingerprint"></i> ID: ${escapeHTML(u.idNo)}</p>
             </div>
-
-
-            <button
-                onclick="openIdModal('${dataString}')"
-                class="shrink-0 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm"
-                title="আইডি কার্ড তৈরি করুন">
-
+            <button onclick="openIdModal('${dataString}')" class="shrink-0 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm" title="আইডি কার্ড তৈরি করুন">
                 <i class="fas fa-address-card text-lg"></i>
-
             </button>
-
         </div>
-
         `;
-
     });
-
-
-    grid.innerHTML =
-        html;
-
+    grid.innerHTML = html;
 };
 
 
 /* =====================================================
    ESCAPE HTML
 ===================================================== */
-
 function escapeHTML(value){
-
     return String(value || "")
         .replace(/&/g,"&amp;")
         .replace(/</g,"&lt;")
         .replace(/>/g,"&gt;")
         .replace(/"/g,"&quot;")
         .replace(/'/g,"&#039;");
-
 }
 
 
 /* =====================================================
    SEARCH
 ===================================================== */
-
-window.filterUsers =
-function(){
-
-    const txt =
-        document.getElementById(
-            "searchInput"
-        )
-        .value
-        .toLowerCase()
-        .trim();
-
-
-    const filtered =
-        mergedUsers.filter(u=>{
-
-            return (
-
-                String(u.name || "")
-                    .toLowerCase()
-                    .includes(txt)
-
-                ||
-
-                String(u.phone || "")
-                    .includes(txt)
-
-                ||
-
-                String(u.idNo || "")
-                    .toLowerCase()
-                    .includes(txt)
-
-            );
-
-        });
-
-
-    renderUsers(
-        filtered
-    );
-
+window.filterUsers = function(){
+    const txt = document.getElementById("searchInput").value.toLowerCase().trim();
+    const filtered = mergedUsers.filter(u=>{
+        return (
+            String(u.name || "").toLowerCase().includes(txt) ||
+            String(u.phone || "").includes(txt) ||
+            String(u.idNo || "").toLowerCase().includes(txt)
+        );
+    });
+    renderUsers(filtered);
 };
 
 
 /* =====================================================
    OPEN MODAL
 ===================================================== */
-
-window.openIdModal =
-function(dataStr){
-
+window.openIdModal = function(dataStr){
     try{
+        const u = JSON.parse(decodeURIComponent(dataStr));
+        document.getElementById("edit_name").value = u.name || "";
+        document.getElementById("edit_role").value = u.roles ? u.roles.join(", ") : "";
+        document.getElementById("edit_blood").value = u.blood || "N/A";
+        document.getElementById("edit_idno").value = u.idNo || "";
+        document.getElementById("edit_phone").value = u.phone || "";
+        document.getElementById("edit_address").value = u.address || "";
+        document.getElementById("edit_president").value = DEFAULT_PRESIDENT;
 
-        const u =
-            JSON.parse(
-                decodeURIComponent(
-                    dataStr
-                )
-            );
+        currentPhoto = u.photo || "";
+        document.getElementById("photoInput").value = "";
 
+        const modal = document.getElementById("idCardModal");
+        const content = document.getElementById("idCardModalContent");
 
-        document.getElementById(
-            "edit_name"
-        ).value =
-            u.name || "";
-
-
-        document.getElementById(
-            "edit_role"
-        ).value =
-            u.roles
-            ? u.roles.join(", ")
-            : "";
-
-
-        document.getElementById(
-            "edit_blood"
-        ).value =
-            u.blood || "N/A";
-
-
-        document.getElementById(
-            "edit_idno"
-        ).value =
-            u.idNo || "";
-
-
-        document.getElementById(
-            "edit_phone"
-        ).value =
-            u.phone || "";
-
-
-        document.getElementById(
-            "edit_address"
-        ).value =
-            u.address || "";
-
-
-        document.getElementById(
-            "edit_president"
-        ).value =
-            DEFAULT_PRESIDENT;
-
-
-        currentPhoto =
-            u.photo || "";
-
-
-        document.getElementById(
-            "photoInput"
-        ).value = "";
-
-
-        const modal =
-            document.getElementById(
-                "idCardModal"
-            );
-
-
-        const content =
-            document.getElementById(
-                "idCardModalContent"
-            );
-
-
-        modal.classList.remove(
-            "hidden"
-        );
-
-
+        modal.classList.remove("hidden");
         setTimeout(()=>{
-
-            modal.classList.remove(
-                "opacity-0"
-            );
-
-            content.classList.remove(
-                "scale-95"
-            );
-
+            modal.classList.remove("opacity-0");
+            content.classList.remove("scale-95");
         },10);
-
-
     }catch(e){
-
         console.error(e);
-
-        alert(
-            "তথ্য খোলার সময় সমস্যা হয়েছে।"
-        );
-
+        alert("তথ্য খোলার সময় সমস্যা হয়েছে।");
     }
-
 };
 
 
 /* =====================================================
    CLOSE MODAL
 ===================================================== */
+window.closeModal = function(){
+    const modal = document.getElementById("idCardModal");
+    const content = document.getElementById("idCardModalContent");
 
-window.closeModal =
-function(){
-
-    const modal =
-        document.getElementById(
-            "idCardModal"
-        );
-
-
-    const content =
-        document.getElementById(
-            "idCardModalContent"
-        );
-
-
-    modal.classList.add(
-        "opacity-0"
-    );
-
-    content.classList.add(
-        "scale-95"
-    );
-
+    modal.classList.add("opacity-0");
+    content.classList.add("scale-95");
 
     setTimeout(()=>{
-
-        modal.classList.add(
-            "hidden"
-        );
-
+        modal.classList.add("hidden");
     },300);
-
 };
 
 
 /* =====================================================
    CHANGE PHOTO
 ===================================================== */
-
-window.changeIdPhoto =
-function(input){
-
-    if(
-        input.files &&
-        input.files[0]
-    ){
-
-        const file =
-            input.files[0];
-
-
-        if(
-            !file.type.startsWith(
-                "image/"
-            )
-        ){
-
-            alert(
-                "শুধু ছবি নির্বাচন করুন।"
-            );
-
+window.changeIdPhoto = function(input){
+    if(input.files && input.files[0]){
+        const file = input.files[0];
+        if(!file.type.startsWith("image/")){
+            alert("শুধু ছবি নির্বাচন করুন।");
             input.value = "";
-
             return;
-
         }
 
-
-        const reader =
-            new FileReader();
-
-
-        reader.onload =
-        function(e){
-
-            currentPhoto =
-                e.target.result;
-
-        };
-
-
-        reader.readAsDataURL(
-            file
-        );
-
+        const reader = new FileReader();
+        reader.onload = function(e){ currentPhoto = e.target.result; };
+        reader.readAsDataURL(file);
     }
-
 };
 
 
 /* =====================================================
    TRIANGLE PATTERN
 ===================================================== */
-
-function drawTrianglePattern(
-    ctx,
-    x,
-    y,
-    width,
-    height,
-    size,
-    bgColor,
-    patternColor
-){
-
+function drawTrianglePattern(ctx, x, y, width, height, size, bgColor, patternColor){
     ctx.save();
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(x, y, width, height);
 
-    ctx.fillStyle =
-        bgColor;
+    ctx.fillStyle = patternColor;
 
-    ctx.fillRect(
-        x,
-        y,
-        width,
-        height
-    );
-
-
-    ctx.fillStyle =
-        patternColor;
-
-
-    for(
-        let row=0;
-        row<Math.ceil(height/size);
-        row++
-    ){
-
-        for(
-            let col=0;
-            col<Math.ceil(width/size);
-            col++
-        ){
-
-            const px =
-                x + col*size;
-
-            const py =
-                y + row*size;
-
+    for(let row=0; row<Math.ceil(height/size); row++){
+        for(let col=0; col<Math.ceil(width/size); col++){
+            const px = x + col*size;
+            const py = y + row*size;
 
             ctx.beginPath();
-
-            ctx.moveTo(
-                px,
-                py
-            );
-
-            ctx.lineTo(
-                px+size,
-                py
-            );
-
-            ctx.lineTo(
-                px,
-                py+size
-            );
-
+            ctx.moveTo(px, py);
+            ctx.lineTo(px+size, py);
+            ctx.lineTo(px, py+size);
             ctx.closePath();
-
             ctx.fill();
-
         }
-
     }
-
-
     ctx.restore();
-
 }
 
 
 /* =====================================================
    TEXT WRAP
 ===================================================== */
-
-function wrapText(
-    ctx,
-    text,
-    x,
-    y,
-    maxWidth,
-    lineHeight,
-    maxLines=20
-){
-
-    text =
-        String(text || "");
-
-
-    const words =
-        text.split(/\s+/);
-
-
+function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines=20){
+    text = String(text || "");
+    const words = text.split(/\s+/);
     let line = "";
-
     let lines = [];
 
+    for(let n=0; n<words.length; n++){
+        const testLine = line ? line + " " + words[n] : words[n];
+        const metrics = ctx.measureText(testLine);
 
-    for(
-        let n=0;
-        n<words.length;
-        n++
-    ){
-
-        const testLine =
-            line
-            ? line + " " + words[n]
-            : words[n];
-
-
-        const metrics =
-            ctx.measureText(
-                testLine
-            );
-
-
-        if(
-            metrics.width >
-                maxWidth &&
-            line
-        ){
-
-            lines.push(
-                line
-            );
-
-            line =
-                words[n];
-
-            if(
-                lines.length >=
-                maxLines
-            ){
-
-                break;
-
-            }
-
+        if(metrics.width > maxWidth && line){
+            lines.push(line);
+            line = words[n];
+            if(lines.length >= maxLines){ break; }
         }else{
-
-            line =
-                testLine;
-
+            line = testLine;
         }
-
     }
 
-
-    if(
-        line &&
-        lines.length < maxLines
-    ){
-
-        lines.push(
-            line
-        );
-
+    if(line && lines.length < maxLines){
+        lines.push(line);
     }
 
-
-    lines.forEach(
-        (ln,i)=>{
-
-            ctx.fillText(
-                ln,
-                x,
-                y + i*lineHeight
-            );
-
-        }
-    );
-
+    lines.forEach((ln,i)=>{
+        ctx.fillText(ln, x, y + i*lineHeight);
+    });
 
     return lines.length;
-
 }
 
 
 /* =====================================================
    LOAD MEMBER PHOTO
 ===================================================== */
-
 async function getMemberPhoto(){
-
-    if(!currentPhoto){
-
-        return null;
-
-    }
-
-
+    if(!currentPhoto){ return null; }
     try{
-
-        return await loadImage(
-            currentPhoto
-        );
-
+        return await loadImage(currentPhoto);
     }catch(e){
-
-        console.warn(
-            "Member photo could not load"
-        );
-
+        console.warn("Member photo could not load");
         return null;
-
     }
-
 }
 
 
 /* =====================================================
    DRAW CIRCLE PHOTO
 ===================================================== */
-
-function drawCirclePhoto(
-    ctx,
-    img,
-    cx,
-    cy,
-    radius
-){
-
+function drawCirclePhoto(ctx, img, cx, cy, radius){
     ctx.save();
-
-
     ctx.beginPath();
-
-    ctx.arc(
-        cx,
-        cy,
-        radius,
-        0,
-        Math.PI*2
-    );
-
+    ctx.arc(cx, cy, radius, 0, Math.PI*2);
     ctx.clip();
 
-
     if(img){
-
-        const ratio =
-            Math.max(
-                radius*2/img.width,
-                radius*2/img.height
-            );
-
-
-        const w =
-            img.width*ratio;
-
-        const h =
-            img.height*ratio;
-
-
-        ctx.drawImage(
-            img,
-            cx-w/2,
-            cy-h/2,
-            w,
-            h
-        );
-
+        const ratio = Math.max(radius*2/img.width, radius*2/img.height);
+        const w = img.width*ratio;
+        const h = img.height*ratio;
+        ctx.drawImage(img, cx-w/2, cy-h/2, w, h);
     }else{
-
-        ctx.fillStyle =
-            "#f1f5f9";
-
-        ctx.fillRect(
-            cx-radius,
-            cy-radius,
-            radius*2,
-            radius*2
-        );
-
-
-        ctx.fillStyle =
-            "#94a3b8";
-
-        ctx.font =
-            "bold 55px Arial";
-
-        ctx.textAlign =
-            "center";
-
-        ctx.textBaseline =
-            "middle";
-
-        ctx.fillText(
-            "👤",
-            cx,
-            cy
-        );
-
+        ctx.fillStyle = "#f1f5f9";
+        ctx.fillRect(cx-radius, cy-radius, radius*2, radius*2);
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "bold 55px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("👤", cx, cy);
     }
-
-
     ctx.restore();
 
-
     /* red outer circle */
-
     ctx.beginPath();
-
-    ctx.arc(
-        cx,
-        cy,
-        radius+12,
-        0,
-        Math.PI*2
-    );
-
-    ctx.strokeStyle =
-        "#ef4444";
-
-    ctx.lineWidth =
-        14;
-
+    ctx.arc(cx, cy, radius+12, 0, Math.PI*2);
+    ctx.strokeStyle = "#ef4444";
+    ctx.lineWidth = 14;
     ctx.stroke();
-
 }
 
 
 /* =====================================================
-   DRAW FRONT (UPDATED ROUND PHOTO + LOGO LEFT)
+   DRAW FRONT
 ===================================================== */
-
 async function createFrontCard(){
-
     const W = 680;
     const H = 1060;
-
-    const canvas =
-        document.createElement(
-            "canvas"
-        );
-
+    const canvas = document.createElement("canvas");
     canvas.width = W;
     canvas.height = H;
+    const ctx = canvas.getContext("2d");
 
-    const ctx =
-        canvas.getContext("2d");
-
-
-    /* white background */
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
 
     /* LEFT PATTERN - লাল ব্যাকগ্রাউন্ড আর সাদা ত্রিভুজ */
-
-    drawTrianglePattern(
-        ctx,
-        0,
-        0,
-        205,
-        H,
-        55,
-        "#ef4444",
-        "#ffffff"
-    );
-
+    drawTrianglePattern(ctx, 0, 0, 205, H, 55, "#ef4444", "#ffffff");
 
     /* logo - BAM PASHE (LEFT SIDE) */
-
     if(logoImage){
-
         ctx.save();
-
         ctx.beginPath();
-
-        ctx.arc(
-            110,
-            145,
-            68,
-            0,
-            Math.PI*2
-        );
-
+        ctx.arc(110, 145, 68, 0, Math.PI*2);
         ctx.clip();
-
-        // Logo coordinates shifted to left side
-        ctx.drawImage(
-            logoImage,
-            42,
-            77,
-            136,
-            136
-        );
-
+        ctx.drawImage(logoImage, 42, 77, 136, 136);
         ctx.restore();
-
     }
 
-
     /* ORGANIZATION NAME - DAN PASHE (RIGHT SIDE) */
-
-    ctx.fillStyle =
-        "#000000";
-
-    ctx.textAlign =
-        "right"; // Changed to right align
-
-    ctx.font =
-        "800 29px Poppins, Arial";
-
-    // Text position shifted to right side
-    wrapText(
-        ctx,
-        ORGANIZATION,
-        640,
-        105,
-        400,
-        38,
-        3
-    );
-
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "right"; 
+    ctx.font = "800 29px Poppins, Arial";
+    wrapText(ctx, ORGANIZATION, 640, 105, 400, 38, 3);
 
     /* ROUND PHOTO */
+    const photo = await getMemberPhoto();
+    drawCirclePhoto(ctx, photo, 205, 445, 135);
 
-    const photo =
-        await getMemberPhoto();
+    const name = document.getElementById("edit_name").value || "Member";
+    const role = document.getElementById("edit_role").value || "Volunteer";
+    const idno = document.getElementById("edit_idno").value || "";
+    const blood = document.getElementById("edit_blood").value || "N/A";
+    const president = document.getElementById("edit_president").value || DEFAULT_PRESIDENT;
 
-
-    // Circular photo
-    drawCirclePhoto(
-        ctx,
-        photo,
-        205,
-        445,
-        135 // Increased radius slightly
-    );
-
-
-    /* MEMBER NAME */
-
-    const name =
-        document.getElementById(
-            "edit_name"
-        ).value || "Member";
-
-
-    const role =
-        document.getElementById(
-            "edit_role"
-        ).value || "Volunteer";
-
-
-    const idno =
-        document.getElementById(
-            "edit_idno"
-        ).value || "";
-
-
-    const blood =
-        document.getElementById(
-            "edit_blood"
-        ).value || "N/A";
-
-
-    const president =
-        document.getElementById(
-            "edit_president"
-        ).value ||
-        DEFAULT_PRESIDENT;
-
-
-    ctx.textAlign =
-        "right";
-
-
-    ctx.fillStyle =
-        "#000000";
-
-    ctx.font =
-        "800 43px Poppins, 'Noto Sans Bengali', Arial";
-
-
-    wrapText(
-        ctx,
-        name.toUpperCase(),
-        640,
-        650,
-        410,
-        48,
-        2
-    );
-
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#000000";
+    ctx.font = "800 43px Poppins, 'Noto Sans Bengali', Arial";
+    wrapText(ctx, name.toUpperCase(), 640, 650, 410, 48, 2);
 
     /* ROLE */
-
-    ctx.fillStyle =
-        "#555555";
-
-    ctx.font =
-        "600 25px Poppins, 'Noto Sans Bengali', Arial";
-
-
-    wrapText(
-        ctx,
-        role,
-        640,
-        755,
-        410,
-        32,
-        2
-    );
-
+    ctx.fillStyle = "#555555";
+    ctx.font = "600 25px Poppins, 'Noto Sans Bengali', Arial";
+    wrapText(ctx, role, 640, 755, 410, 32, 2);
 
     /* ID */
-
-    ctx.fillStyle =
-        "#111111";
-
-    ctx.font =
-        "700 26px Poppins, Arial";
-
-
-    ctx.fillText(
-        "ID: " + idno,
-        640,
-        840
-    );
-
+    ctx.fillStyle = "#111111";
+    ctx.font = "700 26px Poppins, Arial";
+    ctx.fillText("ID: " + idno, 640, 840);
 
     /* BLOOD */
-
-    ctx.fillStyle =
-        "#ef4444";
-
-    ctx.font =
-        "900 34px Poppins, Arial";
-
-
-    ctx.fillText(
-        "🩸 " + blood,
-        640,
-        900
-    );
-
+    ctx.fillStyle = "#ef4444";
+    ctx.font = "900 34px Poppins, Arial";
+    ctx.fillText("🩸 " + blood, 640, 900);
 
     /* SIGNATURE */
+    ctx.fillStyle = "#1e3a8a";
+    ctx.font = "700 45px 'Dancing Script', cursive";
+    ctx.fillText(president, 640, 985);
 
-    ctx.fillStyle =
-        "#1e3a8a";
-
-    ctx.font =
-        "700 45px 'Dancing Script', cursive";
-
-
-    ctx.fillText(
-        president,
-        640,
-        985
-    );
-
-
-    ctx.strokeStyle =
-        "#999999";
-
+    ctx.strokeStyle = "#999999";
     ctx.lineWidth = 2;
-
-
     ctx.beginPath();
-
-    ctx.moveTo(
-        480,
-        995
-    );
-
-    ctx.lineTo(
-        645,
-        995
-    );
-
+    ctx.moveTo(480, 995);
+    ctx.lineTo(645, 995);
     ctx.stroke();
 
-
-    ctx.fillStyle =
-        "#555555";
-
-    ctx.font =
-        "800 17px Poppins, Arial";
-
-
-    ctx.fillText(
-        "PRESIDENT",
-        640,
-        1025
-    );
-
+    ctx.fillStyle = "#555555";
+    ctx.font = "800 17px Poppins, Arial";
+    ctx.fillText("PRESIDENT", 640, 1025);
 
     return canvas;
-
 }
 
 
 /* =====================================================
    DRAW BACK
 ===================================================== */
-
 function createBackCard(){
-
     const W = 680;
     const H = 1060;
-
-    const canvas =
-        document.createElement(
-            "canvas"
-        );
-
+    const canvas = document.createElement("canvas");
     canvas.width = W;
     canvas.height = H;
+    const ctx = canvas.getContext("2d");
 
-    const ctx =
-        canvas.getContext("2d");
-
-
-    /* BLACK */
-
-    ctx.fillStyle =
-        "#000000";
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, W, H);
 
     /* RIGHT PATTERN - লাল ব্যাকগ্রাউন্ড আর কালো ত্রিভুজ */
-
-    drawTrianglePattern(
-        ctx,
-        540,
-        0,
-        140,
-        H,
-        55,
-        "#ef4444",
-        "#000000"
-    );
-
+    drawTrianglePattern(ctx, 540, 0, 140, H, 55, "#ef4444", "#000000");
 
     /* LOGO */
-
     if(logoImage){
-
         ctx.save();
-
         ctx.beginPath();
-
-        ctx.arc(
-            110,
-            115,
-            70,
-            0,
-            Math.PI*2
-        );
-
+        ctx.arc(110, 115, 70, 0, Math.PI*2);
         ctx.clip();
-
-        ctx.drawImage(
-            logoImage,
-            40,
-            45,
-            140,
-            140
-        );
-
+        ctx.drawImage(logoImage, 40, 45, 140, 140);
         ctx.restore();
-
     }
 
-
     /* TITLE */
-
-    ctx.textAlign =
-        "left";
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.font =
-        "800 35px Poppins, Arial";
-
-
-    ctx.fillText(
-        "TERMS & CONDITIONS",
-        42,
-        270
-    );
-
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "800 35px Poppins, Arial";
+    ctx.fillText("TERMS & CONDITIONS", 42, 270);
 
     /* TERMS */
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.font =
-        "500 21px Poppins, Arial";
-
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "500 21px Poppins, Arial";
 
     const terms = [
-
         "1. This ID Card is issued solely for authorized volunteer activities of Rokttojoddha Somaj o Manob Kollayan Parishad.",
-
         "2. This ID Card is the property of the organization. It must not be misused, transferred, or allowed to be used by any other person without authorization.",
-
         "3. This ID Card does not guarantee any employment, official position, salary, or financial benefit."
-
     ];
 
-
     let y = 325;
-
-
     terms.forEach(term=>{
-
-        const lines =
-            wrapText(
-                ctx,
-                term,
-                42,
-                y,
-                465,
-                31,
-                6
-            );
-
-
-        y +=
-            lines*31 + 32;
-
+        const lines = wrapText(ctx, term, 42, y, 465, 31, 6);
+        y += lines*31 + 32;
     });
 
-
     /* NOTE */
+    ctx.fillStyle = "#fef08a";
+    ctx.font = "700 20px Poppins, Arial";
+    wrapText(ctx, "Note: This ID Card is valid only for authorized volunteer activities of the organization.", 42, y, 465, 29, 4);
 
-    ctx.fillStyle =
-        "#fef08a";
+    /* CONTACT INFO - Fixed Y Coordinates */
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "700 20px Poppins, Arial";
+    
+    const phone = document.getElementById("edit_phone").value || "";
+    const contactY = 810; // Moved up so website URL isn't cut off
 
-    ctx.font =
-        "700 20px Poppins, Arial";
+    ctx.fillText("Mail", 42, contactY);
+    ctx.fillStyle = "#cccccc";
+    ctx.font = "500 19px Poppins, Arial";
+    ctx.fillText(EMAIL, 42, contactY+30);
 
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "700 20px Poppins, Arial";
+    ctx.fillText("Number", 42, contactY+80);
+    ctx.fillStyle = "#cccccc";
+    ctx.font = "500 20px Poppins, Arial";
+    ctx.fillText(phone, 42, contactY+110);
 
-    wrapText(
-        ctx,
-        "Note: This ID Card is valid only for authorized volunteer activities of the organization.",
-        42,
-        y,
-        465,
-        29,
-        4
-    );
-
-
-    /* CONTACT */
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.font =
-        "700 20px Poppins, Arial";
-
-
-    const phone =
-        document.getElementById(
-            "edit_phone"
-        ).value || "";
-
-
-    const contactY =
-        880;
-
-
-    ctx.fillText(
-        "Mail",
-        42,
-        contactY
-    );
-
-    ctx.fillStyle =
-        "#cccccc";
-
-    ctx.font =
-        "500 19px Poppins, Arial";
-
-
-    ctx.fillText(
-        EMAIL,
-        42,
-        contactY+32
-    );
-
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.font =
-        "700 20px Poppins, Arial";
-
-
-    ctx.fillText(
-        "Number",
-        42,
-        contactY+85
-    );
-
-
-    ctx.fillStyle =
-        "#cccccc";
-
-    ctx.font =
-        "500 20px Poppins, Arial";
-
-
-    ctx.fillText(
-        phone,
-        42,
-        contactY+117
-    );
-
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.font =
-        "700 20px Poppins, Arial";
-
-
-    ctx.fillText(
-        "Website",
-        42,
-        contactY+170
-    );
-
-
-    ctx.fillStyle =
-        "#cccccc";
-
-    ctx.font =
-        "500 20px Poppins, Arial";
-
-
-    ctx.fillText(
-        WEBSITE,
-        42,
-        contactY+202
-    );
-
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "700 20px Poppins, Arial";
+    ctx.fillText("Website", 42, contactY+160);
+    ctx.fillStyle = "#cccccc";
+    ctx.font = "500 20px Poppins, Arial";
+    ctx.fillText(WEBSITE, 42, contactY+190);
 
     return canvas;
-
 }
 
 
 /* =====================================================
    DOWNLOAD CANVAS
 ===================================================== */
-
-function downloadCanvas(
-    canvas,
-    filename
-){
-
-    return new Promise(
-        resolve=>{
-
-            canvas.toBlob(
-                blob=>{
-
-                    if(!blob){
-
-                        throw new Error(
-                            "Image conversion failed"
-                        );
-
-                    }
-
-
-                    const url =
-                        URL.createObjectURL(
-                            blob
-                        );
-
-
-                    const a =
-                        document.createElement(
-                            "a"
-                        );
-
-                    a.href =
-                        url;
-
-                    a.download =
-                        filename;
-
-                    a.style.display =
-                        "none";
-
-
-                    document.body.appendChild(
-                        a
-                    );
-
-
-                    a.click();
-
-
-                    setTimeout(()=>{
-
-                        document.body.removeChild(
-                            a
-                        );
-
-                        URL.revokeObjectURL(
-                            url
-                        );
-
-                        resolve();
-
-                    },800);
-
-                },
-                "image/jpeg",
-                0.95
-            );
-
-        }
-    );
-
+function downloadCanvas(canvas, filename){
+    return new Promise(resolve=>{
+        canvas.toBlob(blob=>{
+            if(!blob){ throw new Error("Image conversion failed"); }
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); resolve(); },800);
+        }, "image/jpeg", 0.95);
+    });
 }
 
 
 /* =====================================================
    MAIN DOWNLOAD
 ===================================================== */
-
-window.processCardAction =
-async function(){
-
-    const btn =
-        document.getElementById(
-            "downloadImgBtn"
-        );
-
-
-    const oldHTML =
-        btn.innerHTML;
-
-
+window.processCardAction = async function(){
+    const btn = document.getElementById("downloadImgBtn");
+    const oldHTML = btn.innerHTML;
     btn.disabled = true;
-
-
-    btn.innerHTML = `
-        <i class="fas fa-spinner fa-spin"></i>
-        কার্ড তৈরি হচ্ছে...
-    `;
-
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> কার্ড তৈরি হচ্ছে...`;
 
     try{
+        const front = await createFrontCard();
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Front Card তৈরি হচ্ছে...`;
+        const name = document.getElementById("edit_name").value.trim().replace(/[\\/:*?"<>|]/g,"_");
+        
+        await downloadCanvas(front, "ID_Front_" + (name || "Member") + ".jpg");
 
-        /*
-         * প্রথমে Front
-         */
+        await new Promise(resolve => setTimeout(resolve, 1200));
 
-        const front =
-            await createFrontCard();
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Back Card তৈরি হচ্ছে...`;
+        const back = createBackCard();
+        await downloadCanvas(back, "ID_Back_" + (name || "Member") + ".jpg");
 
-
-        btn.innerHTML = `
-            <i class="fas fa-spinner fa-spin"></i>
-            Front Card তৈরি হচ্ছে...
-        `;
-
-
-        const name =
-            document.getElementById(
-                "edit_name"
-            ).value
-            .trim()
-            .replace(/[\\/:*?"<>|]/g,"_");
-
-
-        await downloadCanvas(
-            front,
-            "ID_Front_" +
-            (name || "Member") +
-            ".jpg"
-        );
-
-
-        /*
-         * একটু বিরতি
-         * Android Chrome-এ দুইটি
-         * download আলাদা রাখতে
-         */
-
-        await new Promise(
-            resolve =>
-                setTimeout(
-                    resolve,
-                    1200
-                )
-        );
-
-
-        /*
-         * Back
-         */
-
-        btn.innerHTML = `
-            <i class="fas fa-spinner fa-spin"></i>
-            Back Card তৈরি হচ্ছে...
-        `;
-
-
-        const back =
-            createBackCard();
-
-
-        await downloadCanvas(
-            back,
-            "ID_Back_" +
-            (name || "Member") +
-            ".jpg"
-        );
-
-
-        btn.innerHTML = `
-            <i class="fas fa-check"></i>
-            ডাউনলোড সম্পন্ন
-        `;
-
-
-        setTimeout(()=>{
-
-            btn.innerHTML =
-                oldHTML;
-
-            btn.disabled =
-                false;
-
-        },1800);
-
+        btn.innerHTML = `<i class="fas fa-check"></i> ডাউনলোড সম্পন্ন`;
+        setTimeout(()=>{ btn.innerHTML = oldHTML; btn.disabled = false; },1800);
 
     }catch(error){
-
-        console.error(
-            "CARD ERROR:",
-            error
-        );
-
-
-        alert(
-            "❌ কার্ড তৈরি করতে সমস্যা হয়েছে।\n\n" +
-            "ছবি বা লোগো লোড না হলেও কার্ড তৈরি হওয়ার কথা। " +
-            "আবার চেষ্টা করুন।"
-        );
-
-
-        btn.innerHTML =
-            oldHTML;
-
-        btn.disabled =
-            false;
-
+        console.error("CARD ERROR:", error);
+        alert("❌ কার্ড তৈরি করতে সমস্যা হয়েছে।\n\nছবি বা লোগো লোড না হলেও কার্ড তৈরি হওয়ার কথা। আবার চেষ্টা করুন।");
+        btn.innerHTML = oldHTML;
+        btn.disabled = false;
     }
-
 };
 
 
 /* =====================================================
    COPY
 ===================================================== */
+window.copyCardData = function(){
+    const name = document.getElementById("edit_name").value;
+    const role = document.getElementById("edit_role").value;
+    const blood = document.getElementById("edit_blood").value;
+    const idno = document.getElementById("edit_idno").value;
+    const phone = document.getElementById("edit_phone").value;
+    const address = document.getElementById("edit_address").value;
+    const pres = document.getElementById("edit_president").value || DEFAULT_PRESIDENT;
 
-window.copyCardData =
-function(){
-
-    const name =
-        document.getElementById(
-            "edit_name"
-        ).value;
-
-
-    const role =
-        document.getElementById(
-            "edit_role"
-        ).value;
-
-
-    const blood =
-        document.getElementById(
-            "edit_blood"
-        ).value;
-
-
-    const idno =
-        document.getElementById(
-            "edit_idno"
-        ).value;
-
-
-    const phone =
-        document.getElementById(
-            "edit_phone"
-        ).value;
-
-
-    const address =
-        document.getElementById(
-            "edit_address"
-        ).value;
-
-
-    const pres =
-        document.getElementById(
-            "edit_president"
-        ).value ||
-        DEFAULT_PRESIDENT;
-
-
-    const textToCopy =
+    const textToCopy = 
 `🩸 রক্তযোদ্ধা আইডি কার্ডের তথ্য 🩸
 
 👤 নাম: ${name}
@@ -2327,149 +1026,49 @@ function(){
 
 🖋 সভাপতি: ${pres}`;
 
-
-    if(
-        navigator.clipboard &&
-        window.isSecureContext
-    ){
-
-        navigator.clipboard
-        .writeText(
-            textToCopy
-        )
-        .then(()=>{
-
-            alert(
-                "✅ আইডি কার্ডের সব তথ্য কপি হয়েছে!"
-            );
-
-        })
-        .catch(()=>{
-
-            fallbackCopy(
-                textToCopy
-            );
-
+    if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(textToCopy).then(()=>{
+            alert("✅ আইডি কার্ডের সব তথ্য কপি হয়েছে!");
+        }).catch(()=>{
+            fallbackCopy(textToCopy);
         });
-
     }else{
-
-        fallbackCopy(
-            textToCopy
-        );
-
+        fallbackCopy(textToCopy);
     }
-
 };
-
 
 /* =====================================================
    FALLBACK COPY
 ===================================================== */
-
 function fallbackCopy(text){
-
-    const textarea =
-        document.createElement(
-            "textarea"
-        );
-
-
-    textarea.value =
-        text;
-
-    textarea.style.position =
-        "fixed";
-
-    textarea.style.left =
-        "-9999px";
-
-
-    document.body.appendChild(
-        textarea
-    );
-
-
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
     textarea.select();
-
-
     try{
-
-        document.execCommand(
-            "copy"
-        );
-
-        alert(
-            "✅ তথ্য কপি হয়েছে!"
-        );
-
+        document.execCommand("copy");
+        alert("✅ তথ্য কপি হয়েছে!");
     }catch(e){
-
-        alert(
-            "❌ তথ্য কপি করা সম্ভব হয়নি।"
-        );
-
+        alert("❌ তথ্য কপি করা সম্ভব হয়নি।");
     }
-
-
-    document.body.removeChild(
-        textarea
-    );
-
+    document.body.removeChild(textarea);
 }
-
 
 /* =====================================================
    WHATSAPP
 ===================================================== */
+window.shareViaWhatsApp = function(){
+    const name = document.getElementById("edit_name").value;
+    const role = document.getElementById("edit_role").value;
+    const blood = document.getElementById("edit_blood").value;
+    const idno = document.getElementById("edit_idno").value;
+    const phone = document.getElementById("edit_phone").value;
+    const address = document.getElementById("edit_address").value;
+    const pres = document.getElementById("edit_president").value || DEFAULT_PRESIDENT;
 
-window.shareViaWhatsApp =
-function(){
-
-    const name =
-        document.getElementById(
-            "edit_name"
-        ).value;
-
-
-    const role =
-        document.getElementById(
-            "edit_role"
-        ).value;
-
-
-    const blood =
-        document.getElementById(
-            "edit_blood"
-        ).value;
-
-
-    const idno =
-        document.getElementById(
-            "edit_idno"
-        ).value;
-
-
-    const phone =
-        document.getElementById(
-            "edit_phone"
-        ).value;
-
-
-    const address =
-        document.getElementById(
-            "edit_address"
-        ).value;
-
-
-    const pres =
-        document.getElementById(
-            "edit_president"
-        ).value ||
-        DEFAULT_PRESIDENT;
-
-
-    const text =
+    const text = 
 `🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸
 
 👤 *নাম:* ${name}
@@ -2481,44 +1080,18 @@ function(){
 
 🖋 *সভাপতি:* ${pres}`;
 
-
-    const url =
-        "https://wa.me/?text=" +
-        encodeURIComponent(
-            text
-        );
-
-
-    window.open(
-        url,
-        "_blank"
-    );
-
+    const url = "https://wa.me/?text=" + encodeURIComponent(text);
+    window.open(url, "_blank");
 };
 
 
 /* =====================================================
    CLOSE MODAL OUTSIDE CLICK
 ===================================================== */
-
-document.getElementById(
-    "idCardModal"
-).addEventListener(
-    "click",
-    function(e){
-
-        if(
-            e.target === this
-        ){
-
-            closeModal();
-
-        }
-
-    }
-);
+document.getElementById("idCardModal").addEventListener("click", function(e){
+    if(e.target === this){ closeModal(); }
+});
 
 </script>
-
 </body>
 </html>
