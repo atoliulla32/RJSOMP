@@ -27,6 +27,9 @@
         /* কাস্টম স্ক্রলবার ফিল্টারের জন্য */
         .filter-container::-webkit-scrollbar { height: 4px; }
         .filter-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* চেকবক্স স্টাইল */
+        .custom-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #dc2626; }
     </style>
 </head>
 <body class="p-0 m-0">
@@ -112,17 +115,51 @@
         </div>
     </section>
 
+    <!-- ================= Warning Alert Modal (BMHBD -> RJSOMKP) ================= -->
+    <div id="warningModal" class="fixed inset-0 modal-bg z-[90] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl relative overflow-hidden text-left">
+            <button onclick="closeModal('warningModal')" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl z-10">&times;</button>
+            
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-4 border-b pb-3">
+                    <i class="fas fa-exclamation-triangle text-3xl text-orange-500"></i>
+                    <h2 class="text-xl font-bold text-gray-800">গুরুত্বপূর্ণ ঘোষণা</h2>
+                </div>
+                
+                <p class="text-red-700 font-bold mb-4 text-[15px]">এই প্ল্যাটফর্মে রক্তের বিনিময়ে টাকা লেনদেন কঠোরভাবে নিষিদ্ধ।</p>
+                
+                <p class="text-gray-600 text-sm mb-4 leading-relaxed">যারা টাকা নিয়ে রক্ত দিয়ে থাকেন—এই প্ল্যাটফর্ম তাদের জন্য নয়।</p>
+                
+                <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl mb-5">
+                    <p class="text-sm text-blue-800">
+                        <span class="font-extrabold text-blue-900">RJSOMKP</span> শুধুমাত্র স্বেচ্ছাসেবী রক্তদাতাদের মানবিক সহযোগিতার স্থান। দয়া করে কোনো আর্থিক লেনদেনে যুক্ত হবেন না এবং কাউকে প্রতারিত হতে দেবেন না।
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 mb-4 bg-gray-50 p-2 rounded-lg border border-gray-200">
+                    <input type="checkbox" id="dontShowAgain" class="custom-checkbox">
+                    <label for="dontShowAgain" class="text-sm font-bold text-gray-700 cursor-pointer select-none">আমাকে আর এটি দেখাবেন না</label>
+                </div>
+                
+                <button onclick="proceedToRequest()" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition shadow-sm text-lg flex justify-center items-center gap-2">
+                    <i class="fas fa-check"></i> আমি বুঝেছি
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= Request Modal ================= -->
     <div id="requestModal" class="fixed inset-0 modal-bg z-[80] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeModal('requestModal')" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl">&times;</button>
-            <h2 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-heartbeat text-red-500"></i> রক্তদাতার জন্য রিকোয়েস্ট</h2>
-            <p class="text-[11px] text-gray-500 mb-4 border-b pb-3">তথ্যগুলো পূরণ করে সরাসরি অ্যাডমিনের হোয়াটসঅ্যাপে মেসেজ দিন অথবা ওয়েবসাইটে রিকোয়েস্ট পাঠান।</p>
+            <h2 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-heartbeat text-red-500"></i> রক্তদাতার সাথে যোগাযোগ</h2>
+            <p class="text-[11px] text-gray-500 mb-4 border-b pb-3">হাসপাতাল এবং সমস্যার বিবরণ লিখে সরাসরি ডোনারকে কল বা WhatsApp করুন।</p>
             
             <input type="hidden" id="req_donor_id">
             <input type="hidden" id="req_donor_name">
             <input type="hidden" id="req_donor_area">
             <input type="hidden" id="req_donor_eligibility">
+            <input type="hidden" id="req_donor_phone">
 
             <div class="space-y-3">
                 <div>
@@ -134,19 +171,25 @@
                     <input type="text" id="req_hospital" placeholder="যেমন: ঢাকা মেডিকেল কলেজ..." class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 bg-gray-50 text-sm">
                 </div>
                 
-                <button onclick="sendWhatsAppMessage()" class="w-full bg-emerald-500 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-sm mt-2">
-                    <i class="fab fa-whatsapp text-lg"></i> সরাসরি WhatsApp-এ রিকোয়েস্ট
-                </button>
+                <!-- ডোনারকে সরাসরি যোগাযোগ করার বাটনগুলো -->
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                    <button onclick="sendWhatsAppMessage()" class="w-full bg-emerald-500 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-sm text-sm">
+                        <i class="fab fa-whatsapp text-lg"></i> WhatsApp মেসেজ
+                    </button>
+                    <button onclick="callDonor()" class="w-full bg-blue-500 text-white font-bold py-2.5 rounded-xl hover:bg-blue-600 transition flex items-center justify-center gap-2 shadow-sm text-sm">
+                        <i class="fas fa-phone-alt"></i> সরাসরি কল
+                    </button>
+                </div>
                 
-                <div class="flex items-center gap-3 my-3">
-                    <div class="flex-1 h-px bg-gray-200"></div><span class="text-[10px] font-bold text-gray-400 uppercase">অথবা ওয়েবসাইটে রিকোয়েস্ট</span><div class="flex-1 h-px bg-gray-200"></div>
+                <div class="flex items-center gap-3 my-4">
+                    <div class="flex-1 h-px bg-gray-200"></div><span class="text-[10px] font-bold text-gray-400 uppercase text-center leading-tight">ডোনারকে না পেলে<br>ওয়েবসাইটে রিকোয়েস্ট দিন</span><div class="flex-1 h-px bg-gray-200"></div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <input type="text" id="req_name" placeholder="আপনার নাম" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 bg-gray-50 text-sm">
                     <input type="tel" id="req_phone" placeholder="মোবাইল নাম্বার" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:border-red-500 bg-gray-50 text-sm">
                 </div>
-                <button onclick="submitWebRequest()" id="req_submit_btn" class="w-full bg-gray-800 text-white font-bold py-2.5 rounded-xl hover:bg-gray-900 transition shadow-sm text-sm">ওয়েবসাইটে রিকোয়েস্ট পাঠান</button>
+                <button onclick="submitWebRequest()" id="req_submit_btn" class="w-full bg-gray-800 text-white font-bold py-2.5 rounded-xl hover:bg-gray-900 transition shadow-sm text-sm">অ্যাডমিনকে রিকোয়েস্ট পাঠান</button>
             </div>
         </div>
     </div>
@@ -333,10 +376,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 🔴 এখানে টেলিগ্রামের সঠিক গ্রুপ আইডি দেওয়া হলো
         const TELEGRAM_BOT_TOKEN = "8871037828:AAF6g8Hj2zI1nEbb8nrHb52gpVLe0rS8AF8";
         const TELEGRAM_CHAT_ID = "-1004451170012";
-        const ADMIN_WHATSAPP = "8801917079156";           
 
         window.allDonors = [];
 
@@ -418,6 +459,9 @@
                     }
                 }
                 
+                // ডোনারের ফোন নাম্বার পাস করা হচ্ছে
+                const phoneData = d.phone || d.mobile || d.contact || '';
+
                 html += `
                     <div class="donor-card bg-white border border-gray-100 rounded-[16px] p-3 shadow-sm transition-all duration-300 relative flex flex-col h-full text-center overflow-hidden">
                         
@@ -444,7 +488,8 @@
                         </div>
                         
                         <div class="flex gap-1.5 w-full mt-auto">
-                            <button onclick="openRequestModal('${d.id}', '${d.name}', '${d.bloodGroup}', '${d.upazila || ''}', '${d.district || ''}', '${eligibilityMsg}')" class="flex-1 bg-red-600 text-white font-bold py-1.5 rounded-lg hover:bg-red-700 transition text-[9px] sm:text-[11px] shadow-sm flex items-center justify-center gap-1"><i class="fas fa-paper-plane"></i> রিকোয়েস্ট</button>
+                            <!-- রিকোয়েস্ট বাটনে ক্লিক করলে প্রথমে ওয়ার্নিং পপ-আপ আসবে -->
+                            <button onclick="handleRequestClick('${d.id}', '${d.name}', '${d.bloodGroup}', '${d.upazila || ''}', '${d.district || ''}', '${eligibilityMsg}', '${phoneData}')" class="flex-1 bg-red-600 text-white font-bold py-1.5 rounded-lg hover:bg-red-700 transition text-[9px] sm:text-[11px] shadow-sm flex items-center justify-center gap-1"><i class="fas fa-paper-plane"></i> রিকোয়েস্ট</button>
                             <button onclick="openEditModal('${safeDataStr}')" class="w-auto px-2.5 sm:px-3 bg-gray-100 text-gray-700 font-bold py-1.5 rounded-lg hover:bg-gray-200 transition text-[9px] sm:text-[11px] border border-gray-200" title="আপডেট করুন"><i class="fas fa-edit"></i></button>
                         </div>
                     </div>
@@ -453,39 +498,116 @@
             grid.innerHTML = html;
         };
 
-        window.openRequestModal = (id, name, bg, upa, dist, eligibility) => {
-            document.getElementById('req_donor_id').value = id;
-            document.getElementById('req_donor_name').value = `${name} (${bg})`;
+        // --- নতুন ওয়ার্নিং পপ-আপ লজিক ---
+        let currentDonorData = null; 
+
+        window.handleRequestClick = (id, name, bg, upa, dist, eligibility, phone) => {
+            currentDonorData = { id, name, bg, upa, dist, eligibility, phone };
             
-            const areaText = `${upa ? upa + ', ' : ''}${dist}`;
-            document.getElementById('req_donor_area').value = areaText;
+            // চেক করা হচ্ছে আগে 'আমাকে আর দেখাবেন না' তে টিক দেওয়া হয়েছিল কি না
+            const dontShow = localStorage.getItem('hideRjsomkpWarning');
             
-            document.getElementById('req_donor_eligibility').value = eligibility; 
-            document.getElementById('req_problem').value = '';
-            document.getElementById('req_hospital').value = '';
-            document.getElementById('requestModal').classList.remove('hidden');
+            if (dontShow === 'true') {
+                proceedToRequest();
+            } else {
+                // টিক না থাকলে ওয়ার্নিং দেখাবে
+                document.getElementById('warningModal').classList.remove('hidden');
+            }
         };
 
-        window.sendWhatsAppMessage = () => {
-            const donorName = document.getElementById('req_donor_name').value;
-            const donorArea = document.getElementById('req_donor_area').value;
-            const donorId = document.getElementById('req_donor_id').value;
+        window.proceedToRequest = () => {
+            // চেকবক্স চেক করা থাকলে লোকাল স্টোরেজে সেভ করা
+            const checkbox = document.getElementById('dontShowAgain');
+            if(checkbox && checkbox.checked) {
+                localStorage.setItem('hideRjsomkpWarning', 'true');
+            }
             
+            document.getElementById('warningModal').classList.add('hidden');
+            
+            if(currentDonorData) {
+                document.getElementById('req_donor_id').value = currentDonorData.id;
+                document.getElementById('req_donor_name').value = `${currentDonorData.name} (${currentDonorData.bg})`;
+                document.getElementById('req_donor_phone').value = currentDonorData.phone;
+                
+                const areaText = `${currentDonorData.upa ? currentDonorData.upa + ', ' : ''}${currentDonorData.dist}`;
+                document.getElementById('req_donor_area').value = areaText;
+                
+                document.getElementById('req_donor_eligibility').value = currentDonorData.eligibility; 
+                document.getElementById('req_problem').value = '';
+                document.getElementById('req_hospital').value = '';
+                document.getElementById('requestModal').classList.remove('hidden');
+            }
+        };
+
+        // --- অ্যাডমিনকে টেলিগ্রামে অটোমেটিক নোটিফিকেশন পাঠানোর ফাংশন ---
+        const sendAdminAlert = async (contactMethod) => {
+            const targetDonor = document.getElementById('req_donor_name').value;
+            const eligibility = document.getElementById('req_donor_eligibility').value;
+            
+            let problem = document.getElementById('req_problem').value.trim();
+            let hospital = document.getElementById('req_hospital').value.trim();
+            
+            // যদি তথ্য না দেয়
+            problem = problem ? problem : 'তথ্য দেওয়া হয়নি';
+            hospital = hospital ? hospital : 'তথ্য দেওয়া হয়নি';
+
+            const methodIcon = contactMethod === 'WhatsApp' ? '💬' : '📞';
+            
+            const teleMsg = `🚨 *সরাসরি ডোনারের সাথে যোগাযোগ!* 🚨\n\n${methodIcon} *যোগাযোগের মাধ্যম:* ${contactMethod}\n🩸 *ডোনার:* ${targetDonor}\n📌 *বর্তমান অবস্থা:* ${eligibility}\n\n🏥 *হাসপাতাল:* ${hospital}\n😷 *সমস্যা:* ${problem}\n\n_(রোগীর লোক ওয়েবসাইট থেকে সরাসরি ডোনারকে ${contactMethod === 'WhatsApp' ? 'মেসেজ' : 'কল'} করেছে)_`;
+            
+            try {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: "POST", headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: teleMsg, parse_mode: "Markdown" })
+                });
+            } catch (e) {
+                console.error("টেলিগ্রাম অ্যালার্ট পাঠাতে সমস্যা হয়েছে", e);
+            }
+        };
+
+        // ডোনারের সাথে WhatsApp এ যোগাযোগ
+        window.sendWhatsAppMessage = () => {
+            const phone = document.getElementById('req_donor_phone').value;
             const problem = document.getElementById('req_problem').value.trim();
             const hospital = document.getElementById('req_hospital').value.trim();
-            const eligibility = document.getElementById('req_donor_eligibility').value;
 
-            if(!problem || !hospital) {
-                showPremiumAlert("তথ্য অসম্পূর্ণ!", "দয়া করে রোগীর সমস্যা এবং হাসপাতালের ঠিকানা লিখুন।", "info");
+            if(!phone) {
+                showPremiumAlert("নাম্বার নেই!", "এই রক্তদাতার মোবাইল নাম্বার সিস্টেমে দেওয়া নেই। দয়া করে অ্যাডমিনকে রিকোয়েস্ট পাঠান।", "error");
                 return;
             }
 
-            const rawMsg = `আসসালামু আলাইকুম। জরুরি ভিত্তিতে রক্তের প্রয়োজন। আমি আপনাদের ওয়েবসাইট থেকে "${donorName}" (এলাকা: ${donorArea || 'অজ্ঞাত'} | সিস্টেম আইডি: ${donorId}) উক্ত রক্তদাতার সাথে যোগাযোগ করিয়ে দেওয়ার জন্য রিকোয়েস্ট করছি।\n\nহাসপাতাল / রোগীর ঠিকানা: ${hospital}\nরোগীর সমস্যা: ${problem}\nরক্তদাতার অবস্থা: ${eligibility}`;
+            // অ্যাডমিনকে টেলিগ্রামে অ্যালার্ট পাঠানো
+            sendAdminAlert('WhatsApp');
+
+            // নাম্বার ফরম্যাটিং
+            let formattedPhone = phone.replace(/[^0-9]/g, '');
+            if(formattedPhone.length === 11 && formattedPhone.startsWith('01')) {
+                formattedPhone = '88' + formattedPhone;
+            }
+
+            let rawMsg = `আসসালামু আলাইকুম। রক্তযোদ্ধা ওয়েবসাইট থেকে একটি জরুরি রক্তের প্রয়োজনে আপনার সাথে যোগাযোগ করছি।`;
+            if(hospital) rawMsg += `\n\nহাসপাতাল / ঠিকানা: ${hospital}`;
+            if(problem) rawMsg += `\nরোগীর সমস্যা: ${problem}`;
+            rawMsg += `\n\nদয়া করে জানাবেন আপনি রক্ত দিয়ে সাহায্য করতে পারবেন কি না।`;
             
-            const msg = encodeURIComponent(rawMsg);
-            window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`, "_blank");
+            window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(rawMsg)}`, "_blank");
         };
 
+        // ডোনারকে সরাসরি কল করা
+        window.callDonor = () => {
+            const phone = document.getElementById('req_donor_phone').value;
+            if(!phone) {
+                showPremiumAlert("নাম্বার নেই!", "এই রক্তদাতার মোবাইল নাম্বার সিস্টেমে দেওয়া নেই।", "error");
+                return;
+            }
+
+            // অ্যাডমিনকে টেলিগ্রামে অ্যালার্ট পাঠানো
+            sendAdminAlert('কল (Call)');
+
+            window.location.href = `tel:${phone}`;
+        };
+
+        // ওয়েবসাইটে রিকোয়েস্ট (অ্যাডমিনের কাছে যাবে)
         window.submitWebRequest = async () => {
             const name = document.getElementById('req_name').value.trim();
             const phone = document.getElementById('req_phone').value.trim();
@@ -515,8 +637,7 @@
                     timestamp: serverTimestamp()
                 });
 
-                // 🔴 এখানে টেলিগ্রামের নতুন গ্রুপ আইডি কাজ করবে
-                const teleMsg = `🔴 *নতুন রক্তের রিকোয়েস্ট!*\n\n*ডোনার:* ${targetDonor}\n*বর্তমান অবস্থা:* ${eligibility}\n*সমস্যা:* ${problem}\n*হাসপাতাল:* ${hospital}\n*রোগীর লোক:* ${name}\n*মোবাইল:* ${phone}`;
+                const teleMsg = `🔴 *নতুন রক্তের রিকোয়েস্ট!* (অ্যাডমিনের মাধ্যমে)\n\n*ডোনার:* ${targetDonor}\n*বর্তমান অবস্থা:* ${eligibility}\n*সমস্যা:* ${problem}\n*হাসপাতাল:* ${hospital}\n*রোগীর লোক:* ${name}\n*মোবাইল:* ${phone}`;
                 await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: "POST", headers: {"Content-Type": "application/json"},
                     body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: teleMsg, parse_mode: "Markdown" })
@@ -527,7 +648,7 @@
             } catch(e) { 
                 showPremiumAlert("দুঃখিত!", "রিকোয়েস্ট পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।", "error"); 
             }
-            finally { btn.innerHTML = 'ওয়েবসাইটে রিকোয়েস্ট পাঠান'; btn.disabled = false; }
+            finally { btn.innerHTML = 'অ্যাডমিনকে রিকোয়েস্ট পাঠান'; btn.disabled = false; }
         };
 
         window.openEditModal = (dataStr) => {
