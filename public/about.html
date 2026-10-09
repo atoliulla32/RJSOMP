@@ -10,89 +10,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
-            authDomain: "rjsomp.firebaseapp.com",
-            databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "rjsomp"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const aboutRef = ref(db, 'pageContent/aboutData');
-
-        onValue(aboutRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                document.getElementById('show-history').innerHTML = (data.history || '').replace(/\n/g, '<br><br>');
-                document.getElementById('show-bags').innerText = data.bags || '0';
-                document.getElementById('show-donors').innerText = data.donors || '0';
-                document.getElementById('show-volunteers').innerText = data.volunteers || '0';
-
-                // কমিটির মেয়াদ
-                const tenureBadge = document.getElementById('show-tenure');
-                if(data.committeeTenure && data.committeeTenure.trim() !== '') {
-                    tenureBadge.innerHTML = `<i class="fa-regular fa-calendar-check mr-1"></i> মেয়াদ: ${data.committeeTenure}`;
-                    tenureBadge.classList.remove('hidden');
-                } else {
-                    tenureBadge.classList.add('hidden');
-                }
-
-                let committeeHtml = '';
-                if(data.committee) {
-                    data.committee.split('\n').forEach(line => {
-                        if(line.trim() !== '') {
-                            let splitIndex = line.indexOf(':');
-                            if(splitIndex !== -1) {
-                                let title = line.substring(0, splitIndex).trim();
-                                let name = line.substring(splitIndex + 1).trim(); 
-                                
-                                committeeHtml += `
-                                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
-                                    <p class="text-xs font-bold text-red-500 uppercase tracking-wider mb-1">${title}</p>
-                                    <h4 class="text-base font-extrabold text-gray-800">${name}</h4>
-                                </div>`;
-                            } else {
-                                committeeHtml += `<div class="col-span-full p-3 text-sm font-bold text-white bg-red-600 rounded-lg text-center shadow">${line.trim()}</div>`;
-                            }
-                        }
-                    });
-                }
-                document.getElementById('show-committee').innerHTML = committeeHtml;
-
-                let advHtml = '';
-                if(data.advisors) {
-                    data.advisors.split('\n').forEach(line => {
-                        if(line.trim() !== '') advHtml += `
-                        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-yellow-400">
-                            <i class="fas fa-certificate text-yellow-500 mt-1"></i>
-                            <span class="font-bold text-gray-700 text-sm md:text-base">${line.trim()}</span>
-                        </div>`;
-                    });
-                }
-                document.getElementById('show-advisors').innerHTML = advHtml;
-
-                let memHtml = '';
-                if(data.members) {
-                    data.members.split('\n').forEach((line, index) => {
-                        if(line.trim() !== '') {
-                            memHtml += `
-                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-400">
-                                <span class="bg-blue-100 text-blue-700 font-bold w-6 h-6 flex items-center justify-center rounded-full text-xs">${index + 1}</span>
-                                <span class="font-bold text-gray-700 text-sm md:text-base">${line.trim()}</span>
-                            </div>`;
-                        }
-                    });
-                }
-                document.getElementById('show-members').innerHTML = memHtml;
-            }
-        });
-    </script>
-    
     <style>
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes fadeIn {
@@ -102,14 +19,11 @@
         
         .segmented-control {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             background-color: #f3f4f6;
             padding: 8px;
             border-radius: 16px;
-        }
-        @media (min-width: 768px) {
-            .segmented-control { grid-template-columns: repeat(4, 1fr); }
         }
         
         .tab-btn {
@@ -126,8 +40,6 @@
             gap: 4px;
             cursor: pointer;
         }
-        
-        .tab-btn i { font-size: 18px; transition: transform 0.3s ease; }
         
         .tab-btn.active {
             background-color: #ffffff;
@@ -160,9 +72,9 @@
             </div>
         </section>
 
-        <div class="max-w-4xl mx-auto px-4 -mt-14 relative z-20">
+        <div class="max-w-5xl mx-auto px-4 -mt-14 relative z-20">
             
-            <div class="segmented-control shadow-xl border border-gray-100 mb-10">
+            <div class="segmented-control shadow-xl border border-gray-100 mb-10 max-w-2xl mx-auto">
                 <div onclick="switchTab('tab-history', this)" class="tab-btn active">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>ইতিহাস</span>
@@ -173,11 +85,7 @@
                 </div>
                 <div onclick="switchTab('tab-committee', this)" class="tab-btn">
                     <i class="fa-solid fa-users-viewfinder"></i>
-                    <span>কমিটি</span>
-                </div>
-                <div onclick="switchTab('tab-advisors', this)" class="tab-btn">
-                    <i class="fa-solid fa-user-shield"></i>
-                    <span>সদস্য</span>
+                    <span>পরিষদ ও সদস্য</span>
                 </div>
             </div>
 
@@ -193,8 +101,8 @@
                 </div>
             </div>
 
-            <div id="tab-achievements" class="tab-content hidden animate-fade-in">
-                <div class="grid grid-cols-2 gap-4 md:gap-6">
+            <div id="tab-achievements" class="tab-content hidden animate-fade-in max-w-4xl mx-auto">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-md transition">
                         <div class="w-16 h-16 mx-auto bg-red-50 rounded-full flex items-center justify-center mb-4">
                             <i class="fa-solid fa-droplet text-3xl text-red-500"></i>
@@ -226,43 +134,15 @@
                 </div>
             </div>
 
+            <!-- পরিষদ ও সদস্য সেকশন -->
             <div id="tab-committee" class="tab-content hidden animate-fade-in">
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
-                    <!-- Title with Dynamic Badge -->
-                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3 border-b pb-4 border-gray-100">
-                        <h2 class="text-xl md:text-2xl font-extrabold text-gray-800 flex items-center gap-3">
-                            <span class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600"><i class="fa-solid fa-users-gear"></i></span>
-                            বর্তমান কার্যনির্বাহী কমিটি
-                        </h2>
-                        <!-- Dynamic Tenure Badge -->
-                        <span id="show-tenure" class="hidden text-xs md:text-sm font-bold text-red-600 bg-red-50 px-4 py-1.5 rounded-full border border-red-200 w-fit"></span>
-                    </div>
-
-                    <div id="show-committee" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="text-center text-gray-500 col-span-full py-10"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i> লোড হচ্ছে...</div>
-                    </div>
+                <div class="text-center mb-6">
+                    <span id="show-tenure" class="hidden text-sm font-bold text-red-600 bg-red-50 px-5 py-2 rounded-full border border-red-200"></span>
                 </div>
-            </div>
-
-            <div id="tab-advisors" class="tab-content hidden animate-fade-in">
-                <div class="space-y-6">
-                    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100">
-                        <h2 class="text-xl font-extrabold text-gray-800 mb-5 flex items-center gap-3 border-b pb-4">
-                            <i class="fa-solid fa-star text-yellow-500 text-2xl"></i> উপদেষ্টা পরিষদ
-                        </h2>
-                        <div id="show-advisors" class="space-y-3">
-                            <div class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100">
-                        <h2 class="text-xl font-extrabold text-gray-800 mb-5 flex items-center gap-3 border-b pb-4">
-                            <i class="fa-solid fa-users text-blue-500 text-2xl"></i> সাধারণ সদস্যবৃন্দ
-                        </h2>
-                        <div id="show-members" class="flex flex-col gap-2 w-full">
-                            <div class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>
-                        </div>
-                    </div>
+                
+                <!-- ডাইনামিক ক্যাটাগরিগুলো এখানে রেন্ডার হবে -->
+                <div id="members-container" class="space-y-10">
+                    <div class="text-center text-gray-500 py-10"><i class="fas fa-spinner fa-spin text-3xl mb-3 block text-red-500"></i> ডেটা লোড হচ্ছে...</div>
                 </div>
             </div>
 
@@ -270,6 +150,106 @@
     </main>
 
     <div id="footer-placeholder"></div>
-    <script src="script.js?v=2"></script>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
+            authDomain: "rjsomp.firebaseapp.com",
+            databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rjsomp"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const aboutRef = ref(db, 'pageContent/aboutData');
+
+        // ক্যাটাগরির সঠিক সিরিয়াল
+        const categoryOrder = [
+            { id: 'chairman', name: 'চেয়ারম্যান' },
+            { id: 'advisory_council', name: 'উপদেষ্টা পরিষদ' },
+            { id: 'board_of_directors', name: 'পরিচালক মন্ডলী' },
+            { id: 'executive_council', name: 'বর্তমান কার্যনির্বাহী পরিষদ' },
+            { id: 'executive_members', name: 'কার্যকরী সদস্য' },
+            { id: 'donor_members', name: 'দাতা সদস্য' },
+            { id: 'life_members', name: 'আজীবন সদস্য' },
+            { id: 'general_members', name: 'সাধারণ সদস্য' }
+        ];
+
+        onValue(aboutRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('show-history').innerHTML = (data.history || '').replace(/\n/g, '<br><br>');
+                document.getElementById('show-bags').innerText = data.bags || '0';
+                document.getElementById('show-donors').innerText = data.donors || '0';
+                document.getElementById('show-volunteers').innerText = data.volunteers || '0';
+
+                const tenureBadge = document.getElementById('show-tenure');
+                if(data.committeeTenure && data.committeeTenure.trim() !== '') {
+                    tenureBadge.innerHTML = `<i class="fa-regular fa-calendar-check mr-2"></i> কমিটির মেয়াদ: ${data.committeeTenure}`;
+                    tenureBadge.classList.remove('hidden');
+                } else {
+                    tenureBadge.classList.add('hidden');
+                }
+
+                // সদস্য রেন্ডার করা
+                const membersContainer = document.getElementById('members-container');
+                const membersData = data.membersList || {};
+                
+                // অবজেক্ট থেকে অ্যারেতে রূপান্তর
+                const allMembers = Object.values(membersData);
+
+                let fullHtml = '';
+
+                categoryOrder.forEach(category => {
+                    // এই ক্যাটাগরির সদস্যদের ফিল্টার করা
+                    const categoryMembers = allMembers.filter(m => m.category === category.id);
+                    
+                    if(categoryMembers.length > 0) {
+                        fullHtml += `
+                            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
+                                <h2 class="text-xl md:text-2xl font-extrabold text-gray-800 mb-6 flex items-center gap-3 border-b pb-4 border-gray-100">
+                                    <span class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-sm"><i class="fa-solid fa-users"></i></span>
+                                    ${category.name}
+                                </h2>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        `;
+
+                        categoryMembers.forEach(member => {
+                            fullHtml += `
+                                <div class="bg-gray-50 border border-gray-100 rounded-[16px] p-4 shadow-sm text-center hover:shadow-md transition hover:-translate-y-1">
+                                    <div class="mx-auto mb-3 relative w-16 h-16 sm:w-20 sm:h-20">
+                                        <img src="${member.image}" class="w-full h-full rounded-full object-cover border-[3px] border-white shadow-md mx-auto">
+                                    </div>
+                                    <h3 class="text-xs sm:text-sm font-extrabold text-gray-800 mb-1">${member.name}</h3>
+                                    ${member.title ? `<p class="text-[10px] sm:text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded inline-block w-full truncate">${member.title}</p>` : ''}
+                                </div>
+                            `;
+                        });
+
+                        fullHtml += `
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                if(fullHtml === '') {
+                    membersContainer.innerHTML = '<div class="text-center text-gray-500 py-10 font-bold">এখনো কোনো সদস্য যুক্ত করা হয়নি।</div>';
+                } else {
+                    membersContainer.innerHTML = fullHtml;
+                }
+            }
+        });
+
+        // Load Header & Footer
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("header.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("header-placeholder").innerHTML = d; });
+            fetch("footer.html").then(r => r.ok ? r.text() : "").then(d => { if(d) document.getElementById("footer-placeholder").innerHTML = d; });
+        });
+    </script>
 </body>
 </html>
