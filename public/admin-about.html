@@ -2,123 +2,252 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>আমাদের সম্পর্কে এডিট | রক্তযোদ্ধা</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+</head>
+<body class="bg-gray-50 p-4 md:p-6 font-sans pb-20">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <!-- বেসিক ইনফরমেশন আপডেট -->
+        <div class="bg-white p-6 md:p-8 rounded-xl shadow-md border-t-4 border-orange-500">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 border-b pb-3"><i class="fas fa-edit text-orange-500"></i> বেসিক তথ্য আপডেট</h2>
+            
+            <form onsubmit="saveBasicData(event)" class="space-y-6">
+                <div>
+                    <label class="block font-bold text-gray-700 mb-2">প্রতিষ্ঠার ইতিহাস ও পরিচিতি</label>
+                    <textarea id="history" rows="4" class="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-orange-50 p-4 rounded-lg border border-orange-100">
+                    <div>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">রক্তদান (ব্যাগ)</label>
+                        <input type="text" id="bags" class="w-full border p-2 rounded text-sm">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">নিবন্ধিত রক্তদাতা</label>
+                        <input type="text" id="donors" class="w-full border p-2 rounded text-sm">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">স্বেচ্ছাসেবক</label>
+                        <input type="text" id="volunteers" class="w-full border p-2 rounded text-sm">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-xs text-gray-700 mb-1">কমিটির মেয়াদ</label>
+                        <input type="text" id="committeeTenure" class="w-full border p-2 rounded text-sm" placeholder="যেমন: ২০২৬-২০২৮">
+                    </div>
+                </div>
+
+                <button type="submit" id="saveBasicBtn" class="bg-orange-600 text-white font-bold px-6 py-2.5 rounded-lg hover:bg-orange-700 transition shadow">
+                    <i class="fas fa-save"></i> সেভ করুন
+                </button>
+            </form>
+        </div>
+
+        <!-- সদস্য যুক্ত করার প্যানেল -->
+        <div class="bg-white p-6 md:p-8 rounded-xl shadow-md border-t-4 border-blue-500">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 border-b pb-3"><i class="fas fa-user-plus text-blue-500"></i> নতুন সদস্য যুক্ত করুন</h2>
+            
+            <form id="memberForm" class="space-y-5" onsubmit="addMember(event)">
+                <div class="grid md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1 text-sm">ক্যাটাগরি সিলেক্ট করুন <span class="text-red-500">*</span></label>
+                        <select id="memberCategory" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 text-sm font-bold" required>
+                            <option value="chairman">চেয়ারম্যান</option>
+                            <option value="advisory_council">উপদেষ্টা পরিষদ</option>
+                            <option value="board_of_directors">পরিচালক মন্ডলী</option>
+                            <option value="executive_council">বর্তমান কার্যনির্বাহী পরিষদ</option>
+                            <option value="executive_members">কার্যকরী সদস্য</option>
+                            <option value="donor_members">দাতা সদস্য</option>
+                            <option value="life_members">আজীবন সদস্য</option>
+                            <option value="general_members">সাধারণ সদস্য</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1 text-sm">সদস্যের নাম <span class="text-red-500">*</span></label>
+                        <input type="text" id="memberName" class="w-full border border-gray-300 p-2.5 rounded text-sm focus:ring-2 focus:ring-blue-500" placeholder="নাম লিখুন" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1 text-sm">পদবী (ঐচ্ছিক)</label>
+                        <input type="text" id="memberTitle" class="w-full border border-gray-300 p-2.5 rounded text-sm focus:ring-2 focus:ring-blue-500" placeholder="যেমন: সভাপতি / সাধারণ সম্পাদক">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1 text-sm">ছবি (ঐচ্ছিক)</label>
+                        <input type="file" id="memberImage" accept="image/*" class="w-full border border-gray-300 p-2 rounded text-sm bg-gray-50 cursor-pointer">
+                        <p class="text-[10px] text-gray-500 mt-1">ছবি না দিলে নামের প্রথম অক্ষর দিয়ে অটোমেটিক ছবি তৈরি হবে।</p>
+                    </div>
+                </div>
+
+                <button type="submit" id="addMemberBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow flex justify-center items-center gap-2">
+                    <i class="fas fa-cloud-upload-alt"></i> সদস্য যুক্ত করুন
+                </button>
+            </form>
+        </div>
+
+        <!-- বর্তমান সদস্যদের লিস্ট -->
+        <div class="bg-white p-6 md:p-8 rounded-xl shadow-md border-t-4 border-gray-800">
+            <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-list"></i> বর্তমান সদস্য তালিকা</h2>
+            <div id="admin-members-list" class="space-y-3">
+                <div class="text-center text-gray-500 py-4"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase & Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, update, onValue, push, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDBB74MD8ZC1mUD787oqKqmXD-S4nb60yw",
             authDomain: "rjsomp.firebaseapp.com",
             databaseURL: "https://rjsomp-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "rjsomp",
-            storageBucket: "rjsomp.firebasestorage.app",
-            messagingSenderId: "1033528754332",
-            appId: "1:1033528754332:web:a2dd02fc14096c1eeeed59"
+            projectId: "rjsomp"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const aboutRef = ref(db, 'pageContent/aboutData');
+        const membersRef = ref(db, 'pageContent/aboutData/membersList');
 
+        // লোড বেসিক ডেটা
         onValue(aboutRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                document.getElementById('history').value = data.history || '';
-                document.getElementById('bags').value = data.bags || '';
-                document.getElementById('donors').value = data.donors || '';
-                document.getElementById('volunteers').value = data.volunteers || '';
-                document.getElementById('committeeTenure').value = data.committeeTenure || '';
-                document.getElementById('committee').value = data.committee || '';
-                document.getElementById('advisors').value = data.advisors || '';
-                document.getElementById('members').value = data.members || '';
-            }
+            const data = snapshot.val() || {};
+            document.getElementById('history').value = data.history || '';
+            document.getElementById('bags').value = data.bags || '';
+            document.getElementById('donors').value = data.donors || '';
+            document.getElementById('volunteers').value = data.volunteers || '';
+            document.getElementById('committeeTenure').value = data.committeeTenure || '';
         });
 
-        window.saveAboutData = (e) => {
+        // সেভ বেসিক ডেটা
+        window.saveBasicData = (e) => {
             e.preventDefault();
-            const btn = document.getElementById('saveBtn');
+            const btn = document.getElementById('saveBasicBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> সেভ হচ্ছে...';
 
-            const newData = {
+            update(aboutRef, {
                 history: document.getElementById('history').value,
                 bags: document.getElementById('bags').value,
                 donors: document.getElementById('donors').value,
                 volunteers: document.getElementById('volunteers').value,
-                committeeTenure: document.getElementById('committeeTenure').value,
-                committee: document.getElementById('committee').value,
-                advisors: document.getElementById('advisors').value,
-                members: document.getElementById('members').value
-            };
-
-            set(aboutRef, newData).then(() => {
+                committeeTenure: document.getElementById('committeeTenure').value
+            }).then(() => {
                 alert("তথ্য সফলভাবে আপডেট হয়েছে!");
-                btn.innerHTML = '<i class="fas fa-save"></i> আপডেট সেভ করুন';
-            }).catch(error => {
-                alert("সমস্যা হয়েছে: " + error.message);
-                btn.innerHTML = '<i class="fas fa-save"></i> আপডেট সেভ করুন';
+                btn.innerHTML = '<i class="fas fa-save"></i> সেভ করুন';
             });
         };
-    </script>
-    <script type="module" src="admin-auth.js"></script>
-</head>
-<body class="bg-gray-50 p-6 font-sans pb-20">
 
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md border-t-4 border-orange-500">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3"><i class="fas fa-edit text-orange-500"></i> "আমাদের সম্পর্কে" পেজ কন্ট্রোল</h2>
-        
-        <form onsubmit="saveAboutData(event)" class="space-y-6">
+        // ক্যাটাগরির নাম দেখানোর জন্য অবজেক্ট
+        const categoryLabels = {
+            chairman: 'চেয়ারম্যান',
+            advisory_council: 'উপদেষ্টা পরিষদ',
+            board_of_directors: 'পরিচালক মন্ডলী',
+            executive_council: 'বর্তমান কার্যনির্বাহী পরিষদ',
+            executive_members: 'কার্যকরী সদস্য',
+            donor_members: 'দাতা সদস্য',
+            life_members: 'আজীবন সদস্য',
+            general_members: 'সাধারণ সদস্য'
+        };
+
+        // সদস্য যুক্ত করা (With Cloudinary Upload)
+        window.addMember = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('addMemberBtn');
+            const fileInput = document.getElementById('memberImage');
             
-            <div>
-                <label class="block font-bold text-gray-700 mb-2">প্রতিষ্ঠার ইতিহাস ও পরিচিতি</label>
-                <textarea id="history" rows="5" class="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-orange-500" required></textarea>
-            </div>
+            const category = document.getElementById('memberCategory').value;
+            const name = document.getElementById('memberName').value.trim();
+            const title = document.getElementById('memberTitle').value.trim();
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-orange-50 rounded-lg border border-orange-100">
-                <div>
-                    <label class="block font-bold text-sm text-gray-700 mb-1">মোট রক্তদান (ব্যাগ)</label>
-                    <input type="text" id="bags" class="w-full border p-2 rounded" placeholder="যেমন: ২৫০০+">
-                </div>
-                <div>
-                    <label class="block font-bold text-sm text-gray-700 mb-1">নিবন্ধিত রক্তদাতা</label>
-                    <input type="text" id="donors" class="w-full border p-2 rounded" placeholder="যেমন: ৫০০+">
-                </div>
-                <div>
-                    <label class="block font-bold text-sm text-gray-700 mb-1">সক্রিয় স্বেচ্ছাসেবক</label>
-                    <input type="text" id="volunteers" class="w-full border p-2 rounded" placeholder="যেমন: ৩৫+">
-                </div>
-            </div>
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেস হচ্ছে...';
+            btn.disabled = true;
 
-            <div class="bg-gray-50 p-4 rounded-lg border">
-                <div class="flex justify-between items-end mb-2">
-                    <label class="block font-bold text-gray-700">বর্তমান কার্যনির্বাহী কমিটি</label>
-                    <div class="w-1/3">
-                        <label class="block font-bold text-xs text-gray-600 mb-1">কমিটির মেয়াদ</label>
-                        <input type="text" id="committeeTenure" class="w-full border border-gray-300 p-1.5 rounded text-sm focus:ring-2 focus:ring-orange-500" placeholder="যেমন: ২০২৬-২০২৮">
+            let imageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=fee2e2&color=b91c1c&bold=true`; // ডিফল্ট ছবি
+
+            try {
+                // যদি ছবি সিলেক্ট করে থাকে, তবে Cloudinary-তে আপলোড হবে
+                if(fileInput.files.length > 0) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ছবি আপলোড হচ্ছে...';
+                    const formData = new FormData();
+                    formData.append("file", fileInput.files[0]);
+                    formData.append("upload_preset", "rjsomp"); // Your Preset
+                    
+                    const res = await fetch("https://api.cloudinary.com/v1_1/h0dlj3no/image/upload", {
+                        method: "POST",
+                        body: formData
+                    });
+                    
+                    const uploadData = await res.json();
+                    if(uploadData.secure_url) {
+                        imageUrl = uploadData.secure_url;
+                    }
+                }
+
+                // ডাটাবেজে সেভ করা
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ডাটাবেজে সেভ হচ্ছে...';
+                const newMemberRef = push(membersRef);
+                await set(newMemberRef, {
+                    id: newMemberRef.key,
+                    category: category,
+                    name: name,
+                    title: title,
+                    image: imageUrl
+                });
+
+                alert("সদস্য সফলভাবে যুক্ত করা হয়েছে!");
+                document.getElementById('memberForm').reset();
+
+            } catch (error) {
+                alert("সমস্যা হয়েছে: " + error.message);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> সদস্য যুক্ত করুন';
+                btn.disabled = false;
+            }
+        };
+
+        // বর্তমান সদস্যদের লিস্ট দেখানো
+        onValue(membersRef, (snapshot) => {
+            const listContainer = document.getElementById('admin-members-list');
+            const data = snapshot.val();
+            
+            if(!data) {
+                listContainer.innerHTML = '<p class="text-sm text-gray-500">কোনো সদস্য নেই।</p>';
+                return;
+            }
+
+            let html = '';
+            // রিভার্স অর্ডারে দেখানোর জন্য অবজেক্টকে অ্যারে করা হলো
+            Object.values(data).reverse().forEach(member => {
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <img src="${member.image}" class="w-10 h-10 rounded-full object-cover border border-gray-300 shrink-0">
+                            <div class="truncate">
+                                <p class="font-bold text-sm text-gray-800 truncate">${member.name}</p>
+                                <p class="text-[10px] text-gray-500 font-bold bg-gray-200 px-1.5 py-0.5 rounded inline-block mt-0.5">
+                                    ${categoryLabels[member.category]} ${member.title ? `| ${member.title}` : ''}
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="deleteMember('${member.id}')" class="text-red-500 hover:text-red-700 p-2 shrink-0" title="ডিলিট করুন">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
-                </div>
-                <p class="text-xs text-red-500 mb-2">নিয়ম: প্রতি লাইনে পদবী এবং নাম একটি কোলন (:) দিয়ে লিখুন।</p>
-                <textarea id="committee" rows="6" class="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-orange-500"></textarea>
-            </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+        });
 
-            <div class="grid md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block font-bold text-gray-700 mb-2">উপদেষ্টা পরিষদ</label>
-                    <textarea id="advisors" rows="5" class="w-full border border-gray-300 p-3 rounded"></textarea>
-                </div>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-2">সাধারণ সদস্যবৃন্দ</label>
-                    <textarea id="members" rows="5" class="w-full border border-gray-300 p-3 rounded"></textarea>
-                </div>
-            </div>
-
-            <button type="submit" id="saveBtn" class="w-full bg-orange-600 text-white font-bold py-3 rounded-lg hover:bg-orange-700 transition text-lg shadow-md">
-                <i class="fas fa-save"></i> আপডেট সেভ করুন
-            </button>
-        </form>
-    </div>
+        // সদস্য ডিলিট করা
+        window.deleteMember = (id) => {
+            if(confirm("আপনি কি নিশ্চিত যে এই সদস্যকে ডিলিট করতে চান?")) {
+                remove(ref(db, `pageContent/aboutData/membersList/${id}`));
+            }
+        };
+    </script>
 </body>
 </html>
