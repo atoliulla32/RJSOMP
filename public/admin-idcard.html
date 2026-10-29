@@ -283,6 +283,19 @@ button{
             </div>
 
 
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">অনুমোদিত স্বাক্ষরের নাম (এডিটযোগ্য)</label>
+                    <input type="text" id="edit_signature" value="MD. Ebrahim k. R"
+                        class="w-full p-2.5 border border-blue-200 rounded-lg focus:border-blue-500 outline-none text-sm font-bold bg-blue-50 text-blue-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">ইস্যুর তারিখ (স্বয়ংক্রিয়)</label>
+                    <input type="text" id="edit_issue_date" readonly
+                        class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-sm font-semibold bg-gray-100">
+                </div>
+            </div>
+
             <div>
 
                 <label class="block text-xs font-bold text-gray-700 mb-1 mt-2">
@@ -693,6 +706,11 @@ window.openIdModal = function(dataStr){
         document.getElementById("edit_phone").value = u.phone || "";
         document.getElementById("edit_address").value = u.address || "";
         document.getElementById("edit_president").value = DEFAULT_PRESIDENT;
+        document.getElementById("edit_signature").value = DEFAULT_SIGNATURE;
+        const now = new Date();
+        document.getElementById("edit_issue_date").value = now.toLocaleDateString("en-GB", {
+            day: "2-digit", month: "short", year: "numeric"
+        });
 
         currentPhoto = u.photo || "";
         document.getElementById("photoInput").value = "";
@@ -825,20 +843,51 @@ async function createFrontCard() {
     const photo = await getMemberPhoto();
     drawFitPhoto(ctx, photo, 76, 394, 290, 338);
 
-    // Cover the sample values only, keeping the original labels/icons/design.
-    drawCover(ctx, 400, 760, 565, 460);
+    // Cover only the example text values row-by-row. Do not paint a large
+    // white rectangle over the watermark/logo or the original labels/icons.
     const fields = [
-        ["edit_name", 410, 805, 545, 34],
-        ["edit_father", 410, 868, 545, 34],
-        ["edit_mother", 410, 930, 545, 34],
-        ["edit_dob", 410, 992, 545, 34],
-        ["edit_blood", 410, 1055, 545, 34],
-        ["edit_phone", 410, 1118, 545, 34],
-        ["edit_email", 410, 1182, 545, 30]
+        ["edit_name",   402, 770, 556, 817, 34],
+        ["edit_father", 402, 833, 556, 880, 34],
+        ["edit_mother", 402, 895, 556, 942, 34],
+        ["edit_dob",    402, 957, 556, 1004, 34],
+        ["edit_blood",  402, 1020, 556, 1067, 34],
+        ["edit_phone",  402, 1083, 556, 1130, 34],
+        ["edit_email",  402, 1146, 556, 1193, 30]
     ];
-    fields.forEach(([id, x, y, width, size]) =>
-        drawValue(ctx, document.getElementById(id)?.value.trim(), x, y, width, size)
-    );
+    fields.forEach(([id, x, top, width, y, size]) => {
+        const value = (document.getElementById(id)?.value || "").trim() || "—";
+        ctx.save();
+        ctx.font = `500 ${size}px Arial, sans-serif`;
+        const coverWidth = Math.min(width, Math.max(95, ctx.measureText(value).width + 22));
+        ctx.restore();
+        drawCover(ctx, x, top, coverWidth, 48);
+        drawValue(ctx, value, x + 8, y, width - 12, size);
+    });
+
+    // Restore the original logo/watermark visibility: no broad white overlay
+    // is placed over the card's central background.
+
+    // Editable authorized-signature name and automatically populated issue date.
+    const signature = (document.getElementById("edit_signature")?.value || DEFAULT_SIGNATURE).trim();
+    const issueDate = (document.getElementById("edit_issue_date")?.value || "").trim();
+    // Clear only the small name/date writing areas, preserving the signature rule and footer.
+    drawCover(ctx, 690, 1368, 300, 30);
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = "italic 700 25px Arial, sans-serif";
+    ctx.fillText(signature, 840, 1390, 290);
+    ctx.restore();
+
+    // Keep the original Date of Issue label intact; print the date beneath it.
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = "500 21px Arial, sans-serif";
+    ctx.fillText(issueDate, 710, 1518, 280);
+    ctx.restore();
 
     // Replace member ID in the red footer pill without changing its shape.
     ctx.fillStyle = "#e50920";
@@ -902,6 +951,8 @@ window.copyCardData = function(){
     const phone = document.getElementById("edit_phone").value;
     const address = document.getElementById("edit_address").value;
     const pres = document.getElementById("edit_president").value || DEFAULT_PRESIDENT;
+    const signature = document.getElementById("edit_signature").value || DEFAULT_SIGNATURE;
+    const issueDate = document.getElementById("edit_issue_date").value || "";
 
     const textToCopy = 
 `🩸 রক্তযোদ্ধা আইডি কার্ডের তথ্য 🩸
@@ -917,7 +968,9 @@ window.copyCardData = function(){
 📞 মোবাইল: ${phone}
 📍 ঠিকানা: ${address}
 
-🖋 সভাপতি: ${pres}`;
+🖋 সভাপতি: ${pres}
+✍️ Authorized Signature: ${signature}
+📅 Date of Issue: ${issueDate}`;
 
     if(navigator.clipboard && window.isSecureContext){
         navigator.clipboard.writeText(textToCopy).then(()=>{
@@ -964,6 +1017,8 @@ window.shareViaWhatsApp = function(){
     const phone = document.getElementById("edit_phone").value;
     const address = document.getElementById("edit_address").value;
     const pres = document.getElementById("edit_president").value || DEFAULT_PRESIDENT;
+    const signature = document.getElementById("edit_signature").value || DEFAULT_SIGNATURE;
+    const issueDate = document.getElementById("edit_issue_date").value || "";
 
     const text = 
 `🩸 *রক্তযোদ্ধা আইডি কার্ডের তথ্য* 🩸
@@ -979,7 +1034,9 @@ window.shareViaWhatsApp = function(){
 📞 *মোবাইল:* ${phone}
 📍 *ঠিকানা:* ${address}
 
-🖋 *সভাপতি:* ${pres}`;
+🖋 *সভাপতি:* ${pres}
+✍️ *Authorized Signature:* ${signature}
+📅 *Date of Issue:* ${issueDate}`;
 
     const url = "https://wa.me/?text=" + encodeURIComponent(text);
     window.open(url, "_blank");
